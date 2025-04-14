@@ -1,0 +1,271 @@
+[
+  {
+    "id": "saumon-asperges",
+    "name": "Pavé de saumon et asperges rôties",
+    "description": "Un plat simple et savoureux à base de saumon accompagné d'asperges rôties à l'huile d'olive.",
+    "prepTime": 10,
+    "cookTime": 20,
+    "servings": 2,
+    "ingredients": [
+      {
+        "foodId": "saumon",
+        "quantity": 300,
+        "unit": "g"
+      },
+      {
+        "foodId": "huile-olive",
+        "quantity": 20,
+        "unit": "g"
+      },
+      {
+        "foodId": "asperges",
+        "quantity": 200,
+        "unit": "g"
+      },
+      {
+        "foodId": "beurre",
+        "quantity": 15,
+        "unit": "g"
+      }
+    ],
+    "instructions": [
+      "Préchauffer le four à 200°C.",
+      "Rincer et préparer les asperges en coupant l'extrémité dure.",
+      "Placer les asperges sur une plaque de cuisson, arroser d'huile d'olive, saler et poivrer.",
+      "Dans une poêle, faire fondre le beurre à feu moyen-vif.",
+      "Assaisonner les pavés de saumon et les cuire côté peau d'abord pendant 4 minutes.",
+      "Retourner les pavés et poursuivre la cuisson 3 minutes.",
+      "Enfourner les asperges pour 15 minutes jusqu'à ce qu'elles soient tendres.",
+      "Servir le saumon avec les asperges rôties."
+    ],
+    "nutritionPerServing": {
+      "calories": 430,
+      "protein": 38.5,
+      "fat": 28.2,
+      "carbs": 3.8,
+      "fiber": 2.1,
+      "netCarbs": 1.7
+    },
+    "averagePHValue": 6.7,
+    "isKeto": true,
+    "isAlkaline": false,
+    "tags": ["dîner", "poisson", "facile"],
+    "isUserCreated": false
+  },
+  {
+    "id": "poulet-epinards",
+    "name": "Blanc de poulet et épinards à la crème",
+    "description": "Un plat riche en protéines avec blanc de poulet et épinards à la crème.",
+    "prepTime": 10,
+    "cookTime": 25,
+    "servings": 2,
+    "ingredients": [
+      {
+        "foodId": "poulet-blanc",
+        "quantity": 300,
+        "unit": "g"
+      },
+      {
+        "foodId": "epinards",
+        "quantity": 250,
+        "unit": "g"
+      },
+      {
+        "foodId": "beurre",
+        "quantity": 20,
+        "unit": "g"
+      },
+      {
+        "foodId": "creme-fraiche",
+        "quantity": 100,
+        "unit": "g"
+      },
+      {
+        "foodId": "fromage-comte",
+        "quantity": 30,
+        "unit": "g"
+      }
+    ],
+    "instructions": [
+      "Couper les blancs de poulet en morceaux et les assaisonner.",
+      "Dans une poêle, faire fondre le beurre à feu moyen-vif.",
+      "Faire revenir le poulet jusqu'à ce qu'il soit bien doré (environ 8 minutes).",
+      "Ajouter les épinards et laisser réduire (2-3 minutes).",
+      "Incorporer la crème fraîche et laisser mijoter 5 minutes.",
+      "Ajouter le comté râpé et mélanger jusqu'à ce qu'il soit fondu.",
+      "Servir chaud."
+    ],
+    "nutritionPerServing": {
+      "calories": 510,
+      "protein": 56.4,
+      "fat": 30.5,
+      "carbs": 4.2,
+      "fiber": 1.1,
+      "netCarbs": 3.1
+    },
+    "averagePHValue": 6.3,
+    "isKeto": true,
+    "isAlkaline": false,
+    "tags": ["dîner", "poulet", "crémeux"],
+    "isUserCreated": false
+  },
+  {
+    "id": "omelette-champignons",
+    "name": "Omelette aux champignons et fromage",
+    "description": "Une omelette onctueuse aux champignons et au fromage, parfaite pour un déjeuner keto.",
+    "prepTime": 5,
+    "cookTime": 10,
+    "servings": 1,
+    "ingredients": [
+      {
+        "foodId": "oeuf",
+        "quantity": 150,
+        "unit": "g"
+      },
+      {
+        "foodId": "champignons",
+        "quantity": 100,
+        "unit": "g"
+      },
+      {
+        "foodId": "beurre",
+        "quantity": 15,
+        "unit": "g"
+      },
+      {
+        "foodId": "fromage-comte",
+        "quantity": 30,
+        "unit": "g"
+      }
+    ],
+    "instructions": [
+      "Nettoyer et trancher les champignons.",
+      "Dans une poêle, faire fondre la moitié du beurre et faire revenir les champignons jusqu'à ce qu'ils soient dorés.",
+      "Battre les œufs dans un bol et assaisonner selon votre goût.",
+      "Ajouter le reste du beurre dans la poêle et verser les œufs battus.",
+      "Laisser cuire à feu moyen jusqu'à ce que les œufs commencent à prendre.",
+      "Ajouter le fromage râpé et les champignons sur la moitié de l'omelette.",
+      "Plier l'omelette et continuer la cuisson 1 minute.",
+      "Servir immédiatement."
+    ],
+    "nutritionPerServing": {
+      "calories": 490,
+      "protein": 33.5,
+      "fat": 38.4,
+      "carbs": 3.2,
+      "fiber": 0.8,
+      "netCarbs": 2.4
+    },
+    "averagePHValue": 6.3,
+    "isKeto": true,
+    "isAlkaline": false,
+    "tags": ["déjeuner", "oeuf", "rapide"],
+    "isUserCreated": false
+  },
+  {
+    "id": "salade-avocat-chevre",
+    "name": "Salade d'avocat et chèvre frais",
+    "description": "Une salade fraîche et alcaline à base d'avocat, de chèvre frais et de noix.",
+    "prepTime": 10,
+    "cookTime": 0,
+    "servings": 1,
+    "ingredients": [
+      {
+        "foodId": "avocat",
+        "quantity": 170,
+        "unit": "g"
+      },
+      {
+        "foodId": "chevre-frais",
+        "quantity": 50,
+        "unit": "g"
+      },
+      {
+        "foodId": "amandes",
+        "quantity": 20,
+        "unit": "g"
+      },
+      {
+        "foodId": "huile-olive",
+        "quantity": 15,
+        "unit": "g"
+      },
+      {
+        "foodId": "epinards",
+        "quantity": 50,
+        "unit": "g"
+      }
+    ],
+    "instructions": [
+      "Laver et essorer les feuilles d'épinard.",
+      "Couper l'avocat en dés.",
+      "Émietter le fromage de chèvre.",
+      "Concasser grossièrement les amandes.",
+      "Mélanger tous les ingrédients dans un bol.",
+      "Arroser d'huile d'olive et assaisonner selon votre goût.",
+      "Servir immédiatement."
+    ],
+    "nutritionPerServing": {
+      "calories": 520,
+      "protein": 15.3,
+      "fat": 47.2,
+      "carbs": 10.9,
+      "fiber": 8.2,
+      "netCarbs": 2.7
+    },
+    "averagePHValue": 7.8,
+    "isKeto": true,
+    "isAlkaline": true,
+    "tags": ["déjeuner", "salade", "sans cuisson", "alcalin"],
+    "isUserCreated": false
+  },
+  {
+    "id": "smoothie-avocat-epinard",
+    "name": "Smoothie avocat et épinard",
+    "description": "Un smoothie alcalin riche en graisses saines, parfait pour un petit-déjeuner keto.",
+    "prepTime": 5,
+    "cookTime": 0,
+    "servings": 1,
+    "ingredients": [
+      {
+        "foodId": "avocat",
+        "quantity": 100,
+        "unit": "g"
+      },
+      {
+        "foodId": "epinards",
+        "quantity": 30,
+        "unit": "g"
+      },
+      {
+        "foodId": "huile-coco",
+        "quantity": 15,
+        "unit": "g"
+      },
+      {
+        "foodId": "amandes",
+        "quantity": 10,
+        "unit": "g"
+      }
+    ],
+    "instructions": [
+      "Placer tous les ingrédients dans un mixeur.",
+      "Ajouter 200ml d'eau ou de lait d'amande non sucré.",
+      "Mixer jusqu'à obtenir une consistance lisse.",
+      "Servir immédiatement."
+    ],
+    "nutritionPerServing": {
+      "calories": 370,
+      "protein": 5.8,
+      "fat": 35.2,
+      "carbs": 6.9,
+      "fiber": 5.1,
+      "netCarbs": 1.8
+    },
+    "averagePHValue": 8.0,
+    "isKeto": true,
+    "isAlkaline": true,
+    "tags": ["petit-déjeuner", "boisson", "sans cuisson", "alcalin"],
+    "isUserCreated": false
+  }
+]
