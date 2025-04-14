@@ -31,7 +31,7 @@ src/
 ## 3. Implémentation des contextes et services (par ordre de priorité)
 
 - [x] ThemeContext - Gestion des thèmes clair/sombre
-- [ ] UserContext - Gestion du profil utilisateur
+- [x] UserContext - Gestion du profil utilisateur
 - [ ] FoodContext - Base de données alimentaire
 - [ ] RecipeContext - Gestion des recettes
 - [ ] MealPlanContext - Planification des repas
@@ -47,7 +47,7 @@ src/
 ## 5. Développement des pages principales
 
 - [x] Page d'accueil / Dashboard (version basique)
-- [ ] Page de profil utilisateur
+- [x] Page de profil utilisateur
 - [ ] Page de génération de plan de repas
 - [ ] Page de recettes
 - [ ] Page de base de données alimentaire
@@ -90,11 +90,11 @@ src/
 
 ### Phase 2: Gestion des données utilisateur
 
-- [ ] Implémenter UserContext
-- [ ] Créer la page de profil utilisateur
-- [ ] Développer le formulaire de profil
-- [ ] Implémenter les calculs d'IMC et besoins caloriques
-- [ ] Mettre en place la persistance locale des données
+- [x] Implémenter UserContext
+- [x] Créer la page de profil utilisateur
+- [x] Développer le formulaire de profil
+- [x] Implémenter les calculs d'IMC et besoins caloriques
+- [x] Mettre en place la persistance locale des données
 
 ### Phase 3: Base de données alimentaire
 
