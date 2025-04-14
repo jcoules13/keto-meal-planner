@@ -14,7 +14,6 @@ Une application React moderne et optimisée pour planifier et suivre les régime
 - 👨‍🍳 Gestion de recettes personnelles avec intégration dans vos plans de repas
 - 🌡️ Affichage numérique du pH pour chaque aliment et recette
 - 🎨 Design moderne avec thème personnalisable
-- 👥 Support multi-profil pour gérer plusieurs utilisateurs
 - ⭐ Aliments et recettes favoris pour une utilisation préférentielle
 - 📈 Suivi graphique du poids avec tendances et prédictions
 - ⚖️ Définition d'un poids cible avec indicateur de progression
