@@ -21,6 +21,9 @@ Ce fichier répertorie toutes les modifications notables apportées au projet Ke
 - Fichier .gitignore pour exclure les fichiers générés lors du développement
 - Système de thèmes multiples (clair/sombre, saisons, fêtes)
 - Composant ThemeSwitcher avec bouton flottant pour changer de thème
+- Contexte UserContext pour la gestion du profil utilisateur
+- Page de profil utilisateur avec formulaire de création/modification
+- Intégration des calculs de besoins nutritionnels et d'IMC
 
 ### Modifié
 - Mise à jour de la checklist de développement pour refléter les progrès
@@ -28,13 +31,14 @@ Ce fichier répertorie toutes les modifications notables apportées au projet Ke
 - Mise à jour des recettes pour n'utiliser que les aliments définis dans foods.json
 - Extension du ThemeContext pour supporter 8 thèmes différents (clair, sombre, printemps, été, automne, hiver, Noël, Halloween)
 - Amélioration des styles CSS pour adapter l'interface aux différents thèmes
+- Intégration du UserProvider dans l'App pour permettre l'accès au profil utilisateur depuis tous les composants
 
 ### Corrigé
 - Création du fichier package.json manquant pour permettre l'installation des dépendances
 - Correction des recettes qui référençaient des aliments non définis dans la base de données
 
 ## Prochaines étapes prévues
-- Implémentation du UserContext pour la gestion des profils utilisateurs
 - Création du FoodContext et de la base de données alimentaire
 - Développement des composants spécifiques à l'alimentation
-- Implémentation de la page de profil utilisateur
+- Implémentation du RecipeContext pour la gestion des recettes
+- Fonctionnalité de suivi de poids avec graphique d'évolution
