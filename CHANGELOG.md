@@ -16,6 +16,9 @@ Ce fichier répertorie toutes les modifications notables apportées au projet Ke
 - Configuration des routes principales avec React Router
 - Page d'accueil basique
 - Fichier package.json avec toutes les dépendances nécessaires
+- Fichier foods.json avec 10 aliments de base pour le régime keto
+- Fichier recipes.json avec 5 recettes keto de démonstration
+- Fichier .gitignore pour exclure les fichiers générés lors du développement
 
 ### Modifié
 - Mise à jour de la checklist de développement pour refléter les progrès
