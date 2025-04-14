@@ -4,6 +4,7 @@ import { ThemeProvider } from './contexts/ThemeContext';
 import { UserProvider } from './contexts/UserContext';
 import MainLayout from './components/layout/MainLayout';
 import ThemeSwitcher from './components/ui/ThemeSwitcher';
+import ProfilePage from './pages/ProfilePage';
 
 // Pages temporaires pour démarrer
 const HomePage = () => (
@@ -52,7 +53,7 @@ function App() {
           <Route path="/foods" element={<MainLayout><PlaceholderPage title="Base de données alimentaire" /></MainLayout>} />
           <Route path="/shopping-list" element={<MainLayout><PlaceholderPage title="Liste de courses" /></MainLayout>} />
           <Route path="/weight-tracker" element={<MainLayout><PlaceholderPage title="Suivi de poids" /></MainLayout>} />
-          <Route path="/profile" element={<MainLayout><PlaceholderPage title="Profil utilisateur" /></MainLayout>} />
+          <Route path="/profile" element={<MainLayout><ProfilePage /></MainLayout>} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </UserProvider>
