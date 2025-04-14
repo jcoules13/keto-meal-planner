@@ -23,9 +23,11 @@ Ce fichier répertorie toutes les modifications notables apportées au projet Ke
 ### Modifié
 - Mise à jour de la checklist de développement pour refléter les progrès
 - Mise à jour du fichier DEBUGGING.md avec la résolution du problème de package.json manquant
+- Mise à jour des recettes pour n'utiliser que les aliments définis dans foods.json
 
 ### Corrigé
 - Création du fichier package.json manquant pour permettre l'installation des dépendances
+- Correction des recettes qui référençaient des aliments non définis dans la base de données
 
 ## Prochaines étapes prévues
 - Implémentation du UserContext pour la gestion des profils utilisateurs
