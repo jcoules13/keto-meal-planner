@@ -67,10 +67,7 @@ type UserAction =
   | { type: 'RECALCULATE_TARGETS' };
 
 // Interface du contexte
-interface UserContextType {
-  // État
-  ...UserState;
-  
+interface UserContextType extends UserState {
   // Propriétés calculées
   bmi: number;
   bmiCategory: string;
