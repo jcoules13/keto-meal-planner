@@ -2,6 +2,7 @@ import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { ThemeProvider } from './contexts/ThemeContext';
 import MainLayout from './components/layout/MainLayout';
+import ThemeSwitcher from './components/ui/ThemeSwitcher';
 
 // Pages temporaires pour démarrer
 const HomePage = () => (
@@ -39,6 +40,9 @@ const PlaceholderPage = ({ title }: { title: string }) => (
 function App() {
   return (
     <ThemeProvider>
+      {/* Bouton flottant de changement de thème, visible sur toutes les pages */}
+      <ThemeSwitcher />
+      
       <Routes>
         <Route path="/" element={<MainLayout><HomePage /></MainLayout>} />
         <Route path="/meal-planner" element={<MainLayout><PlaceholderPage title="Planificateur de repas" /></MainLayout>} />
