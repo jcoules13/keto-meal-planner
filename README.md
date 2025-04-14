@@ -1,307 +1,125 @@
-# Keto Meal Planner v2 - Édition Française
+# Keto Meal Planner
 
-Une application React moderne et optimisée pour planifier et suivre les régimes cétogènes avec des fonctionnalités avancées pour le céto standard et le céto alcalin.
+Une application React moderne pour la planification de repas cétogènes (standard et alcalin), avec calcul automatique des besoins caloriques, liste de courses interactive et suivi de progression.
 
-## Fonctionnalités
+## 🌟 Fonctionnalités
 
-### Fonctionnalités principales
-- 🔄 Génération de plans de repas hebdomadaires (céto standard ou céto alcalin)
-- 📊 Calcul de l'IMC et des besoins caloriques
-- 🍽️ Planification flexible des repas (1-5 repas par jour, compatible avec le jeûne intermittent)
-- 🥑 Base de données d'aliments avec valeurs pH et saisonnalité
-- 📝 Recettes avec portions détaillées (quantités précises pour chaque ingrédient)
-- 🛒 Liste de courses interactive avec cases à cocher
-- 👨‍🍳 Gestion de recettes personnelles avec intégration dans vos plans de repas
-- 🌡️ Affichage numérique du pH pour chaque aliment et recette
-- 🎨 Design moderne avec thème personnalisable
-- ⭐ Aliments et recettes favoris pour une utilisation préférentielle
-- 📈 Suivi graphique du poids avec tendances et prédictions
-- ⚖️ Définition d'un poids cible avec indicateur de progression
-- 🌱 Filtrage des ingrédients de saison pour une alimentation écologique
-- 🔄 Intégration du jeûne intermittent avec plusieurs options d'horaires
-- 📱 Interface utilisateur responsive pour ordinateur et mobile
+- Génération de plans de repas personnalisés (keto standard ou keto alcalin)
+- Calcul automatique des besoins caloriques et macronutriments
+- Base de données d'aliments avec valeurs nutritionnelles et pH
+- Recettes keto avec calcul automatique des valeurs nutritionnelles
+- Liste de courses générée à partir du plan de repas
+- Suivi de poids et progression vers les objectifs
+- Interface entièrement en français
+- Mode sombre/clair personnalisable
 
-## Architecture technique
+## 🚀 Démarrage rapide
 
-### Principes de conception
-- **Modularité** : Architecture basée sur des composants et des hooks réutilisables
-- **Maintenabilité** : Code bien structuré avec séparation claire des responsabilités
-- **Performance** : Optimisation des rendus et utilisation efficace de la mémoire
-- **Robustesse** : Gestion des erreurs et validations pour assurer la stabilité
-- **Accessibilité** : Respect des standards WCAG pour une expérience utilisateur inclusive
+### Prérequis
 
-### Gestion d'état
-L'application utilise l'API Context de React pour la gestion d'état avec une approche plus modulaire :
+- Node.js (v16.0.0 ou supérieur)
+- npm (v7.0.0 ou supérieur)
 
-- **UserContext** : Profil utilisateur, entrées de poids et objectifs
-- **RecipeContext** : Recettes, aliments, recherche et filtres
-- **FavoritesContext** : Gestion des favoris (recettes et aliments)
-- **MealPlanContext** : Plans de repas et liste de courses
-- **ThemeContext** : Préférences de thème (clair/sombre)
+### Installation
 
-## Nouvelle structure du projet
-
-```
-public/                           # Ressources publiques statiques
-├── index.html                    # Template HTML principal
-├── favicon.ico                   # Icône du site
-├── manifest.json                 # Manifest pour les PWA
-└── images/                       # Images publiques et statiques
-    └── logos/                    # Logos de l'application
-
-src/
-├── assets/                      # Ressources statiques
-│   ├── images/                  # Images et icônes
-│   └── data/                    # Données JSON statiques
-│       ├── foods.json           # Base de données d'aliments
-│       └── recipes.json         # Recettes prédéfinies
-│
-├── components/                  # Composants React organisés par domaine
-│   ├── common/                  # Composants réutilisables
-│   │   ├── Button/              # Structure par composant avec tests
-│   │   │   ├── Button.jsx
-│   │   │   ├── Button.test.jsx
-│   │   │   └── index.js
-│   │   ├── Card/
-│   │   ├── Input/
-│   │   ├── Modal/
-│   │   ├── Select/
-│   │   ├── PHDisplay/
-│   │   └── SeasonalBadge/
-│   │
-│   ├── layout/                  # Composants de mise en page
-│   │   ├── Header/
-│   │   ├── Footer/
-│   │   ├── Sidebar/
-│   │   └── PageLayout/
-│   │
-│   ├── features/                # Composants par fonctionnalité
-│       ├── auth/                # Authentification et profils
-│       │   ├── ProfileSelector/
-│       │   └── ProfileForm/
-│       │
-│       ├── meals/               # Gestion des repas
-│       │   ├── RecipeCard/
-│       │   ├── MealPlanDay/
-│       │   ├── MacroDisplay/
-│       │   └── FoodDetail/
-│       │
-│       ├── weight/              # Suivi du poids
-│       │   ├── BMICalculator/
-│       │   ├── WeightChart/
-│       │   ├── WeightForm/
-│       │   └── WeightStats/
-│       │
-│       └── shopping/            # Liste de courses
-│           ├── ShoppingList/
-│           └── ShoppingItem/
-│
-├── context/                     # Gestion d'état avec Context API
-│   ├── UserContext/
-│   │   ├── UserContext.jsx
-│   │   ├── UserReducer.js
-│   │   ├── UserActions.js
-│   │   └── index.js
-│   ├── RecipeContext/
-│   ├── FavoritesContext/
-│   ├── MealPlanContext/
-│   └── ThemeContext/
-│
-├── hooks/                       # Hooks personnalisés
-│   ├── useLocalStorage.js       # Persistance des données
-│   ├── useWeightTracking.js     # Logique de suivi du poids
-│   ├── useMealPlanning.js       # Planification des repas
-│   └── useMediaQuery.js         # Gestion du responsive
-│
-├── pages/                       # Pages principales de l'application
-│   ├── HomePage/
-│   ├── MealPlanPage/
-│   ├── RecipesPage/
-│   ├── ShoppingListPage/
-│   ├── WeightTrackerPage/
-│   └── ProfilePage/
-│
-├── services/                    # Services et API
-│   ├── storageService.js        # Service de stockage local
-│   └── exportService.js         # Export des données (PDF, etc.)
-│
-├── utils/                       # Fonctions utilitaires
-│   ├── dietUtils.js             # Calculs liés au régime
-│   ├── weightUtils.js           # Calculs liés au poids
-│   ├── dateUtils.js             # Manipulation des dates
-│   └── formatters.js            # Formatage des données
-│
-├── styles/                      # Styles globaux et thèmes
-│   ├── theme.js                 # Configuration des thèmes
-│   ├── global.css               # Styles globaux
-│   └── variables.css            # Variables CSS
-│
-├── config/                      # Configuration de l'application
-│   └── constants.js             # Constantes globales
-│
-├── App.jsx                      # Composant racine
-└── index.jsx                    # Point d'entrée
-```
-
-## Modèles de données optimisés
-
-### Food (Aliment)
-```javascript
-{
-  id: string,
-  name: string,
-  category: string,
-  macros: {
-    calories: number,
-    protein: number,
-    fat: number,
-    carbs: number
-  },
-  servingSize: {
-    quantity: number,
-    unit: string
-  },
-  pH: number,
-  seasonality: string[]  // 'printemps', 'été', 'automne', 'hiver', 'toute_année'
-}
-```
-
-### Recipe (Recette)
-```javascript
-{
-  id: string,
-  name: string,
-  image: string,
-  description: string,
-  mealType: string,  // 'petit_dejeuner', 'dejeuner', 'diner', 'collation'
-  prepTime: number,
-  cookTime: number,
-  servings: number,
-  ingredients: [
-    { foodId: string, quantity: number, unit: string }
-  ],
-  instructions: string[],
-  // Les macros sont calculées automatiquement à partir des ingrédients
-}
-```
-
-### Meal Plan (Plan de repas)
-```javascript
-{
-  id: string,
-  userId: string,
-  startDate: string,
-  endDate: string,
-  dietType: string,  // 'ceto_standard', 'ceto_alcalin'
-  intermittentFasting: {
-    enabled: boolean,
-    pattern: string,  // '16_8', '18_6', '20_4', 'omad'
-  },
-  days: [
-    {
-      date: string,
-      meals: {
-        petit_dejeuner: string[],  // Array of recipe IDs
-        dejeuner: string[],
-        diner: string[],
-        collations: string[]
-      }
-    }
-  ]
-}
-```
-
-### User Profile (Profil utilisateur)
-```javascript
-{
-  id: string,
-  name: string,
-  gender: string,
-  birthDate: string,
-  height: number,
-  activityLevel: string,
-  goal: string,   // 'perte_poids', 'maintien', 'prise_masse'
-  weightEntries: [
-    { date: string, weight: number }
-  ],
-  goalWeight: number,
-  preferences: {
-    theme: string,
-    excludedFoods: string[]
-  }
-}
-```
-
-## Types de régimes
-- **Céto Standard** : Régime cétogène traditionnel axé sur les lipides élevés et les glucides bas
-- **Céto Alcalin** : Combine la cétose avec des aliments à pH équilibré (pH > 6.0)
-
-## Options de jeûne intermittent
-- 16:8 (16h de jeûne, 8h de fenêtre d'alimentation)
-- 18:6 (18h de jeûne, 6h de fenêtre d'alimentation)
-- 20:4 (20h de jeûne, 4h de fenêtre d'alimentation)
-- OMAD (Un repas par jour)
-- Jeûne alterné
-
-## Fonctions utilitaires optimisées
-
-### Utilitaires de régime et recettes
-- `calculateRecipeMacros(recipe, foods)` : Calcule les macronutriments d'une recette
-- `calculateRecipePH(recipe, foods)` : Calcule le pH moyen d'une recette
-- `filterFoodsByDiet(foods, dietType)` : Filtre les aliments selon le type de régime
-- `filterFoodsBySeason(foods, date)` : Filtre les aliments selon la saison
-
-### Utilitaires de suivi du poids
-- `calculateBMI(height, weight)` : Calcule l'IMC
-- `calculateDailyCalories(profile)` : Calcule les besoins caloriques quotidiens
-- `getWeightGoalProgress(profile)` : Calcule la progression vers le poids cible
-- `predictGoalDate(profile)` : Prédit la date d'atteinte de l'objectif de poids
-
-## Installation et démarrage
-
-1. Cloner le dépôt :
+1. Cloner le dépôt
 ```bash
-git clone https://github.com/jcoules13/keto-meal-planner-v2.git
-cd keto-meal-planner-v2
+git clone https://github.com/jcoules13/keto-meal-planner.git
+cd keto-meal-planner
 ```
 
-2. Installer les dépendances :
+2. Installer les dépendances
 ```bash
 npm install
 ```
 
-3. Démarrer le serveur de développement :
+3. Lancer l'application en mode développement
 ```bash
 npm start
 ```
 
-4. Compiler pour la production :
-```bash
-npm run build
+4. Ouvrir [http://localhost:3000](http://localhost:3000) dans votre navigateur
+
+## 🧰 Technologies utilisées
+
+- **React 18+** - Bibliothèque UI
+- **TypeScript** - Typage statique
+- **React Router** - Navigation
+- **Tailwind CSS** - Styles et design system
+- **Recharts** - Visualisations et graphiques
+- **Context API** - Gestion d'état
+- **LocalStorage** - Persistance des données
+
+## 📂 Structure du projet
+
+```
+src/
+├── assets/             # Images, icônes, etc.
+├── components/         # Composants React réutilisables
+│   ├── layout/         # Composants structurels (Header, Footer, etc.)
+│   ├── meals/          # Composants liés aux repas
+│   ├── recipes/        # Composants liés aux recettes
+│   ├── foods/          # Composants liés aux aliments
+│   ├── profile/        # Composants liés au profil utilisateur
+│   └── ui/             # Composants d'interface générique
+├── contexts/           # Contextes React pour la gestion d'état
+├── data/               # Données statiques (base d'aliments initiale)
+├── hooks/              # Hooks personnalisés
+├── pages/              # Pages principales de l'application
+├── services/           # Services pour les opérations complexes
+├── styles/             # Styles globaux et variables
+└── utils/              # Fonctions utilitaires
 ```
 
-## Bonnes pratiques de développement
+## 📊 Architecture
 
-1. **Structure des composants** : Chaque composant dans son propre dossier avec ses fichiers associés
-2. **Séparation des préoccupations** : Logique métier dans les hooks et contexts, UI dans les composants
-3. **Gestion d'état** : Utilisation cohérente des contexts et reducers
-4. **Performance** : Utilisation judicieuse de useMemo, useCallback et React.memo
-5. **Tests** : Tests unitaires pour chaque fonctionnalité
-6. **Accessibilité** : Support ARIA et focus sur l'expérience utilisateur
-7. **Responsive** : Adaptation à tous les formats d'écran
+L'application utilise une architecture modulaire basée sur les contextes React pour gérer l'état global :
 
-## Plan de développement
+- **ThemeContext** - Gestion des thèmes clair/sombre
+- **UserContext** - Profil utilisateur et préférences
+- **FoodContext** - Base de données d'aliments et recherche
+- **RecipeContext** - Gestion des recettes et favoris
+- **MealPlanContext** - Plans de repas et listes de courses
 
-1. **Phase 1** : Mise en place de l'architecture de base et des contexts
-2. **Phase 2** : Implémentation des features principales (profil, recettes, plan de repas)
-3. **Phase 3** : Développement des fonctionnalités avancées (suivi du poids, favoris)
-4. **Phase 4** : Optimisation des performances et de l'interface utilisateur
-5. **Phase 5** : Tests et finalisation
+## 🔍 Documentation
 
-## Licence
+Pour plus de détails sur le développement et l'utilisation :
 
-MIT License
+- [Liste des tâches](./CHECKLIST.md) - Suivi de l'avancement du développement
+- [Journal des modifications](./CHANGELOG.md) - Historique des changements
+- [Guide de débogage](./DEBUGGING.md) - Solutions aux problèmes courants
 
-## Auteur
+## 📝 Algorithme de planification des repas
 
-JCO
+L'algorithme de génération de plans de repas fonctionne en plusieurs étapes :
+
+1. Calcul des besoins nutritionnels personnalisés
+2. Distribution des calories entre les repas
+3. Sélection intelligente des aliments et recettes
+4. Équilibrage des macronutriments
+5. Optimisation pour la variété et la saisonnalité
+6. Pour le keto alcalin : équilibrage du pH global
+
+## 🌐 Compatibilité
+
+- Navigateurs modernes (Chrome, Firefox, Safari, Edge)
+- Responsive design pour mobile, tablette et desktop
+
+## 🛠️ Scripts disponibles
+
+- `npm start` - Lance l'application en mode développement
+- `npm build` - Compile l'application pour la production
+- `npm test` - Exécute les tests
+- `npm eject` - Éjecte la configuration CRA (à utiliser avec prudence)
+
+## 🤝 Contribuer
+
+Les contributions sont les bienvenues ! Consultez la [checklist de développement](./CHECKLIST.md) pour voir les fonctionnalités à implémenter.
+
+## 📄 Licence
+
+Ce projet est sous licence [MIT](LICENSE).
+
+---
+
+Développé avec ❤️ pour la communauté keto francophone.
