@@ -20,6 +20,38 @@ Ce document fournit des informations pour résoudre les problèmes courants renc
 **Solution appliquée** :
 - Les fichiers de configuration ont été créés manuellement (tailwind.config.js et postcss.config.js)
 
+### Problème : Fichier package.json manquant
+
+**Symptômes** : L'erreur suivante s'affiche lors de l'exécution de `npm install` :
+```
+npm error code ENOENT
+npm error syscall open
+npm error path [...]/keto-meal-planner/package.json
+npm error errno -4058
+npm error enoent Could not read package.json: Error: ENOENT: no such file or directory, open '[...]/keto-meal-planner/package.json'
+npm error enoent This is related to npm not being able to find a file.
+```
+
+**Solutions possibles** :
+1. Créer manuellement un fichier package.json avec les dépendances nécessaires
+2. Réinitialiser le projet avec `npm init` ou `npx create-react-app`
+
+**Solution appliquée** :
+- Création manuelle du fichier package.json avec les dépendances nécessaires pour React, TypeScript, Tailwind CSS, React Router, etc.
+- Liste complète des dépendances ajoutées :
+  - React et React DOM
+  - React Router DOM
+  - Recharts pour les graphiques
+  - TypeScript
+  - Tailwind CSS, PostCSS, Autoprefixer
+  - HeadlessUI et HeroIcons pour les composants d'interface
+  - React Scripts pour les commandes de développement
+
+**Procédure d'installation après résolution** :
+1. Cloner le dépôt
+2. Exécuter `npm install` pour installer toutes les dépendances
+3. Lancer le projet avec `npm start`
+
 ## Problèmes courants et solutions
 
 ### Thème sombre ne s'applique pas correctement
@@ -109,6 +141,7 @@ Utiliser les outils suivants pour vérifier l'accessibilité :
 ## Problèmes connus à résoudre
 
 1. **Initialisation Tailwind** : La commande `npx tailwindcss init -p` ne fonctionne pas directement - résolu en créant manuellement les fichiers de configuration.
+2. **Fichier package.json manquant** : Erreur lors de l'installation - résolu en créant manuellement le fichier package.json avec les dépendances nécessaires.
 
 ## Ressources utiles
 
