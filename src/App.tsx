@@ -1,6 +1,7 @@
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { ThemeProvider } from './contexts/ThemeContext';
+import { UserProvider } from './contexts/UserContext';
 import MainLayout from './components/layout/MainLayout';
 import ThemeSwitcher from './components/ui/ThemeSwitcher';
 
@@ -40,19 +41,21 @@ const PlaceholderPage = ({ title }: { title: string }) => (
 function App() {
   return (
     <ThemeProvider>
-      {/* Bouton flottant de changement de thème, visible sur toutes les pages */}
-      <ThemeSwitcher />
-      
-      <Routes>
-        <Route path="/" element={<MainLayout><HomePage /></MainLayout>} />
-        <Route path="/meal-planner" element={<MainLayout><PlaceholderPage title="Planificateur de repas" /></MainLayout>} />
-        <Route path="/recipes" element={<MainLayout><PlaceholderPage title="Recettes" /></MainLayout>} />
-        <Route path="/foods" element={<MainLayout><PlaceholderPage title="Base de données alimentaire" /></MainLayout>} />
-        <Route path="/shopping-list" element={<MainLayout><PlaceholderPage title="Liste de courses" /></MainLayout>} />
-        <Route path="/weight-tracker" element={<MainLayout><PlaceholderPage title="Suivi de poids" /></MainLayout>} />
-        <Route path="/profile" element={<MainLayout><PlaceholderPage title="Profil utilisateur" /></MainLayout>} />
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
+      <UserProvider>
+        {/* Bouton flottant de changement de thème, visible sur toutes les pages */}
+        <ThemeSwitcher />
+        
+        <Routes>
+          <Route path="/" element={<MainLayout><HomePage /></MainLayout>} />
+          <Route path="/meal-planner" element={<MainLayout><PlaceholderPage title="Planificateur de repas" /></MainLayout>} />
+          <Route path="/recipes" element={<MainLayout><PlaceholderPage title="Recettes" /></MainLayout>} />
+          <Route path="/foods" element={<MainLayout><PlaceholderPage title="Base de données alimentaire" /></MainLayout>} />
+          <Route path="/shopping-list" element={<MainLayout><PlaceholderPage title="Liste de courses" /></MainLayout>} />
+          <Route path="/weight-tracker" element={<MainLayout><PlaceholderPage title="Suivi de poids" /></MainLayout>} />
+          <Route path="/profile" element={<MainLayout><PlaceholderPage title="Profil utilisateur" /></MainLayout>} />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </UserProvider>
     </ThemeProvider>
   );
 }
