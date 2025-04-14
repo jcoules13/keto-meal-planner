@@ -19,11 +19,15 @@ Ce fichier répertorie toutes les modifications notables apportées au projet Ke
 - Fichier foods.json avec 10 aliments de base pour le régime keto
 - Fichier recipes.json avec 5 recettes keto de démonstration
 - Fichier .gitignore pour exclure les fichiers générés lors du développement
+- Système de thèmes multiples (clair/sombre, saisons, fêtes)
+- Composant ThemeSwitcher avec bouton flottant pour changer de thème
 
 ### Modifié
 - Mise à jour de la checklist de développement pour refléter les progrès
 - Mise à jour du fichier DEBUGGING.md avec la résolution du problème de package.json manquant
 - Mise à jour des recettes pour n'utiliser que les aliments définis dans foods.json
+- Extension du ThemeContext pour supporter 8 thèmes différents (clair, sombre, printemps, été, automne, hiver, Noël, Halloween)
+- Amélioration des styles CSS pour adapter l'interface aux différents thèmes
 
 ### Corrigé
 - Création du fichier package.json manquant pour permettre l'installation des dépendances
