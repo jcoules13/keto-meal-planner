@@ -13,8 +13,8 @@ npx tailwindcss init -p
 
 ## 2. Configuration de l'architecture initiale
 
-- [ ] Configurer Tailwind CSS selon le design system défini
-- [ ] Créer la structure de dossiers selon l'architecture technique
+- [x] Configurer Tailwind CSS selon le design system défini
+- [x] Créer la structure de dossiers selon l'architecture technique
 ```
 src/
 ├── assets/             # Images, icônes, etc.
@@ -30,23 +30,23 @@ src/
 
 ## 3. Implémentation des contextes et services (par ordre de priorité)
 
-- [ ] ThemeContext - Gestion des thèmes clair/sombre
+- [x] ThemeContext - Gestion des thèmes clair/sombre
 - [ ] UserContext - Gestion du profil utilisateur
 - [ ] FoodContext - Base de données alimentaire
 - [ ] RecipeContext - Gestion des recettes
 - [ ] MealPlanContext - Planification des repas
-- [ ] Services utilitaires (calculateur nutritionnel, stockage local, etc.)
+- [x] Services utilitaires (calculateur nutritionnel, stockage local, etc.)
 
 ## 4. Développement des composants d'interface
 
-- [ ] Composants UI de base (Button, Input, Card, Modal, etc.)
-- [ ] Composants de navigation (Header, Sidebar, BottomNav)
+- [x] Composants UI de base (Button, Input, Card, etc.)
+- [x] Composants de navigation (Header, Sidebar, etc.)
 - [ ] Composants spécifiques à l'alimentation (FoodCard, MacroDisplay, PHIndicator)
 - [ ] Composants de visualisation (WeightGraph, MacroChart, etc.)
 
 ## 5. Développement des pages principales
 
-- [ ] Page d'accueil / Dashboard
+- [x] Page d'accueil / Dashboard (version basique)
 - [ ] Page de profil utilisateur
 - [ ] Page de génération de plan de repas
 - [ ] Page de recettes
@@ -57,7 +57,7 @@ src/
 
 ## 6. Implémentation des fonctionnalités clés
 
-- [ ] Calcul des besoins nutritionnels
+- [x] Calcul des besoins nutritionnels
 - [ ] Algorithme de génération de plans de repas
 - [ ] Création/édition de recettes personnalisées
 - [ ] Génération de liste de courses
@@ -80,12 +80,12 @@ src/
 
 ### Phase 1: Configuration et base du projet
 
-- [ ] Initialiser le projet React
-- [ ] Configurer Tailwind CSS
-- [ ] Configurer React Router
-- [ ] Créer les fichiers de structure de base
-- [ ] Implémenter ThemeContext et son Provider
-- [ ] Créer les composants UI de base
+- [x] Initialiser le projet React
+- [x] Configurer Tailwind CSS
+- [x] Configurer React Router
+- [x] Créer les fichiers de structure de base
+- [x] Implémenter ThemeContext et son Provider
+- [x] Créer les composants UI de base
 
 ### Phase 2: Gestion des données utilisateur
 
