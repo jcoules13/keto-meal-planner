@@ -15,12 +15,14 @@ Ce fichier répertorie toutes les modifications notables apportées au projet Ke
 - Utilitaires de stockage local
 - Configuration des routes principales avec React Router
 - Page d'accueil basique
+- Fichier package.json avec toutes les dépendances nécessaires
 
 ### Modifié
 - Mise à jour de la checklist de développement pour refléter les progrès
+- Mise à jour du fichier DEBUGGING.md avec la résolution du problème de package.json manquant
 
 ### Corrigé
-- Aucun correctif majeur à ce stade (projet en phase initiale)
+- Création du fichier package.json manquant pour permettre l'installation des dépendances
 
 ## Prochaines étapes prévues
 - Implémentation du UserContext pour la gestion des profils utilisateurs
