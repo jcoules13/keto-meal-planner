@@ -42,8 +42,8 @@ Ce document permet de suivre la progression du développement de l'application.
   - [x] Gestion des recettes personnalisées et favoris
   - [x] Calcul automatique des valeurs nutritionnelles
   - [x] Persistance dans localStorage
-- [ ] Formulaire de création/édition de recettes
-- [ ] Bibliothèque de recettes prédéfinies
+- [x] Formulaire de création/édition de recettes
+- [x] Bibliothèque de recettes prédéfinies
 - [ ] Algorithme de génération de plans de repas
 - [ ] Distribution des calories et macronutriments
 - [ ] Interface de planification
@@ -88,7 +88,8 @@ Ce document permet de suivre la progression du développement de l'application.
 **Prochaine tâche**: Mise en œuvre de l'algorithme de génération de liste de courses
 
 **Dernières tâches complétées**:
-- Implémentation complète de la page de suivi de poids (WeightTrackerPage)
-- Création des composants d'affichage (WeightGraph, BMICalculator, ProgressIndicator)
-- Création du hook useWeightTracking pour gérer la logique de suivi
+- Implémentation complète de la page de recettes (RecipesPage)
+- Création des composants pour l'affichage (RecipeCard, RecipeDetail)
+- Création du formulaire de création/édition de recettes (RecipeForm)
+- Intégration avec le RecipeContext et le FoodContext pour les calculs nutritionnels
 - Correction de l'application des thèmes clair/sombre sur tous les composants
