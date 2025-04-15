@@ -5,6 +5,14 @@ Ce fichier retrace l'historique des modifications apportées au projet.
 ## [Non publié]
 
 ### Ajouté
+- Page de suivi de poids (WeightTrackerPage) avec interface complète et responsive
+- Graphique d'évolution du poids avec filtrage par période
+- Indicateur de progression vers l'objectif de poids
+- Calculateur d'IMC avec visualisation et catégorisation
+- Formulaire d'enregistrement d'une nouvelle entrée de poids
+- Affichage de l'historique des mesures de poids avec variations
+- Utilitaires pour les calculs liés au poids, à l'IMC et aux tendances
+- Hook personnalisé (useWeightTracking) pour la logique de suivi du poids
 - Page de visualisation des aliments (FoodsPage) avec interface complète et responsive
 - Composants d'interface pour les aliments (FoodCard, FoodDetail)
 - Composants UI réutilisables (SearchBar, FilterPanel, PHIndicator, SeasonalityIndicator)
@@ -23,7 +31,10 @@ Ce fichier retrace l'historique des modifications apportées au projet.
 - Persistance des aliments personnalisés dans le localStorage
 
 ### Modifié
-- App.tsx mis à jour pour intégrer la page FoodsPage dans le routage
+- App.tsx mis à jour pour intégrer la page WeightTrackerPage dans le routage
+- Application cohérente des thèmes clair/sombre sur tous les composants principaux
+- Amélioration du système de thèmes pour une meilleure prise en charge des modes clair/sombre
+- Variables CSS optimisées pour une transition fluide entre les thèmes
 - Intégration du FoodProvider dans l'arborescence des contextes
 - Améliorations du système de thèmes pour corriger l'affichage en mode clair
 - Variables CSS redéfinies pour assurer un contraste approprié dans le thème clair
