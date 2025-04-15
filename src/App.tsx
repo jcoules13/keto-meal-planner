@@ -7,7 +7,8 @@ import { RecipeProvider } from './contexts/RecipeContext';
 import MainLayout from './components/layout/MainLayout';
 import ThemeSwitcher from './components/ui/ThemeSwitcher';
 import ProfilePage from './pages/ProfilePage';
-import FoodsPage from './pages/FoodsPage'; // Importe FoodsPage depuis le dossier approprié
+import FoodsPage from './pages/FoodsPage';
+import WeightTrackerPage from './pages/WeightTrackerPage';
 
 // Pages temporaires pour démarrer
 const HomePage = () => (
@@ -58,7 +59,8 @@ function App() {
               {/* Utiliser le composant FoodsPage */}
               <Route path="/foods" element={<MainLayout><FoodsPage /></MainLayout>} />
               <Route path="/shopping-list" element={<MainLayout><PlaceholderPage title="Liste de courses" /></MainLayout>} />
-              <Route path="/weight-tracker" element={<MainLayout><PlaceholderPage title="Suivi de poids" /></MainLayout>} />
+              {/* Utiliser le composant WeightTrackerPage */}
+              <Route path="/weight-tracker" element={<MainLayout><WeightTrackerPage /></MainLayout>} />
               <Route path="/profile" element={<MainLayout><ProfilePage /></MainLayout>} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
