@@ -51,10 +51,17 @@ Ce document permet de suivre la progression du développement de l'application.
 
 ## Phase 4: Fonctionnalités avancées
 
+- [x] Système d'enregistrement des mesures de poids
+- [x] Graphiques d'évolution du poids
+- [x] Page de suivi de poids
+  - [x] Composant de graphique d'évolution du poids
+  - [x] Calcul et visualisation de l'IMC
+  - [x] Indicateur de progression vers l'objectif
+  - [x] Formulaire d'entrée de poids
+  - [x] Affichage de l'historique des mesures
+  - [x] Intégration avec le UserContext
 - [ ] Algorithme de génération de liste de courses
 - [ ] Interface de liste de courses
-- [ ] Système d'enregistrement des mesures
-- [ ] Graphiques d'évolution du poids
 - [ ] Mode keto alcalin
 - [ ] Indicateurs de pH
 - [ ] Configuration du jeûne intermittent
@@ -76,12 +83,12 @@ Ce document permet de suivre la progression du développement de l'application.
 
 ## État d'avancement actuel
 
-**Phase actuelle**: Phase 3 - Recettes et planification
+**Phase actuelle**: Phase 4 - Fonctionnalités avancées
 
-**Prochaine tâche**: Implémentation du formulaire de création/édition de recettes
+**Prochaine tâche**: Mise en œuvre de l'algorithme de génération de liste de courses
 
 **Dernières tâches complétées**:
-- Implémentation complète de la page de visualisation des aliments (FoodsPage)
-- Intégration avec le routage dans App.tsx
-- Ajout des dépendances nécessaires au projet (react-icons, react-helmet)
-- Création de composants réutilisables (PHIndicator, SeasonalityIndicator, etc.)
+- Implémentation complète de la page de suivi de poids (WeightTrackerPage)
+- Création des composants d'affichage (WeightGraph, BMICalculator, ProgressIndicator)
+- Création du hook useWeightTracking pour gérer la logique de suivi
+- Correction de l'application des thèmes clair/sombre sur tous les composants
