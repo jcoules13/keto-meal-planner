@@ -254,3 +254,50 @@ Ce document fournit des informations pour tester et déboguer les différentes f
    - Vérifier que les noms des clés localStorage sont cohérents
    - Tester dans une fenêtre de navigation privée pour détecter les problèmes de quota
    - Vérifier les erreurs de parsing JSON dans la console
+
+## FoodsPage - Page de visualisation des aliments
+
+### Points à vérifier
+
+1. **Intégration avec le routage**
+   - La page est correctement reliée à la route `/foods` dans App.tsx
+   - La navigation vers la page fonctionne depuis le menu principal
+   - Le FoodProvider est bien présent dans l'arbre de composants
+
+2. **Rendu des composants**
+   - Tous les composants (FoodCard, FoodDetail, SearchBar, etc.) s'affichent correctement
+   - Les états de chargement et d'erreur sont correctement gérés
+   - Les filtres fonctionnent comme attendu
+
+3. **Interactions utilisateur**
+   - Le clic sur une carte d'aliment ouvre correctement le détail
+   - La recherche filtre correctement les aliments affichés
+   - Les filtres de catégorie, régime, etc. fonctionnent correctement
+   - Le bouton pour réinitialiser les filtres fonctionne
+
+4. **Responsive design**
+   - L'interface s'adapte correctement aux différentes tailles d'écran
+   - Le panneau de filtres se comporte correctement en mode mobile
+
+### Dépendances requises
+
+Pour que la page FoodsPage fonctionne correctement, les dépendances suivantes doivent être installées:
+
+```
+npm install react-icons react-helmet @types/react-helmet
+```
+
+### Erreurs courantes
+
+1. **Erreurs liées aux dépendances manquantes**
+   - Si les icônes ne s'affichent pas : vérifier que `react-icons` est installé
+   - Si des erreurs concernant `react-helmet` apparaissent : vérifier son installation
+
+2. **Problèmes d'affichage des aliments**
+   - Vérifier que FoodContext est correctement intégré et initialisé
+   - S'assurer que la méthode getFilteredFoods() renvoie les résultats attendus
+   - Vérifier que la structure des objets alimentaires correspond à celle attendue par les composants
+
+3. **Problèmes de performance**
+   - Si le rendu est lent, vérifier l'utilisation de useMemo et useCallback
+   - Pour les listes longues, envisager l'implémentation d'une virtualisation
