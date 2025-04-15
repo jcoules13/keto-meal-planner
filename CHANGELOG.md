@@ -25,9 +25,16 @@ Ce fichier retrace l'historique des modifications apportées au projet.
 ### Modifié
 - App.tsx mis à jour pour intégrer la page FoodsPage dans le routage
 - Intégration du FoodProvider dans l'arborescence des contextes
+- Améliorations du système de thèmes pour corriger l'affichage en mode clair
+- Variables CSS redéfinies pour assurer un contraste approprié dans le thème clair
+- Ajustements des styles de FoodsPage pour garantir la compatibilité avec le thème clair
+- Correction des couleurs de fond et de texte dans les différentes sections de l'application
 
 ### Corrigé
-- N/A
+- Correction du thème clair qui utilisait incorrectement des couleurs sombres
+- Correction des contrastes et de la lisibilité des textes en mode clair
+- Résolution de problèmes de compatibilité entre les différents composants et le thème
+- Amélioration de l'accessibilité visuelle avec des couleurs plus appropriées pour chaque thème
 
 ### Technique
 - Ajout des dépendances react-icons et react-helmet pour l'interface utilisateur
@@ -36,3 +43,4 @@ Ce fichier retrace l'historique des modifications apportées au projet.
 - Utilisation du pattern Context + useReducer pour une gestion d'état prévisible
 - Optimisation des recherches avec filtrage à la demande
 - Structure des données optimisée pour faciliter les recherches et le filtrage
+- Réorganisation des variables CSS pour améliorer la maintenance des thèmes
