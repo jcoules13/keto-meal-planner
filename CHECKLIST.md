@@ -25,7 +25,13 @@ Ce document permet de suivre la progression du développement de l'application.
 - [x] Formulaires de profil utilisateur
 - [x] Calculs d'IMC et de besoins caloriques
 - [x] Page de profil utilisateur
-- [ ] Page de visualisation des aliments
+- [x] Page de visualisation des aliments
+  - [x] Composants FoodCard et FoodDetail
+  - [x] Composants UI pour la recherche et le filtrage
+  - [x] Indicateurs de pH et de saisonnalité
+  - [x] Interface responsive
+  - [x] Intégration avec le routage
+  - [x] Dépendances additionnelles (react-icons, react-helmet)
 
 ## Phase 3: Recettes et planification
 
@@ -73,3 +79,9 @@ Ce document permet de suivre la progression du développement de l'application.
 **Phase actuelle**: Phase 3 - Recettes et planification
 
 **Prochaine tâche**: Implémentation du formulaire de création/édition de recettes
+
+**Dernières tâches complétées**:
+- Implémentation complète de la page de visualisation des aliments (FoodsPage)
+- Intégration avec le routage dans App.tsx
+- Ajout des dépendances nécessaires au projet (react-icons, react-helmet)
+- Création de composants réutilisables (PHIndicator, SeasonalityIndicator, etc.)
