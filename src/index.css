@@ -59,10 +59,12 @@
     --info: #0ea5e9;
     --info-rgb: 14, 165, 233;
     
+    /* Variables de texte et fond pour le thème clair par défaut */
     --text-primary: var(--neutral-900);
     --text-secondary: var(--neutral-700);
     --bg-primary: var(--neutral-50);
     --bg-secondary: var(--neutral-100);
+    --border-color: var(--neutral-200);
   }
   
   /* Variables pour les couleurs sémantiques nutritionnelles */
@@ -90,6 +92,7 @@
     --text-secondary: var(--neutral-300);
     --bg-primary: var(--neutral-900);
     --bg-secondary: var(--neutral-800);
+    --border-color: var(--neutral-700);
   }
   
   /* Thème clair - application explicite */
@@ -103,8 +106,8 @@
     background-color: var(--neutral-900);
     color: var(--neutral-100);
   }
-  
-  /* Thèmes saisonniers */
+
+/* Thèmes saisonniers */
   .spring body {
     @apply bg-green-50 text-green-900;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Cpath fill='%2322c55e' fill-opacity='0.05' d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z'%3E%3C/path%3E%3C/svg%3E");
@@ -135,15 +138,12 @@
     @apply bg-orange-900 text-orange-100;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Cpath fill='%23000000' fill-opacity='0.1' d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z'%3E%3C/path%3E%3C/svg%3E");
   }
-}
-
 @layer components {
   /* Bouton flottant de changement de thème */
   .theme-switcher {
     @apply fixed bottom-4 right-4 w-12 h-12 rounded-full flex items-center justify-center 
            shadow-lg z-50 transition-all duration-300 cursor-pointer;
   }
-}
   
   /* Styles spécifiques pour le bouton en fonction du thème */
   .light .theme-switcher {
@@ -184,40 +184,40 @@
   }
   
   .btn-primary {
-    @apply bg-primary-500 text-white hover:bg-primary-600 focus:ring-primary-500;
+    @apply bg-primary-600 text-white hover:bg-primary-700 focus:ring-primary-500 dark:bg-primary-500 dark:hover:bg-primary-600;
   }
   
   .btn-secondary {
-    @apply bg-secondary-500 text-white hover:bg-secondary-600 focus:ring-secondary-500;
+    @apply bg-secondary-600 text-white hover:bg-secondary-700 focus:ring-secondary-500 dark:bg-secondary-500 dark:hover:bg-secondary-600;
   }
-  
-  .btn-outline {
-    @apply border border-primary-500 text-primary-500 hover:bg-primary-50 focus:ring-primary-500;
+.btn-outline {
+    @apply border border-primary-600 text-primary-600 hover:bg-primary-50 focus:ring-primary-500 
+           dark:border-primary-400 dark:text-primary-400 dark:hover:bg-primary-900/30;
   }
   
   /* Adapter les styles des cartes aux différents thèmes */
   .card {
-    @apply rounded-lg shadow-md p-4;
+    @apply rounded-lg shadow-md p-4 transition-colors duration-200;
   }
   
   .light .card {
-    @apply bg-white;
+    @apply bg-white text-neutral-900;
   }
   
   .dark .card {
-    @apply bg-neutral-800;
+    @apply bg-neutral-800 text-neutral-100;
   }
   
   .spring .card {
-    @apply bg-white bg-opacity-90 dark:bg-green-800 dark:bg-opacity-90;
+    @apply bg-white bg-opacity-90 text-green-900 dark:bg-green-800 dark:bg-opacity-90 dark:text-green-100;
   }
   
   .summer .card {
-    @apply bg-white bg-opacity-90 dark:bg-yellow-800 dark:bg-opacity-90;
+    @apply bg-white bg-opacity-90 text-yellow-900 dark:bg-yellow-800 dark:bg-opacity-90 dark:text-yellow-100;
   }
   
   .autumn .card {
-    @apply bg-white bg-opacity-90 dark:bg-orange-800 dark:bg-opacity-90;
+    @apply bg-white bg-opacity-90 text-orange-900 dark:bg-orange-800 dark:bg-opacity-90 dark:text-orange-100;
   }
   
   .winter .card {
@@ -231,9 +231,9 @@
   .halloween .card {
     @apply bg-orange-800 bg-opacity-90 text-orange-100;
   }
-  
+/* Styles des formulaires */
   .input {
-    @apply w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent;
+    @apply w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors duration-200;
   }
   
   .light .input {
@@ -245,100 +245,226 @@
   }
   
   .label {
-  @apply block text-sm font-medium mb-1;
-}
-
-.light .label {
-  @apply text-neutral-700;
-}
-
-.dark .label {
-  @apply text-neutral-300;
-}
-
-.badge {
-  @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
-}
-
-.badge-primary {
-  @apply bg-primary-100 text-primary-800;
-}
-
-.dark .badge-primary {
-  @apply bg-primary-900 text-primary-100;
-}
-
-.badge-secondary {
-  @apply bg-secondary-100 text-secondary-800;
-}
-
-.dark .badge-secondary {
-  @apply bg-secondary-900 text-secondary-100;
-}
-
-/* Styles pour les FoodCards et autres éléments spécifiques */
-.food-card {
-  @apply transition-all duration-200 rounded-lg overflow-hidden;
-}
-
-.light .food-card {
-  @apply bg-white shadow-md hover:shadow-lg;
-}
-
-.dark .food-card {
-  @apply bg-neutral-800 shadow-md hover:shadow-lg;
-}
-/* Styles spécifiques pour les indicateurs nutritionnels */
-.macro-indicator {
-  @apply relative w-full h-4 rounded-full overflow-hidden;
-}
-
-.light .macro-indicator {
-  @apply bg-neutral-200;
-}
-
-.dark .macro-indicator {
-  @apply bg-neutral-700;
-}
-
-.pH-indicator {
-  @apply flex items-center gap-2;
-}
-
-.pH-scale {
-  @apply w-full h-2 rounded-full;
-  background: linear-gradient(to right, var(--error), var(--neutral-300), var(--alkaline));
-}
-
-.pH-marker {
-  @apply absolute w-2 h-3 rounded-full transform -translate-x-1/2;
-  background-color: currentColor;
-}
-
-/* Animation pour les états de chargement */
-@keyframes pulse {
-  0%, 100% {
-    opacity: 1;
+    @apply block text-sm font-medium mb-1 transition-colors duration-200;
   }
-  50% {
-    opacity: 0.5;
+  
+  .light .label {
+    @apply text-neutral-700;
   }
-}
-
-.animate-pulse {
-  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-}
-
-/* Animation pour le bouton de thème */
-@keyframes float {
-  0%, 100% {
-    transform: translateY(0);
+  
+  .dark .label {
+    @apply text-neutral-300;
   }
-  50% {
-    transform: translateY(-5px);
+  
+  .select {
+    @apply w-full pl-3 pr-8 py-2 border rounded-md appearance-none bg-no-repeat bg-right focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors duration-200;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='currentColor'%3E%3Cpath fill-rule='evenodd' d='M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z' clip-rule='evenodd' /%3E%3C/svg%3E");
+    background-size: 20px 20px;
+    background-position: right 0.5rem center;
   }
-}
-
-.theme-switcher {
-  animation: float 3s ease-in-out infinite;
+  
+  .light .select {
+    @apply bg-white text-neutral-800 border-neutral-300;
+  }
+  
+  .dark .select {
+    @apply bg-neutral-700 text-white border-neutral-600;
+  }
+  
+  .checkbox {
+    @apply h-4 w-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500 transition-colors duration-200;
+  }
+  
+  .dark .checkbox {
+    @apply border-gray-600;
+  }
+/* Badges et tags */
+  .badge {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium transition-colors duration-200;
+  }
+  
+  .badge-primary {
+    @apply bg-primary-100 text-primary-800;
+  }
+  
+  .dark .badge-primary {
+    @apply bg-primary-900 text-primary-100;
+  }
+  
+  .badge-secondary {
+    @apply bg-secondary-100 text-secondary-800;
+  }
+  
+  .dark .badge-secondary {
+    @apply bg-secondary-900 text-secondary-100;
+  }
+  
+  .badge-keto {
+    @apply bg-green-100 text-green-800;
+  }
+  
+  .dark .badge-keto {
+    @apply bg-green-900 text-green-100;
+  }
+  
+  .badge-alkaline {
+    @apply bg-blue-100 text-blue-800;
+  }
+  
+  .dark .badge-alkaline {
+    @apply bg-blue-900 text-blue-100;
+  }
+  
+  .badge-seasonal {
+    @apply bg-yellow-100 text-yellow-800;
+  }
+  
+  .dark .badge-seasonal {
+    @apply bg-yellow-900 text-yellow-100;
+  }
+  
+  /* Styles pour les FoodCards et autres éléments spécifiques */
+  .food-card {
+    @apply transition-all duration-200 rounded-lg overflow-hidden cursor-pointer;
+  }
+  
+  .light .food-card {
+    @apply bg-white shadow-md hover:shadow-lg text-neutral-900;
+  }
+  
+  .dark .food-card {
+    @apply bg-neutral-800 shadow-md hover:shadow-lg text-neutral-100;
+  }
+  
+  /* Styles spécifiques pour les indicateurs nutritionnels */
+  .macro-indicator {
+    @apply relative w-full h-4 rounded-full overflow-hidden mb-1 transition-colors duration-200;
+  }
+  
+  .light .macro-indicator {
+    @apply bg-neutral-200;
+  }
+  
+  .dark .macro-indicator {
+    @apply bg-neutral-700;
+  }
+  
+  .macro-indicator-fill {
+    @apply absolute top-0 left-0 h-full rounded-full transition-all duration-300;
+  }
+  
+  .macro-indicator-protein {
+    @apply bg-rose-500;
+  }
+  
+  .dark .macro-indicator-protein {
+    @apply bg-rose-400;
+  }
+  
+  .macro-indicator-fat {
+    @apply bg-amber-500;
+  }
+  
+  .dark .macro-indicator-fat {
+    @apply bg-amber-400;
+  }
+  
+  .macro-indicator-carbs {
+    @apply bg-teal-500;
+  }
+  
+  .dark .macro-indicator-carbs {
+    @apply bg-teal-400;
+  }
+/* Indicateurs de pH */
+  .pH-indicator {
+    @apply flex items-center gap-2 my-2 transition-colors duration-200;
+  }
+  
+  .pH-value {
+    @apply h-6 w-12 flex items-center justify-center text-xs font-bold rounded text-white;
+  }
+  
+  .pH-value-low {
+    @apply bg-red-500;
+  }
+  
+  .pH-value-neutral {
+    @apply bg-gray-500;
+  }
+  
+  .pH-value-high {
+    @apply bg-green-500;
+  }
+  
+  .pH-scale {
+    @apply w-full h-2 rounded-full relative;
+    background: linear-gradient(to right, rgb(239, 68, 68), rgb(163, 163, 163), rgb(34, 197, 94));
+  }
+  
+  .pH-marker {
+    @apply absolute w-2 h-4 bg-blue-500 rounded-full transform -translate-x-1/2 -translate-y-1/4;
+  }
+  
+  /* Animation pour les états de chargement */
+  @keyframes pulse {
+    0%, 100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.5;
+    }
+  }
+  
+  .animate-pulse {
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+  
+  /* Animation pour le bouton de thème */
+  @keyframes float {
+    0%, 100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-5px);
+    }
+  }
+  
+  .theme-switcher {
+    animation: float 3s ease-in-out infinite;
+  }
+  
+  /* États vides et de chargement */
+  .empty-state {
+    @apply flex flex-col items-center justify-center py-12 px-4 text-center transition-colors duration-200;
+  }
+  
+  .light .empty-state {
+    @apply text-neutral-500;
+  }
+  
+  .dark .empty-state {
+    @apply text-neutral-400;
+  }
+  
+  .loading-spinner {
+    @apply w-10 h-10 border-4 rounded-full animate-spin transition-colors duration-200;
+  }
+  
+  .light .loading-spinner {
+    @apply border-neutral-200 border-t-primary-600;
+  }
+  
+  .dark .loading-spinner {
+    @apply border-neutral-700 border-t-primary-400;
+  }
+  
+  /* Autres éléments spécifiques au mode sombre */
+  .dark .separator {
+    @apply border-neutral-700;
+  }
+  
+  .dark ::placeholder {
+    @apply text-neutral-500;
+  }
 }
