@@ -15,7 +15,7 @@ const AppHeader: React.FC = () => {
         <div className="flex justify-between items-center">
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-2">
-            <span className="text-primary-500 dark:text-primary-400">
+            <span className="text-primary-600 dark:text-primary-400">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 className="h-8 w-8"
@@ -40,31 +40,31 @@ const AppHeader: React.FC = () => {
           <nav className="hidden md:flex items-center space-x-6">
             <Link
               to="/meal-planner"
-              className="text-neutral-700 dark:text-neutral-200 hover:text-primary-500 dark:hover:text-primary-400 transition-colors"
+              className="text-neutral-700 dark:text-neutral-200 hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
             >
               Planificateur
             </Link>
             <Link
               to="/recipes"
-              className="text-neutral-700 dark:text-neutral-200 hover:text-primary-500 dark:hover:text-primary-400 transition-colors"
+              className="text-neutral-700 dark:text-neutral-200 hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
             >
               Recettes
             </Link>
             <Link
               to="/foods"
-              className="text-neutral-700 dark:text-neutral-200 hover:text-primary-500 dark:hover:text-primary-400 transition-colors"
+              className="text-neutral-700 dark:text-neutral-200 hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
             >
               Aliments
             </Link>
             <Link
               to="/shopping-list"
-              className="text-neutral-700 dark:text-neutral-200 hover:text-primary-500 dark:hover:text-primary-400 transition-colors"
+              className="text-neutral-700 dark:text-neutral-200 hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
             >
               Liste de courses
             </Link>
             <Link
               to="/weight-tracker"
-              className="text-neutral-700 dark:text-neutral-200 hover:text-primary-500 dark:hover:text-primary-400 transition-colors"
+              className="text-neutral-700 dark:text-neutral-200 hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
             >
               Suivi de poids
             </Link>
@@ -73,7 +73,7 @@ const AppHeader: React.FC = () => {
 
             <Link
               to="/profile"
-              className="text-neutral-700 dark:text-neutral-200 hover:text-primary-500 dark:hover:text-primary-400 transition-colors"
+              className="text-neutral-700 dark:text-neutral-200 hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
             >
               Profil
             </Link>
@@ -121,35 +121,35 @@ const AppHeader: React.FC = () => {
           <nav className="mt-4 pb-4 space-y-3 md:hidden">
             <Link
               to="/meal-planner"
-              className="block text-neutral-700 dark:text-neutral-200 hover:text-primary-500 dark:hover:text-primary-400 transition-colors"
+              className="block text-neutral-700 dark:text-neutral-200 hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
               onClick={() => setIsMenuOpen(false)}
             >
               Planificateur
             </Link>
             <Link
               to="/recipes"
-              className="block text-neutral-700 dark:text-neutral-200 hover:text-primary-500 dark:hover:text-primary-400 transition-colors"
+              className="block text-neutral-700 dark:text-neutral-200 hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
               onClick={() => setIsMenuOpen(false)}
             >
               Recettes
             </Link>
             <Link
               to="/foods"
-              className="block text-neutral-700 dark:text-neutral-200 hover:text-primary-500 dark:hover:text-primary-400 transition-colors"
+              className="block text-neutral-700 dark:text-neutral-200 hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
               onClick={() => setIsMenuOpen(false)}
             >
               Aliments
             </Link>
             <Link
               to="/shopping-list"
-              className="block text-neutral-700 dark:text-neutral-200 hover:text-primary-500 dark:hover:text-primary-400 transition-colors"
+              className="block text-neutral-700 dark:text-neutral-200 hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
               onClick={() => setIsMenuOpen(false)}
             >
               Liste de courses
             </Link>
             <Link
               to="/weight-tracker"
-              className="block text-neutral-700 dark:text-neutral-200 hover:text-primary-500 dark:hover:text-primary-400 transition-colors"
+              className="block text-neutral-700 dark:text-neutral-200 hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
               onClick={() => setIsMenuOpen(false)}
             >
               Suivi de poids
@@ -157,7 +157,7 @@ const AppHeader: React.FC = () => {
             <div className="border-t border-neutral-200 dark:border-neutral-700 my-2" />
             <Link
               to="/profile"
-              className="block text-neutral-700 dark:text-neutral-200 hover:text-primary-500 dark:hover:text-primary-400 transition-colors"
+              className="block text-neutral-700 dark:text-neutral-200 hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
               onClick={() => setIsMenuOpen(false)}
             >
               Profil
