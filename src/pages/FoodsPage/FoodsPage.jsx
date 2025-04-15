@@ -1,22 +1,88 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useFood } from '../../contexts/FoodContext';
 import { useUser } from '../../contexts/UserContext';
+// Correction des imports pour utiliser les chemins corrects vers les composants
 import FoodCard from '../../components/foods/FoodCard';
 import FoodDetail from '../../components/foods/FoodDetail';
 import SearchBar from '../../components/ui/SearchBar';
 import FilterPanel from '../../components/ui/FilterPanel';
+// Import direct du composant PageLayout au lieu d'utiliser un import indexé
 import PageLayout from '../../components/layout/PageLayout';
 import './FoodsPage.css';
 
 const FoodsPage = () => {
-  const { foods, categories, filters, setFilter, resetFilters, filteredFoods, loading, error } = useFood();
+  const { foods, categories, filters, setFilter, resetFilters, loading, error } = useFood();
   const { preferences, dietType } = useUser();
   
   const [selectedFood, setSelectedFood] = useState(null);
   const [showFilterPanel, setShowFilterPanel] = useState(false);
   
+  // Obtenir les aliments filtrés
+  const filteredFoods = React.useMemo(() => {
+    if (!foods || foods.length === 0) return [];
+    
+    return foods.filter(food => {
+      // Filtre de recherche
+      if (filters.query && !food.name.toLowerCase().includes(filters.query.toLowerCase())) {
+        return false;
+      }
+      
+      // Filtre de catégorie
+      if (filters.category && food.category !== filters.category) {
+        return false;
+      }
+      
+      // Filtre keto
+      if (filters.isKeto && !food.isKeto) {
+        return false;
+      }
+      
+      // Filtre alcalin
+      if (filters.isAlkaline && !food.isAlkaline) {
+        return false;
+      }
+      
+      // Filtre de saison
+      if (filters.seasonal && food.seasons && !food.seasons.includes(filters.currentSeason)) {
+        return false;
+      }
+      
+      // Filtre de glucides nets
+      if (filters.maxNetCarbs !== null && 
+          food.nutritionPer100g && 
+          food.nutritionPer100g.netCarbs > filters.maxNetCarbs) {
+        return false;
+      }
+      
+      // Filtre de protéines
+      if (filters.minProtein !== null && 
+          food.nutritionPer100g && 
+          food.nutritionPer100g.protein < filters.minProtein) {
+        return false;
+      }
+      
+      // Filtre de lipides
+      if (filters.minFat !== null && 
+          food.nutritionPer100g && 
+          food.nutritionPer100g.fat < filters.minFat) {
+        return false;
+      }
+      
+      // Filtre de pH
+      if (filters.minpH !== null && food.pHValue < filters.minpH) {
+        return false;
+      }
+      
+      if (filters.maxpH !== null && food.pHValue > filters.maxpH) {
+        return false;
+      }
+      
+      return true;
+    });
+  }, [foods, filters]);
+  
   // Initialiser le filtre du régime en fonction du type de régime de l'utilisateur
-  useMemo(() => {
+  useEffect(() => {
     if (dietType === 'keto_alcalin') {
       setFilter('isAlkaline', true);
     }
@@ -116,7 +182,7 @@ const FoodsPage = () => {
                   >
                     Tous
                   </button>
-                  {categories.map((category) => (
+                  {categories && categories.map((category) => (
                     <button 
                       key={category}
                       className={`category-btn ${filters.category === category ? 'active' : ''}`}
