@@ -143,6 +143,7 @@
     @apply fixed bottom-4 right-4 w-12 h-12 rounded-full flex items-center justify-center 
            shadow-lg z-50 transition-all duration-300 cursor-pointer;
   }
+}
   
   /* Styles spécifiques pour le bouton en fonction du thème */
   .light .theme-switcher {
