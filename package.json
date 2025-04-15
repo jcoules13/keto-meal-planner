@@ -1,6 +1,6 @@
 {
   "name": "keto-meal-planner",
-  "version": "0.3.5",
+  "version": "0.1.0",
   "private": true,
   "description": "Application de planification de repas keto avec support pour keto standard et keto alcalin",
   "author": "jcoules13",
@@ -21,7 +21,7 @@
     "react-icons": "^5.0.1",
     "react-router-dom": "^6.21.1",
     "recharts": "^2.10.3",
-    "typescript": "^5.3.3",
+    "typescript": "^4.9.5",
     "web-vitals": "^3.5.0"
   },
   "scripts": {
