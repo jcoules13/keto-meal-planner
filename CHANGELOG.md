@@ -5,6 +5,11 @@ Ce fichier retrace l'historique des modifications apportées au projet.
 ## [Non publié]
 
 ### Ajouté
+- Page de visualisation des aliments (FoodsPage) avec interface complète et responsive
+- Composants d'interface pour les aliments (FoodCard, FoodDetail)
+- Composants UI réutilisables (SearchBar, FilterPanel, PHIndicator, SeasonalityIndicator)
+- Système complet de filtrage des aliments avec recherche, catégories, valeurs nutritionnelles, etc.
+- Visualisation détaillée des propriétés des aliments avec graphiques de macronutriments
 - Implémentation du RecipeContext pour la gestion des recettes
 - Système de filtrage pour les recettes (par type de repas, temps de préparation, valeurs nutritionnelles, etc.)
 - Base de données initiale avec 10 recettes keto prédéfinies
@@ -18,12 +23,15 @@ Ce fichier retrace l'historique des modifications apportées au projet.
 - Persistance des aliments personnalisés dans le localStorage
 
 ### Modifié
-- N/A
+- App.tsx mis à jour pour intégrer la page FoodsPage dans le routage
+- Intégration du FoodProvider dans l'arborescence des contextes
 
 ### Corrigé
 - N/A
 
 ### Technique
+- Ajout des dépendances react-icons et react-helmet pour l'interface utilisateur
+- Implémentation d'un composant de layout générique (PageLayout)
 - Intégration entre FoodContext et RecipeContext pour les calculs nutritionnels basés sur les ingrédients
 - Utilisation du pattern Context + useReducer pour une gestion d'état prévisible
 - Optimisation des recherches avec filtrage à la demande
