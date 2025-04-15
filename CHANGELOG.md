@@ -5,6 +5,18 @@ Ce fichier retrace l'historique des modifications apportées au projet.
 ## [Non publié]
 
 ### Ajouté
+- Page des recettes (RecipesPage) avec interface complète et responsive
+- Formulaire de création/édition de recettes avec calcul automatique des valeurs nutritionnelles et du pH
+- Affichage des recettes sous forme de cartes avec informations clés et macronutriments
+- Vue détaillée des recettes avec tous les ingrédients, instructions et valeurs nutritionnelles
+- Système de filtrage avancé pour les recettes (par type de repas, temps de préparation, etc.)
+- Affichage des macronutriments sous forme de barres visuelles pour une meilleure compréhension
+- Gestion des recettes favorites avec persistance dans localStorage
+- Calcul des pourcentages de macronutriments pour vérifier la conformité au régime keto
+- Indicateurs visuels des recettes keto et alcalines
+- Gestion complète CRUD des recettes personnalisées
+- Recherche textuelle dans les recettes
+- Composants modulaires et réutilisables pour les recettes
 - Page de suivi de poids (WeightTrackerPage) avec interface complète et responsive
 - Graphique d'évolution du poids avec filtrage par période
 - Indicateur de progression vers l'objectif de poids
@@ -31,7 +43,7 @@ Ce fichier retrace l'historique des modifications apportées au projet.
 - Persistance des aliments personnalisés dans le localStorage
 
 ### Modifié
-- App.tsx mis à jour pour intégrer la page WeightTrackerPage dans le routage
+- App.tsx mis à jour pour intégrer la page RecipesPage dans le routage
 - Application cohérente des thèmes clair/sombre sur tous les composants principaux
 - Amélioration du système de thèmes pour une meilleure prise en charge des modes clair/sombre
 - Variables CSS optimisées pour une transition fluide entre les thèmes
