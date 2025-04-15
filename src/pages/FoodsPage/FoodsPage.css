@@ -1,9 +1,71 @@
+/* Ajustements pour la page FoodsPage JCO */
 .foods-page {
   display: flex;
   flex-direction: column;
   width: 100%;
   height: 100%;
   padding: 1rem;
+}
+
+/* Theme clair */
+.light .foods-page {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+/* Theme sombre - déjà bien configuré */
+.dark .foods-page {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+.light .category-btn {
+  background-color: var(--neutral-100);
+  color: var(--text-primary);
+  border: 1px solid var(--neutral-300);
+}
+
+.light .category-btn.active,
+.light .category-btn:hover {
+  background-color: var(--primary-600);
+  color: white;
+  border-color: var(--primary-500);
+}
+
+.light .filter-toggle-btn {
+  background-color: var(--primary-600);
+  color: white;
+}
+
+.light .filter-toggle-btn:hover {
+  background-color: var(--primary-700);
+}
+
+.light .reset-filters-btn {
+  background-color: var(--neutral-300);
+  color: var(--text-primary);
+}
+
+.light .reset-filters-btn:hover {
+  background-color: var(--neutral-400);
+}
+
+/* Ajustements supplémentaires pour les sections de filtre */
+.light .filter-section h3 {
+  color: var(--text-primary);
+}
+
+.light .filter-checkbox {
+  color: var(--text-primary);
+}
+
+.light .season-info {
+  color: var(--text-secondary);
+}
+
+.light .filter-range label,
+.light .filter-range span {
+  color: var(--text-primary);
 }
 
 .foods-header {
