@@ -29,7 +29,13 @@ Ce document permet de suivre la progression du développement de l'application.
 
 ## Phase 3: Recettes et planification
 
-- [ ] RecipeContext pour la gestion des recettes
+- [x] RecipeContext pour la gestion des recettes
+  - [x] Implémentation du context avec useReducer
+  - [x] Création de la base de données initiale (recipes.json)
+  - [x] Système de filtrage des recettes
+  - [x] Gestion des recettes personnalisées et favoris
+  - [x] Calcul automatique des valeurs nutritionnelles
+  - [x] Persistance dans localStorage
 - [ ] Formulaire de création/édition de recettes
 - [ ] Bibliothèque de recettes prédéfinies
 - [ ] Algorithme de génération de plans de repas
@@ -64,6 +70,6 @@ Ce document permet de suivre la progression du développement de l'application.
 
 ## État d'avancement actuel
 
-**Phase actuelle**: Phase 2 - Gestion d'état et données
+**Phase actuelle**: Phase 3 - Recettes et planification
 
-**Prochaine tâche**: Implémentation du UserContext pour la gestion du profil utilisateur
+**Prochaine tâche**: Implémentation du formulaire de création/édition de recettes
