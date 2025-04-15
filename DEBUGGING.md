@@ -301,3 +301,87 @@ npm install react-icons react-helmet @types/react-helmet
 3. **Problèmes de performance**
    - Si le rendu est lent, vérifier l'utilisation de useMemo et useCallback
    - Pour les listes longues, envisager l'implémentation d'une virtualisation
+
+## RecipesPage - Gestion et affichage des recettes
+
+### Points à vérifier
+
+1. **Intégration avec le routage**
+   - La page est correctement reliée à la route `/recipes` dans App.tsx
+   - La navigation vers la page fonctionne depuis le menu principal
+   - Le RecipeContext et le FoodContext sont bien présents dans l'arbre de composants
+
+2. **Fonctionnalités d'affichage**
+   - Les cartes de recettes (RecipeCard) s'affichent correctement avec toutes les informations
+   - Le détail des recettes (RecipeDetail) montre correctement tous les ingrédients et instructions
+   - Le formulaire de recette (RecipeForm) permet de créer et modifier des recettes
+   - Les états de chargement et d'erreur sont gérés correctement
+
+3. **Interactions utilisateur**
+   - Création d'une nouvelle recette fonctionne correctement
+   - Modification d'une recette existante met à jour tous les champs
+   - Suppression d'une recette fonctionne après confirmation
+   - L'ajout/suppression aux favoris fonctionne instantanément
+   - La recherche et les filtres fonctionnent comme attendu
+
+4. **Calculs nutritionnels**
+   - Les macronutriments sont correctement calculés lors de l'ajout/modification d'ingrédients
+   - La barre de macronutriments reflète correctement les proportions
+   - Les badges keto/alcalin sont attribués selon les bonnes règles (keto: <10g glucides nets, alcalin: pH>7)
+
+5. **Formulaire de recette**
+   - Tous les champs sont correctement validés
+   - L'ajout et la suppression d'ingrédients fonctionnent
+   - L'ajout et la suppression d'instructions fonctionnent
+   - La recherche d'aliments dans le formulaire fonctionne
+
+### Dépendances requises
+
+Pour que la page RecipesPage fonctionne correctement, assurez-vous que les contextes suivants sont implémentés :
+
+- `RecipeContext`
+- `FoodContext`
+
+### Tests à effectuer
+
+1. **Test du cycle complet d'une recette**
+   - Créer une nouvelle recette avec plusieurs ingrédients
+   - Vérifier que les valeurs nutritionnelles sont correctement calculées
+   - Sauvegarder la recette et vérifier qu'elle apparaît dans la liste
+   - Modifier la recette en ajoutant/supprimant des ingrédients
+   - Vérifier que les modifications sont sauvegardées
+   - Supprimer la recette et vérifier qu'elle est bien retirée de la liste
+
+2. **Test des filtres**
+   - Utiliser la barre de recherche pour trouver une recette spécifique
+   - Filtrer par type de repas et vérifier les résultats
+   - Filtrer par temps de préparation et vérifier les résultats
+   - Cocher/décocher les filtres keto, alcalin et favoris
+   - Réinitialiser tous les filtres
+
+3. **Test de responsive design**
+   - Vérifier l'affichage sur desktop
+   - Vérifier l'affichage sur tablette (768px de largeur)
+   - Vérifier l'affichage sur mobile (375px de largeur)
+
+### Erreurs courantes
+
+1. **Problèmes d'affichage des recettes**
+   - Vérifier que le RecipeContext est correctement initialisé
+   - S'assurer que la méthode getFilteredRecipes() renvoie les résultats attendus
+   - Vérifier que la structure des objets recette correspond à celle attendue par les composants
+
+2. **Problèmes de formulaire**
+   - Vérifier que les aliments sont correctement chargés dans le sélecteur d'ingrédients
+   - S'assurer que les quantités sont bien converties en nombres
+   - Vérifier que les listes d'ingrédients et d'instructions ne sont pas vides lors de la soumission
+
+3. **Erreurs de calcul**
+   - Vérifier que les aliments référencés dans les ingrédients existent dans la base de données
+   - S'assurer que les unités de mesure sont correctement gérées
+   - Confirmer que les calculs de macronutriments et de pH sont exacts
+
+4. **Problèmes de performance**
+   - Pour les utilisateurs avec beaucoup de recettes, optimiser les rendus avec React.memo
+   - Utiliser useMemo pour les calculs coûteux comme le filtrage
+   - Considérer la pagination pour les listes de plus de 20 recettes
