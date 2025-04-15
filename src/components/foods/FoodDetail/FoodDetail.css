@@ -1,0 +1,340 @@
+.food-detail-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  padding: 1rem;
+  overflow-y: auto;
+}
+
+.food-detail-container {
+  background-color: var(--neutral-800);
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  width: 100%;
+  max-width: 900px;
+  max-height: 90vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.food-detail-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid var(--neutral-700);
+  position: sticky;
+  top: 0;
+  background-color: var(--neutral-800);
+  z-index: 10;
+}
+
+.food-detail-header h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 1.5rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem;
+  border-radius: 50%;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.close-btn:hover {
+  background-color: var(--neutral-700);
+  color: var(--text-primary);
+}
+
+.food-detail-content {
+  display: flex;
+  padding: 1.5rem;
+  gap: 2rem;
+}
+
+.food-detail-main {
+  flex: 3;
+}
+
+.food-detail-sidebar {
+  flex: 2;
+}
+
+.food-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.food-category-tag {
+  background-color: var(--neutral-700);
+  color: var(--text-primary);
+  padding: 0.25rem 0.75rem;
+  border-radius: 1rem;
+  font-size: 0.875rem;
+  text-transform: capitalize;
+}
+
+.food-diet-tags {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.diet-tag {
+  padding: 0.25rem 0.75rem;
+  border-radius: 1rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.diet-tag.keto {
+  background-color: var(--primary-700);
+  color: var(--primary-100);
+}
+
+.diet-tag.alkaline {
+  background-color: var(--success-700);
+  color: var(--success-100);
+}
+
+.food-actions {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.action-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: 0.25rem;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: 1px solid;
+  background: transparent;
+}
+
+.favorite-btn {
+  border-color: var(--primary-600);
+  color: var(--primary-400);
+}
+
+.favorite-btn:hover, .favorite-btn.is-favorite {
+  background-color: var(--primary-700);
+  color: white;
+}
+
+.add-btn {
+  border-color: var(--success-600);
+  color: var(--success-400);
+}
+
+.add-btn:hover {
+  background-color: var(--success-700);
+  color: white;
+}
+
+.share-btn {
+  border-color: var(--neutral-600);
+  color: var(--text-secondary);
+}
+
+.share-btn:hover {
+  background-color: var(--neutral-700);
+  color: var(--text-primary);
+}
+
+.food-description, 
+.food-nutrition, 
+.food-ph-section, 
+.food-seasonality, 
+.food-serving, 
+.food-allergens {
+  margin-bottom: 2rem;
+}
+
+.food-description h3, 
+.food-nutrition h3, 
+.food-ph-section h3, 
+.food-seasonality h3, 
+.food-serving h3, 
+.food-allergens h3,
+.macros-chart h3,
+.keto-compatibility h3,
+.alkaline-compatibility h3 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: var(--text-primary);
+}
+
+.nutrition-table {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.nutrition-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--neutral-700);
+}
+
+.nutrition-row.highlight {
+  font-weight: 600;
+  color: var(--primary-400);
+}
+
+.nutrition-label {
+  color: var(--text-secondary);
+}
+
+.nutrition-value {
+  font-weight: 500;
+}
+
+.ph-explanation, 
+.compatibility-explanation {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  margin-top: 0.5rem;
+}
+
+.allergens-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.allergen-tag {
+  background-color: var(--error-800);
+  color: var(--error-100);
+  padding: 0.25rem 0.75rem;
+  border-radius: 1rem;
+  font-size: 0.75rem;
+}
+
+.macros-chart {
+  background-color: var(--neutral-900);
+  border-radius: 0.5rem;
+  padding: 1.25rem;
+  margin-bottom: 2rem;
+}
+
+.macro-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.macro-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.macro-bar-label {
+  width: 80px;
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+}
+
+.macro-bar-container {
+  flex-grow: 1;
+  height: 12px;
+  background-color: var(--neutral-800);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.macro-bar-fill {
+  height: 100%;
+  border-radius: 6px;
+}
+
+.macro-bar-fill.fat {
+  background-color: var(--fat);
+}
+
+.macro-bar-fill.protein {
+  background-color: var(--protein);
+}
+
+.macro-bar-fill.carbs {
+  background-color: var(--carbs);
+}
+
+.macro-bar-value {
+  width: 50px;
+  text-align: right;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.keto-compatibility, 
+.alkaline-compatibility {
+  background-color: var(--neutral-900);
+  border-radius: 0.5rem;
+  padding: 1.25rem;
+  margin-bottom: 2rem;
+}
+
+.compatibility-indicator {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  border-radius: 0.25rem;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+}
+
+.compatibility-indicator.compatible {
+  background-color: rgba(var(--success-rgb), 0.1);
+  color: var(--success);
+}
+
+.compatibility-indicator.not-compatible {
+  background-color: rgba(var(--error-rgb), 0.1);
+  color: var(--error);
+}
+
+@media screen and (max-width: 768px) {
+  .food-detail-content {
+    flex-direction: column;
+  }
+  
+  .food-meta {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+  
+  .food-actions {
+    flex-direction: column;
+    width: 100%;
+  }
+  
+  .action-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
