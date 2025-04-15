@@ -23,7 +23,7 @@ const PageLayout: React.FC<PageLayoutProps> = ({
         {description && <meta name="description" content={description} />}
       </Helmet>
       
-      <div className="page-container">
+      <div className="page-container text-neutral-900 dark:text-neutral-100">
         {children}
       </div>
     </>
