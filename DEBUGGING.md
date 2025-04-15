@@ -2,6 +2,154 @@
 
 Ce document fournit des informations pour tester et déboguer les différentes fonctionnalités de l'application.
 
+## RecipeContext - Gestion des recettes
+
+### Points à vérifier
+
+1. **Chargement initial des recettes**
+   - Les recettes prédéfinies du fichier `recipes.json` sont correctement chargées
+   - L'état de chargement (`loading`) est correctement géré
+   - Les erreurs éventuelles sont capturées et affichées
+   - Les favoris sont correctement récupérés depuis localStorage
+
+2. **Filtrage des recettes**
+   - Les filtres par texte fonctionnent correctement (insensibles à la casse)
+   - Les filtres par type de repas filtrent correctement selon les tags
+   - Les filtres keto et alcalin fonctionnent selon les propriétés `isKeto` et `isAlkaline`
+   - Les filtres de temps de préparation et valeurs nutritionnelles appliquent correctement les seuils
+   - Le filtre favoris affiche uniquement les recettes marquées comme favorites
+
+3. **Gestion des recettes personnalisées**
+   - Les nouvelles recettes sont ajoutées avec un ID unique et la propriété `isUserCreated: true`
+   - Les recettes personnalisées sont correctement sauvegardées dans localStorage
+   - Les recettes personnalisées sont correctement chargées au démarrage de l'application
+   - Les modifications et suppressions de recettes personnalisées sont correctement gérées
+   - Les favoris sont correctement gérés (ajout/suppression)
+
+4. **Calculs nutritionnels**
+   - Le calcul des valeurs nutritionnelles d'une recette fonctionne correctement
+   - Le calcul du pH moyen est pondéré selon les quantités des ingrédients
+   - Les propriétés dérivées (isKeto, isAlkaline) sont mises à jour après modification
+
+5. **Intégration avec FoodContext**
+   - Les calculs nutritionnels accèdent correctement aux données d'aliments via FoodContext
+   - Les changements dans la base alimentaire sont reflétés dans les calculs des recettes
+
+### Tests à effectuer
+
+1. **Test de chargement**
+   ```javascript
+   const { recipes, loading, error } = useRecipe();
+   
+   // Vérifier que recipes contient les recettes et que loading est à false
+   console.log(recipes.length > 0 && !loading);
+   
+   // Vérifier qu'il n'y a pas d'erreur
+   console.log(error === null);
+   ```
+
+2. **Test de filtrage**
+   ```javascript
+   const { setFilter, filteredRecipes } = useRecipe();
+   
+   // Tester le filtre par texte
+   setFilter('query', 'avocat');
+   console.log(filteredRecipes); // Devrait inclure les recettes avec avocat
+   
+   // Tester le filtre par type de repas
+   setFilter('mealType', 'déjeuner');
+   console.log(filteredRecipes); // Devrait inclure les recettes pour le déjeuner
+   
+   // Tester le filtre de temps de préparation
+   setFilter('maxPrepTime', 15);
+   console.log(filteredRecipes); // Devrait inclure uniquement les recettes rapides
+   
+   // Réinitialiser les filtres
+   resetFilters();
+   ```
+
+3. **Test d'ajout de recette**
+   ```javascript
+   const { addRecipe, recipes } = useRecipe();
+   
+   // Ajouter une nouvelle recette
+   const newRecipe = {
+     name: "Ma recette test",
+     description: "Une recette de test",
+     prepTime: 10,
+     cookTime: 20,
+     servings: 2,
+     ingredients: [
+       { foodId: "poulet-blanc", quantity: 200, unit: "g" },
+       { foodId: "huile-olive", quantity: 15, unit: "g" }
+     ],
+     instructions: [
+       "Étape 1: faire revenir le poulet",
+       "Étape 2: servir"
+     ],
+     tags: ["dîner", "viande", "rapide"]
+   };
+   
+   const newRecipeId = addRecipe(newRecipe);
+   
+   // Vérifier que la recette a été ajoutée
+   console.log(recipes.some(r => r.id === newRecipeId));
+   
+   // Vérifier que les valeurs nutritionnelles ont été calculées
+   const addedRecipe = recipes.find(r => r.id === newRecipeId);
+   console.log(addedRecipe.nutritionPerServing);
+   
+   // Rafraîchir la page et vérifier que la recette est toujours là (persistance)
+   ```
+
+4. **Test de calcul nutritionnel**
+   ```javascript
+   const { calculateRecipeNutrition } = useRecipe();
+   
+   const ingredients = [
+     { foodId: "saumon", quantity: 200, unit: "g" },
+     { foodId: "avocat", quantity: 100, unit: "g" }
+   ];
+   
+   const nutrition = calculateRecipeNutrition(ingredients);
+   console.log(nutrition); // Vérifier les valeurs nutritionnelles calculées
+   ```
+
+5. **Test de favoris**
+   ```javascript
+   const { toggleFavorite, recipes } = useRecipe();
+   
+   // Ajouter une recette aux favoris
+   const recipeId = recipes[0].id;
+   toggleFavorite(recipeId);
+   
+   // Vérifier que la recette est marquée comme favorite
+   console.log(recipes.find(r => r.id === recipeId).isFavorite);
+   
+   // Rafraîchir la page et vérifier que le favori est conservé
+   ```
+
+### Erreurs courantes
+
+1. **Erreurs de calcul nutritionnel**
+   - Vérifier que tous les aliments référencés existent dans la base de données
+   - S'assurer que les quantités sont positives et numériques
+   - Vérifier que la conversion d'unités est correcte
+
+2. **Problèmes de synchronisation avec FoodContext**
+   - Vérifier que FoodContext est correctement initialisé avant les calculs
+   - S'assurer que useFood() est appelé dans le bon contexte (à l'intérieur d'un FoodProvider)
+
+3. **Erreurs de filtrage**
+   - Vérifier que les noms des filtres correspondent exactement aux propriétés attendues
+   - S'assurer que les valeurs sont du bon type (string, number, boolean)
+   - Vérifier que les propriétés nécessaires (tags, nutritionPerServing) existent sur toutes les recettes
+
+4. **Problèmes avec localStorage**
+   - Vérifier que les noms des clés localStorage sont cohérents
+   - Tester dans une fenêtre de navigation privée pour détecter les problèmes de quota
+   - Vérifier les erreurs de parsing JSON dans la console
+
 ## FoodContext - Base de données alimentaire
 
 ### Points à vérifier
