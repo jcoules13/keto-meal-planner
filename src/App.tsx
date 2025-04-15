@@ -9,6 +9,7 @@ import ThemeSwitcher from './components/ui/ThemeSwitcher';
 import ProfilePage from './pages/ProfilePage';
 import FoodsPage from './pages/FoodsPage';
 import WeightTrackerPage from './pages/WeightTrackerPage';
+import RecipesPage from './pages/RecipesPage';
 
 // Pages temporaires pour démarrer
 const HomePage = () => (
@@ -55,7 +56,7 @@ function App() {
             <Routes>
               <Route path="/" element={<MainLayout><HomePage /></MainLayout>} />
               <Route path="/meal-planner" element={<MainLayout><PlaceholderPage title="Planificateur de repas" /></MainLayout>} />
-              <Route path="/recipes" element={<MainLayout><PlaceholderPage title="Recettes" /></MainLayout>} />
+              <Route path="/recipes" element={<MainLayout><RecipesPage /></MainLayout>} />
               {/* Utiliser le composant FoodsPage */}
               <Route path="/foods" element={<MainLayout><FoodsPage /></MainLayout>} />
               <Route path="/shopping-list" element={<MainLayout><PlaceholderPage title="Liste de courses" /></MainLayout>} />
