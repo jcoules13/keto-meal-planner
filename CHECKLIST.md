@@ -7,24 +7,24 @@ Ce document permet de suivre la progression du développement de l'application.
 - [x] Initialisation du projet React
 - [x] Configuration de l'environnement de développement
 - [x] Mise en place de l'architecture des dossiers
-- [ ] Création des composants de layout principaux
-- [ ] Configuration du routeur React Router
-- [ ] Implémentation du système de thèmes (clair/sombre)
-- [ ] Développement des composants UI réutilisables
+- [x] Création des composants de layout principaux
+- [x] Configuration du routeur React Router
+- [x] Implémentation du système de thèmes (clair/sombre)
+- [x] Développement des composants UI réutilisables
 
 ## Phase 2: Gestion d'état et données
 
-- [ ] UserContext pour la gestion du profil
+- [x] UserContext pour la gestion du profil
 - [x] FoodContext pour la base de données d'aliments
   - [x] Implémentation du context avec useReducer
   - [x] Création de la base de données initiale (foods.json)
   - [x] Système de filtrage des aliments
   - [x] Gestion des aliments personnalisés
   - [x] Persistance dans localStorage
-- [ ] ThemeContext pour la gestion des thèmes
-- [ ] Formulaires de profil utilisateur
-- [ ] Calculs d'IMC et de besoins caloriques
-- [ ] Page de profil utilisateur
+- [x] ThemeContext pour la gestion des thèmes
+- [x] Formulaires de profil utilisateur
+- [x] Calculs d'IMC et de besoins caloriques
+- [x] Page de profil utilisateur
 - [ ] Page de visualisation des aliments
 
 ## Phase 3: Recettes et planification
