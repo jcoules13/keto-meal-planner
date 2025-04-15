@@ -1,0 +1,316 @@
+.recipe-form-container {
+  max-width: 100%;
+  padding: 1.5rem;
+  background-color: var(--background-secondary);
+  border-radius: 0.75rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.recipe-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.form-section {
+  background-color: var(--background-primary);
+  border-radius: 0.5rem;
+  padding: 1.25rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.form-section h3 {
+  margin-top: 0;
+  margin-bottom: 1rem;
+  color: var(--text-primary);
+  font-weight: 600;
+  font-size: 1.125rem;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 0.5rem;
+}
+
+.form-group {
+  margin-bottom: 1rem;
+  width: 100%;
+}
+
+.form-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.form-row .form-group {
+  flex: 1;
+  min-width: 120px;
+}
+
+label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+input[type="text"],
+input[type="number"],
+textarea,
+select {
+  width: 100%;
+  padding: 0.625rem;
+  border: 1px solid var(--border-color);
+  border-radius: 0.25rem;
+  background-color: var(--input-background);
+  color: var(--text-primary);
+  font-size: 0.95rem;
+  transition: border-color 0.3s;
+}
+
+input[type="text"]:focus,
+input[type="number"]:focus,
+textarea:focus,
+select:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 2px rgba(var(--primary-color-rgb), 0.2);
+}
+
+.ingredients-list,
+.instructions-list,
+.tags-list {
+  margin-bottom: 1.5rem;
+  min-height: 50px;
+}
+
+.empty-message {
+  color: var(--text-secondary);
+  font-style: italic;
+  text-align: center;
+  padding: 1rem;
+  background-color: var(--background-tertiary);
+  border-radius: 0.25rem;
+}
+
+.ingredient-item,
+.instruction-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem;
+  background-color: var(--background-tertiary);
+  border-radius: 0.25rem;
+  margin-bottom: 0.5rem;
+  border-left: 3px solid var(--primary-color);
+}
+
+.tags-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.tag-item {
+  display: flex;
+  align-items: center;
+  background-color: var(--background-tertiary);
+  border-radius: 9999px;
+  padding: 0.25rem 0.75rem;
+  font-size: 0.875rem;
+  color: var(--text-primary);
+}
+
+.tag-suggestions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.tag-suggestion {
+  background-color: var(--background-tertiary);
+  border-radius: 9999px;
+  padding: 0.25rem 0.75rem;
+  font-size: 0.875rem;
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.tag-suggestion:hover {
+  background-color: rgba(var(--primary-color-rgb), 0.2);
+}
+
+.add-button,
+.submit-button,
+.cancel-button {
+  padding: 0.625rem 1.25rem;
+  border: none;
+  border-radius: 0.25rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.add-button {
+  background-color: var(--secondary-color);
+  color: white;
+}
+
+.add-button:hover {
+  background-color: var(--secondary-color-dark);
+}
+
+.add-button-small {
+  padding: 0.5rem 1rem;
+  background-color: var(--secondary-color);
+  color: white;
+  border: none;
+  border-radius: 0.25rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.add-button-small:hover {
+  background-color: var(--secondary-color-dark);
+}
+
+.remove-button {
+  background-color: transparent;
+  color: var(--text-secondary);
+  border: none;
+  font-size: 1.25rem;
+  cursor: pointer;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  transition: background-color 0.2s;
+}
+
+.remove-button:hover {
+  background-color: rgba(255, 0, 0, 0.1);
+  color: var(--error-color);
+}
+
+.remove-button-small {
+  background-color: transparent;
+  color: var(--text-secondary);
+  border: none;
+  font-size: 1rem;
+  cursor: pointer;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 0.25rem;
+}
+
+.remove-button-small:hover {
+  color: var(--error-color);
+}
+
+.nutrition-summary {
+  background-color: var(--background-primary);
+  border-radius: 0.5rem;
+  padding: 1.25rem;
+  margin-top: 1rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.nutrition-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.nutrition-item {
+  display: flex;
+  flex-direction: column;
+}
+
+.nutrition-label {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  margin-bottom: 0.25rem;
+}
+
+.nutrition-value {
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.diet-indicators {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.diet-badge {
+  padding: 0.375rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.keto {
+  background-color: rgba(var(--success-color-rgb), 0.2);
+  color: var(--success-color);
+}
+
+.not-keto {
+  background-color: rgba(var(--error-color-rgb), 0.2);
+  color: var(--error-color);
+}
+
+.alkaline {
+  background-color: rgba(var(--info-color-rgb), 0.2);
+  color: var(--info-color);
+}
+
+.not-alkaline {
+  background-color: rgba(var(--warning-color-rgb), 0.2);
+  color: var(--warning-color);
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.submit-button {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+.submit-button:hover {
+  background-color: var(--primary-color-dark);
+}
+
+.cancel-button {
+  background-color: var(--background-tertiary);
+  color: var(--text-primary);
+}
+
+.cancel-button:hover {
+  background-color: var(--background-tertiary-dark);
+}
+
+@media (max-width: 768px) {
+  .form-row {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .nutrition-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}

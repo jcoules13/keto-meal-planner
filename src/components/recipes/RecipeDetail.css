@@ -1,0 +1,292 @@
+.recipe-detail {
+  background-color: var(--background-primary);
+  border-radius: 0.75rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  padding: 1.5rem;
+  position: relative;
+  max-width: 800px;
+  margin: 0 auto;
+  max-height: 85vh;
+  overflow-y: auto;
+}
+
+.recipe-detail-header {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.recipe-detail-title {
+  flex: 1;
+  margin: 0;
+  font-size: 1.5rem;
+  color: var(--text-primary);
+  padding-right: 2rem;
+}
+
+.close-button {
+  position: absolute;
+  top: -0.5rem;
+  right: -0.5rem;
+  width: 2rem;
+  height: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--background-tertiary);
+  border: none;
+  border-radius: 50%;
+  color: var(--text-primary);
+  font-size: 1.5rem;
+  cursor: pointer;
+  z-index: 10;
+  transition: background-color 0.2s;
+}
+
+.close-button:hover {
+  background-color: var(--border-color);
+}
+
+.recipe-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.recipe-actions button {
+  width: 2rem;
+  height: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--background-tertiary);
+  border: none;
+  border-radius: 50%;
+  color: var(--text-secondary);
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.favorite-button.is-favorite {
+  color: var(--warning-color);
+}
+
+.edit-button:hover {
+  background-color: rgba(var(--primary-color-rgb), 0.1);
+  color: var(--primary-color);
+}
+
+.delete-button:hover {
+  background-color: rgba(var(--error-color-rgb), 0.1);
+  color: var(--error-color);
+}
+
+.recipe-detail-description {
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin-bottom: 1.5rem;
+}
+
+.recipe-meta-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  background-color: var(--background-secondary);
+  border-radius: 0.5rem;
+  padding: 1rem;
+}
+
+.recipe-meta-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.meta-icon {
+  font-size: 1.25rem;
+  margin-bottom: 0.25rem;
+}
+
+.meta-label {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  margin-bottom: 0.25rem;
+}
+
+.meta-value {
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.recipe-detail-section {
+  margin-bottom: 1.5rem;
+}
+
+.section-title {
+  font-size: 1.125rem;
+  color: var(--text-primary);
+  margin-top: 0;
+  margin-bottom: 1rem;
+  font-weight: 600;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 0.5rem;
+}
+
+.nutrition-bar {
+  height: 1.5rem;
+  display: flex;
+  width: 100%;
+  border-radius: 0.25rem;
+  overflow: hidden;
+  margin-bottom: 1rem;
+}
+
+.nutrition-segment {
+  height: 100%;
+}
+
+.nutrition-fat {
+  background-color: var(--fat-color);
+}
+
+.nutrition-protein {
+  background-color: var(--protein-color);
+}
+
+.nutrition-carbs {
+  background-color: var(--carbs-color);
+}
+
+.nutrition-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.legend-color {
+  width: 1rem;
+  height: 1rem;
+  border-radius: 0.25rem;
+}
+
+.legend-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.legend-label {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+.legend-value {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.ingredients-list, .instructions-list {
+  padding-left: 1.25rem;
+  margin: 0;
+}
+
+.ingredient-item, .instruction-item {
+  margin-bottom: 0.75rem;
+  line-height: 1.5;
+  color: var(--text-primary);
+}
+
+.ingredient-quantity {
+  font-weight: 600;
+  margin-right: 0.25rem;
+}
+
+.tags-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.tag-item {
+  background-color: var(--background-tertiary);
+  color: var(--text-secondary);
+  padding: 0.4rem 0.8rem;
+  border-radius: 9999px;
+  font-size: 0.85rem;
+}
+
+.recipe-indicators {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.recipe-diet-indicator {
+  padding: 0.5rem 1rem;
+  border-radius: 9999px;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.is-keto {
+  background-color: rgba(var(--success-color-rgb), 0.1);
+  color: var(--success-color);
+}
+
+.not-keto {
+  background-color: rgba(var(--error-color-rgb), 0.1);
+  color: var(--error-color);
+}
+
+.is-alkaline {
+  background-color: rgba(var(--info-color-rgb), 0.1);
+  color: var(--info-color);
+}
+
+.not-alkaline {
+  background-color: rgba(var(--warning-color-rgb), 0.1);
+  color: var(--warning-color);
+}
+
+.recipe-custom-badge {
+  display: inline-block;
+  background-color: rgba(var(--primary-color-rgb), 0.1);
+  color: var(--primary-color);
+  padding: 0.5rem 1rem;
+  border-radius: 9999px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  margin-top: 1rem;
+}
+
+@media (max-width: 768px) {
+  .recipe-detail {
+    padding: 1rem;
+    max-height: 80vh;
+  }
+  
+  .recipe-meta-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .nutrition-legend {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+}
