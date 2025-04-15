@@ -1,61 +1,67 @@
 [
   {
-    "id": "saumon-epinards",
-    "name": "Pavé de saumon aux épinards",
-    "description": "Un plat simple et savoureux à base de saumon accompagné d'épinards sautés à l'huile d'olive.",
-    "prepTime": 10,
-    "cookTime": 20,
+    "id": "salade-avocat-saumon",
+    "name": "Salade d'avocat et saumon",
+    "description": "Une salade rafraîchissante et riche en graisses saines, parfaite pour un déjeuner keto.",
+    "prepTime": 15,
+    "cookTime": 0,
     "servings": 2,
     "ingredients": [
       {
         "foodId": "saumon",
-        "quantity": 300,
-        "unit": "g"
-      },
-      {
-        "foodId": "huile-olive",
-        "quantity": 20,
-        "unit": "g"
-      },
-      {
-        "foodId": "epinards",
         "quantity": 200,
         "unit": "g"
       },
       {
-        "foodId": "beurre",
+        "foodId": "avocat",
+        "quantity": 170,
+        "unit": "g"
+      },
+      {
+        "foodId": "huile-olive",
+        "quantity": 30,
+        "unit": "g"
+      },
+      {
+        "foodId": "citron",
         "quantity": 15,
+        "unit": "g"
+      },
+      {
+        "foodId": "concombre",
+        "quantity": 100,
         "unit": "g"
       }
     ],
     "instructions": [
-      "Dans une poêle, faire fondre le beurre à feu moyen-vif.",
-      "Assaisonner les pavés de saumon et les cuire côté peau d'abord pendant 4 minutes.",
-      "Retourner les pavés et poursuivre la cuisson 3 minutes.",
-      "Retirer le saumon et réserver au chaud.",
-      "Dans la même poêle, faire revenir les épinards avec l'huile d'olive pendant 2-3 minutes.",
-      "Servir le saumon sur un lit d'épinards."
+      "Couper le saumon en dés de 2 cm.",
+      "Éplucher et couper l'avocat en morceaux.",
+      "Découper le concombre en rondelles.",
+      "Mélanger tous les ingrédients dans un bol.",
+      "Arroser d'huile d'olive et de jus de citron.",
+      "Saler et poivrer selon votre goût."
     ],
     "nutritionPerServing": {
-      "calories": 430,
-      "protein": 38.5,
-      "fat": 28.2,
-      "carbs": 3.8,
-      "fiber": 2.1,
-      "netCarbs": 1.7
+      "calories": 420,
+      "protein": 25,
+      "fat": 34,
+      "carbs": 5.2,
+      "fiber": 3.8,
+      "netCarbs": 1.4
     },
-    "averagePHValue": 6.7,
+    "averagePHValue": 7.4,
     "isKeto": true,
-    "isAlkaline": false,
-    "tags": ["dîner", "poisson", "facile"],
+    "isAlkaline": true,
+    "tags": ["déjeuner", "dîner", "salade", "sans cuisson"],
+    "isFavorite": false,
     "isUserCreated": false
   },
   {
-    "id": "poulet-epinards",
-    "name": "Blanc de poulet et épinards au beurre",
-    "description": "Un plat riche en protéines avec blanc de poulet et épinards au beurre.",
+    "id": "poulet-epinards-creme",
+    "name": "Poulet aux épinards à la crème",
+    "description": "Un plat savoureux et crémeux, riche en nutriments et pauvre en glucides.",
     "prepTime": 10,
-    "cookTime": 25,
+    "cookTime": 20,
     "servings": 2,
     "ingredients": [
       {
@@ -65,12 +71,17 @@
       },
       {
         "foodId": "epinards",
-        "quantity": 250,
+        "quantity": 200,
         "unit": "g"
       },
       {
-        "foodId": "beurre",
-        "quantity": 30,
+        "foodId": "creme-fraiche",
+        "quantity": 100,
+        "unit": "g"
+      },
+      {
+        "foodId": "huile-olive",
+        "quantity": 15,
         "unit": "g"
       },
       {
@@ -80,32 +91,31 @@
       }
     ],
     "instructions": [
-      "Couper les blancs de poulet en morceaux et les assaisonner.",
-      "Dans une poêle, faire fondre 20g de beurre à feu moyen-vif.",
-      "Faire revenir le poulet jusqu'à ce qu'il soit bien doré (environ 8 minutes).",
-      "Ajouter les épinards et laisser réduire (2-3 minutes).",
-      "Ajouter le reste du beurre et laisser fondre.",
-      "Ajouter le comté râpé et mélanger jusqu'à ce qu'il soit fondu.",
-      "Servir chaud."
+      "Couper le poulet en morceaux et le faire revenir dans l'huile d'olive jusqu'à ce qu'il soit doré.",
+      "Ajouter les épinards et laisser réduire pendant 3-4 minutes.",
+      "Incorporer la crème fraîche et laisser mijoter 5 minutes à feu doux.",
+      "Parsemer de comté râpé et laisser fondre.",
+      "Servir chaud avec une pincée de sel et de poivre."
     ],
     "nutritionPerServing": {
-      "calories": 495,
-      "protein": 52.4,
-      "fat": 29.5,
-      "carbs": 3.2,
-      "fiber": 1.1,
-      "netCarbs": 2.1
+      "calories": 510,
+      "protein": 45,
+      "fat": 35,
+      "carbs": 3.6,
+      "fiber": 1.8,
+      "netCarbs": 1.8
     },
-    "averagePHValue": 6.3,
+    "averagePHValue": 6.5,
     "isKeto": true,
     "isAlkaline": false,
-    "tags": ["dîner", "poulet", "facile"],
+    "tags": ["déjeuner", "dîner", "plat principal", "poulet"],
+    "isFavorite": false,
     "isUserCreated": false
   },
   {
-    "id": "omelette-fromage",
-    "name": "Omelette au comté",
-    "description": "Une omelette onctueuse au comté, parfaite pour un déjeuner keto.",
+    "id": "omelette-fromage-epinards",
+    "name": "Omelette au fromage et épinards",
+    "description": "Une omelette moelleuse et nourrissante, parfaite pour un petit-déjeuner keto.",
     "prepTime": 5,
     "cookTime": 10,
     "servings": 1,
@@ -116,46 +126,103 @@
         "unit": "g"
       },
       {
-        "foodId": "beurre",
-        "quantity": 15,
+        "foodId": "fromage-chevre",
+        "quantity": 30,
         "unit": "g"
       },
       {
-        "foodId": "fromage-comte",
-        "quantity": 30,
+        "foodId": "epinards",
+        "quantity": 50,
+        "unit": "g"
+      },
+      {
+        "foodId": "beurre",
+        "quantity": 10,
         "unit": "g"
       }
     ],
     "instructions": [
-      "Battre les œufs dans un bol et assaisonner selon votre goût.",
-      "Dans une poêle, faire fondre le beurre à feu moyen.",
-      "Verser les œufs battus dans la poêle.",
-      "Laisser cuire à feu moyen jusqu'à ce que les œufs commencent à prendre.",
-      "Ajouter le fromage râpé sur la moitié de l'omelette.",
-      "Plier l'omelette et continuer la cuisson 1 minute.",
-      "Servir immédiatement."
+      "Battre les œufs dans un bol avec une pincée de sel et de poivre.",
+      "Faire fondre le beurre dans une poêle à feu moyen.",
+      "Ajouter les épinards et les faire revenir brièvement.",
+      "Verser les œufs battus et laisser cuire à feu doux.",
+      "Ajouter le fromage de chèvre émietté sur la moitié de l'omelette.",
+      "Replier l'omelette et servir."
     ],
     "nutritionPerServing": {
-      "calories": 475,
-      "protein": 31.5,
-      "fat": 36.6,
-      "carbs": 1.2,
-      "fiber": 0,
-      "netCarbs": 1.2
+      "calories": 440,
+      "protein": 30,
+      "fat": 35,
+      "carbs": 2.1,
+      "fiber": 1.1,
+      "netCarbs": 1.0
+    },
+    "averagePHValue": 6.7,
+    "isKeto": true,
+    "isAlkaline": false,
+    "tags": ["petit-déjeuner", "déjeuner", "œufs", "rapide"],
+    "isFavorite": false,
+    "isUserCreated": false
+  },
+  {
+    "id": "steak-beurre-herbes-brocoli",
+    "name": "Steak au beurre d'herbes et brocoli",
+    "description": "Un steak savoureux accompagné de brocoli, riche en protéines et faible en glucides.",
+    "prepTime": 10,
+    "cookTime": 15,
+    "servings": 1,
+    "ingredients": [
+      {
+        "foodId": "boeuf-steak",
+        "quantity": 200,
+        "unit": "g"
+      },
+      {
+        "foodId": "beurre",
+        "quantity": 20,
+        "unit": "g"
+      },
+      {
+        "foodId": "brocoli",
+        "quantity": 150,
+        "unit": "g"
+      },
+      {
+        "foodId": "huile-olive",
+        "quantity": 10,
+        "unit": "g"
+      }
+    ],
+    "instructions": [
+      "Sortir le steak du réfrigérateur 30 minutes avant la cuisson.",
+      "Saler et poivrer le steak des deux côtés.",
+      "Faire chauffer une poêle à feu vif et y cuire le steak selon votre préférence.",
+      "Pendant ce temps, faire cuire le brocoli à la vapeur pendant 5-6 minutes.",
+      "Assaisonner le brocoli avec de l'huile d'olive, du sel et du poivre.",
+      "Servir le steak avec une noix de beurre sur le dessus et le brocoli en accompagnement."
+    ],
+    "nutritionPerServing": {
+      "calories": 650,
+      "protein": 45,
+      "fat": 52,
+      "carbs": 6.0,
+      "fiber": 2.6,
+      "netCarbs": 3.4
     },
     "averagePHValue": 6.3,
     "isKeto": true,
     "isAlkaline": false,
-    "tags": ["déjeuner", "oeuf", "rapide"],
+    "tags": ["déjeuner", "dîner", "plat principal", "viande"],
+    "isFavorite": false,
     "isUserCreated": false
   },
   {
-    "id": "salade-avocat-epinards",
-    "name": "Salade d'avocat et épinards",
-    "description": "Une salade fraîche et alcaline à base d'avocat, d'épinards et d'amandes.",
-    "prepTime": 10,
+    "id": "mousse-avocat-chocolat",
+    "name": "Mousse d'avocat au chocolat",
+    "description": "Un dessert keto étonnamment crémeux et riche, sans sucre ajouté.",
+    "prepTime": 15,
     "cookTime": 0,
-    "servings": 1,
+    "servings": 2,
     "ingredients": [
       {
         "foodId": "avocat",
@@ -163,90 +230,297 @@
         "unit": "g"
       },
       {
-        "foodId": "amandes",
-        "quantity": 20,
-        "unit": "g"
-      },
-      {
-        "foodId": "huile-olive",
-        "quantity": 15,
-        "unit": "g"
-      },
-      {
-        "foodId": "epinards",
-        "quantity": 100,
+        "foodId": "creme-fraiche",
+        "quantity": 30,
         "unit": "g"
       }
     ],
     "instructions": [
-      "Laver et essorer les feuilles d'épinard.",
-      "Couper l'avocat en dés.",
-      "Concasser grossièrement les amandes.",
-      "Mélanger tous les ingrédients dans un bol.",
-      "Arroser d'huile d'olive et assaisonner selon votre goût.",
-      "Servir immédiatement."
+      "Mixer l'avocat bien mûr jusqu'à obtenir une texture lisse.",
+      "Ajouter le cacao en poudre et l'édulcorant, puis mixer à nouveau.",
+      "Incorporer la crème fraîche et une pincée de sel.",
+      "Mixer une dernière fois jusqu'à obtenir une texture homogène et aérée.",
+      "Répartir dans 2 ramequins et réfrigérer pendant au moins 1 heure avant de servir."
     ],
     "nutritionPerServing": {
-      "calories": 498,
-      "protein": 12.2,
-      "fat": 45.8,
-      "carbs": 11.9,
-      "fiber": 9.5,
-      "netCarbs": 2.4
+      "calories": 200,
+      "protein": 2.5,
+      "fat": 19,
+      "carbs": 8.0,
+      "fiber": 5.5,
+      "netCarbs": 2.5
     },
-    "averagePHValue": 7.9,
+    "averagePHValue": 7.8,
     "isKeto": true,
     "isAlkaline": true,
-    "tags": ["déjeuner", "salade", "sans cuisson", "alcalin"],
+    "tags": ["dessert", "sucré", "sans cuisson"],
+    "isFavorite": false,
     "isUserCreated": false
   },
   {
-    "id": "smoothie-avocat",
-    "name": "Smoothie à l'avocat",
-    "description": "Un smoothie alcalin riche en graisses saines, parfait pour un petit-déjeuner keto.",
-    "prepTime": 5,
-    "cookTime": 0,
-    "servings": 1,
+    "id": "saumon-asperges-hollandaise",
+    "name": "Saumon aux asperges et sauce hollandaise",
+    "description": "Un plat élégant et nutritif, parfait pour un dîner keto raffiné.",
+    "prepTime": 15,
+    "cookTime": 20,
+    "servings": 2,
     "ingredients": [
       {
-        "foodId": "avocat",
-        "quantity": 100,
+        "foodId": "saumon",
+        "quantity": 300,
         "unit": "g"
       },
       {
-        "foodId": "epinards",
-        "quantity": 30,
+        "foodId": "asperges",
+        "quantity": 200,
         "unit": "g"
       },
       {
-        "foodId": "huile-olive",
-        "quantity": 15,
+        "foodId": "beurre",
+        "quantity": 80,
         "unit": "g"
       },
       {
-        "foodId": "amandes",
+        "foodId": "oeuf",
+        "quantity": 50,
+        "unit": "g"
+      },
+      {
+        "foodId": "citron",
         "quantity": 10,
         "unit": "g"
       }
     ],
     "instructions": [
-      "Placer tous les ingrédients dans un mixeur.",
-      "Ajouter 200ml d'eau.",
-      "Mixer jusqu'à obtenir une consistance lisse.",
-      "Servir immédiatement."
+      "Préchauffer le four à 180°C.",
+      "Placer les pavés de saumon sur une plaque de cuisson avec un peu d'huile, sel et poivre.",
+      "Cuire au four pendant 15-18 minutes selon l'épaisseur.",
+      "Pendant ce temps, faire cuire les asperges à la vapeur pendant 5-7 minutes.",
+      "Pour la sauce hollandaise, faire fondre le beurre et le garder au chaud.",
+      "Mélanger les jaunes d'œufs avec le jus de citron au bain-marie, fouetter continuellement.",
+      "Incorporer progressivement le beurre fondu tout en fouettant jusqu'à épaississement.",
+      "Servir le saumon avec les asperges et napper de sauce hollandaise."
     ],
     "nutritionPerServing": {
-      "calories": 365,
-      "protein": 5.8,
-      "fat": 34.3,
-      "carbs": 6.9,
-      "fiber": 5.1,
-      "netCarbs": 1.8
+      "calories": 590,
+      "protein": 40,
+      "fat": 46,
+      "carbs": 3.5,
+      "fiber": 2.1,
+      "netCarbs": 1.4
     },
-    "averagePHValue": 8.0,
+    "averagePHValue": 6.8,
+    "isKeto": true,
+    "isAlkaline": false,
+    "tags": ["dîner", "plat principal", "poisson", "élégant"],
+    "isFavorite": false,
+    "isUserCreated": false
+  },
+  {
+    "id": "puree-chou-fleur-fromage",
+    "name": "Purée de chou-fleur au fromage",
+    "description": "Un substitut délicieux et keto-friendly à la traditionnelle purée de pommes de terre.",
+    "prepTime": 10,
+    "cookTime": 15,
+    "servings": 4,
+    "ingredients": [
+      {
+        "foodId": "chou-fleur",
+        "quantity": 500,
+        "unit": "g"
+      },
+      {
+        "foodId": "beurre",
+        "quantity": 40,
+        "unit": "g"
+      },
+      {
+        "foodId": "fromage-comte",
+        "quantity": 50,
+        "unit": "g"
+      },
+      {
+        "foodId": "creme-fraiche",
+        "quantity": 60,
+        "unit": "g"
+      }
+    ],
+    "instructions": [
+      "Découper le chou-fleur en bouquets.",
+      "Cuire les bouquets à la vapeur ou dans de l'eau bouillante pendant 10-12 minutes, jusqu'à tendreté.",
+      "Égoutter soigneusement et transférer dans un robot mixeur.",
+      "Ajouter le beurre et la crème fraîche.",
+      "Mixer jusqu'à obtenir une texture lisse.",
+      "Incorporer le fromage râpé et mélanger.",
+      "Assaisonner avec du sel et du poivre selon votre goût."
+    ],
+    "nutritionPerServing": {
+      "calories": 215,
+      "protein": 8,
+      "fat": 18,
+      "carbs": 6.8,
+      "fiber": 2.5,
+      "netCarbs": 4.3
+    },
+    "averagePHValue": 6.8,
+    "isKeto": true,
+    "isAlkaline": false,
+    "tags": ["accompagnement", "légumes", "plat principal"],
+    "isFavorite": false,
+    "isUserCreated": false
+  },
+  {
+    "id": "salade-chevre-noix",
+    "name": "Salade de chèvre et noix",
+    "description": "Une salade gourmande avec du fromage de chèvre et des noix, idéale pour un déjeuner léger.",
+    "prepTime": 10,
+    "cookTime": 0,
+    "servings": 2,
+    "ingredients": [
+      {
+        "foodId": "fromage-chevre",
+        "quantity": 100,
+        "unit": "g"
+      },
+      {
+        "foodId": "noix",
+        "quantity": 30,
+        "unit": "g"
+      },
+      {
+        "foodId": "huile-olive",
+        "quantity": 20,
+        "unit": "g"
+      },
+      {
+        "foodId": "citron",
+        "quantity": 10,
+        "unit": "g"
+      }
+    ],
+    "instructions": [
+      "Couper le fromage de chèvre en tranches ou en dés.",
+      "Concasser grossièrement les noix.",
+      "Mélanger l'huile d'olive et le jus de citron pour faire une vinaigrette.",
+      "Disposer les feuilles de salade dans un plat.",
+      "Ajouter le fromage de chèvre et parsemer de noix concassées.",
+      "Arroser de vinaigrette et servir immédiatement."
+    ],
+    "nutritionPerServing": {
+      "calories": 380,
+      "protein": 17,
+      "fat": 35,
+      "carbs": 3.5,
+      "fiber": 1.8,
+      "netCarbs": 1.7
+    },
+    "averagePHValue": 6.7,
+    "isKeto": true,
+    "isAlkaline": false,
+    "tags": ["déjeuner", "entrée", "salade", "sans cuisson"],
+    "isFavorite": false,
+    "isUserCreated": false
+  },
+  {
+    "id": "courgettes-farcies-viande",
+    "name": "Courgettes farcies à la viande",
+    "description": "Des courgettes farcies avec un mélange savoureux de viande et de fromage.",
+    "prepTime": 20,
+    "cookTime": 30,
+    "servings": 2,
+    "ingredients": [
+      {
+        "foodId": "courgette",
+        "quantity": 400,
+        "unit": "g"
+      },
+      {
+        "foodId": "boeuf-steak",
+        "quantity": 200,
+        "unit": "g"
+      },
+      {
+        "foodId": "fromage-comte",
+        "quantity": 60,
+        "unit": "g"
+      },
+      {
+        "foodId": "huile-olive",
+        "quantity": 15,
+        "unit": "g"
+      }
+    ],
+    "instructions": [
+      "Préchauffer le four à 180°C.",
+      "Laver les courgettes et les couper en deux dans le sens de la longueur.",
+      "Évider les courgettes à l'aide d'une cuillère pour créer un creux.",
+      "Faire revenir la viande hachée dans une poêle avec un peu d'huile d'olive.",
+      "Assaisonner la viande avec des herbes, du sel et du poivre.",
+      "Remplir les courgettes avec le mélange de viande.",
+      "Parsemer de fromage râpé sur le dessus.",
+      "Cuire au four pendant 25-30 minutes jusqu'à ce que le fromage soit doré."
+    ],
+    "nutritionPerServing": {
+      "calories": 485,
+      "protein": 38,
+      "fat": 35,
+      "carbs": 5.2,
+      "fiber": 1.5,
+      "netCarbs": 3.7
+    },
+    "averagePHValue": 6.6,
+    "isKeto": true,
+    "isAlkaline": false,
+    "tags": ["déjeuner", "dîner", "plat principal", "légumes"],
+    "isFavorite": false,
+    "isUserCreated": false
+  },
+  {
+    "id": "fraises-creme-amandes",
+    "name": "Fraises à la crème et amandes",
+    "description": "Un dessert keto simple mais délicieux, parfait pour satisfaire une envie de douceur.",
+    "prepTime": 10,
+    "cookTime": 0,
+    "servings": 2,
+    "ingredients": [
+      {
+        "foodId": "fraises",
+        "quantity": 150,
+        "unit": "g"
+      },
+      {
+        "foodId": "creme-fraiche",
+        "quantity": 100,
+        "unit": "g"
+      },
+      {
+        "foodId": "amandes",
+        "quantity": 20,
+        "unit": "g"
+      }
+    ],
+    "instructions": [
+      "Laver et équeter les fraises.",
+      "Couper les fraises en deux ou en quartiers selon leur taille.",
+      "Hacher grossièrement les amandes.",
+      "Fouetter légèrement la crème fraîche.",
+      "Disposer les fraises dans des coupes à dessert.",
+      "Napper de crème fraîche et parsemer d'amandes hachées.",
+      "Servir immédiatement ou réserver au frais."
+    ],
+    "nutritionPerServing": {
+      "calories": 260,
+      "protein": 5.5,
+      "fat": 24,
+      "carbs": 9.0,
+      "fiber": 3.2,
+      "netCarbs": 5.8
+    },
+    "averagePHValue": 7.3,
     "isKeto": true,
     "isAlkaline": true,
-    "tags": ["petit-déjeuner", "boisson", "sans cuisson", "alcalin"],
+    "tags": ["dessert", "sucré", "rapide", "sans cuisson"],
+    "isFavorite": false,
     "isUserCreated": false
   }
 ]
