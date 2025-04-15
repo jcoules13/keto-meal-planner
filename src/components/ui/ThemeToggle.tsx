@@ -7,7 +7,7 @@ const ThemeToggle: React.FC = () => {
   return (
     <button
       onClick={toggleTheme}
-      className="p-2 rounded-full focus:outline-none focus:ring-2 focus:ring-primary-500"
+      className="p-2 rounded-full focus:outline-none focus:ring-2 focus:ring-primary-500 transition-colors"
       aria-label={`Basculer vers le thème ${theme === 'light' ? 'sombre' : 'clair'}`}
     >
       {theme === 'light' ? (
