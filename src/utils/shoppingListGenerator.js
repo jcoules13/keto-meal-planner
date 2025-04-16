@@ -1,68 +1,107 @@
-
-
 /**
  * Génère une liste de courses à partir d'un plan de repas
  * @param {Object} plan - Le plan de repas
- * @returns {Array} La liste de courses générée
+ * @param {Object} options - Options de génération
+ * @param {Array} options.foods - Liste complète des aliments
+ * @param {Function} options.getFoodById - Fonction pour obtenir un aliment par son ID
+ * @param {Array} options.recipes - Liste complète des recettes
+ * @param {Function} options.getRecipeById - Fonction pour obtenir une recette par son ID
+ * @returns {Object} La liste de courses générée
  */
-function generateShoppingList(mealPlan) {
-  if (!mealPlan || !mealPlan.days) {
-    console.error('Invalid meal plan structure provided.', mealPlan);
-    return []; // Retourne une liste vide si mealPlan ou mealPlan.days n'est pas défini
+export function generateShoppingList(plan, { foods, getFoodById, recipes, getRecipeById }) {
+  // Initialiser la liste des aliments nécessaires
+  const requiredFoods = {};
+  
+  // Parcourir tous les jours du plan
+  for (const day of plan.days) {
+    // Parcourir tous les repas de la journée
+    for (const meal of day.meals) {
+      // Parcourir tous les éléments du repas (recettes ou aliments individuels)
+      for (const item of meal.items) {
+        if (item.type === 'recipe') {
+          // C'est une recette, extraire tous ses ingrédients
+          const recipe = getRecipeById(item.id);
+          if (!recipe) {
+            console.warn(`Recette non trouvée: ${item.id}`);
+            continue;
+          }
+          
+          // Calculer le facteur de portion
+          const portionFactor = item.servings || 1;
+          
+          // Ajouter chaque ingrédient
+          for (const ingredient of recipe.ingredients) {
+            const foodId = ingredient.foodId;
+            const quantity = ingredient.quantity * portionFactor;
+            
+            if (requiredFoods[foodId]) {
+              requiredFoods[foodId].quantity += quantity;
+            } else {
+              requiredFoods[foodId] = {
+                id: foodId,
+                quantity
+              };
+            }
+          }
+        } else if (item.type === 'food') {
+          // C'est un aliment individuel
+          const foodId = item.id;
+          const quantity = item.quantity || 0;
+          
+          if (requiredFoods[foodId]) {
+            requiredFoods[foodId].quantity += quantity;
+          } else {
+            requiredFoods[foodId] = {
+              id: foodId,
+              quantity
+            };
+          }
+        }
+      }
+    }
   }
-
-  const shoppingList = [];
-  const categoryMap = new Map();
-
-  mealPlan.days.forEach((day) => {
-    if (!day.meals) return; // Passe au jour suivant si meals n'est pas défini
-
-    day.meals.forEach((meal) => {
-      if (!meal.ingredients) return; // Passe au repas suivant si ingredients n'est pas défini
-
-      meal.ingredients.forEach((ingredient) => {
-        if (!ingredient.category || !ingredient.name || !ingredient.quantity) {
-          console.warn('Incomplete ingredient data:', ingredient);
-          return; // Passe à l'ingrédient suivant si des données sont manquantes
-        }
-        const category = ingredient.category;
-        if (!categoryMap.has(category)) {
-          categoryMap.set(category, {});
-        }
-        if (categoryMap.get(category)[ingredient.name]) {
-          categoryMap.get(category)[ingredient.name].quantity += ingredient.quantity;
-        } else {
-          categoryMap.get(category)[ingredient.name] = {
-            quantity: ingredient.quantity,
-            unit: ingredient.unit,
-          };
-        }
-      });
-    });
-  });
-
-  // Transformation de la map en tableau pour la liste de courses
-  categoryMap.forEach((ingredients, category) => {
-    Object.keys(ingredients).forEach((ingredientName) => {
-      shoppingList.push({
-        id: generateUniqueId(), // Assurez-vous d'avoir une fonction qui génère des IDs uniques
-        name: ingredientName,
-        quantity: ingredients[ingredientName].quantity,
-        unit: ingredients[ingredientName].unit || '', // Ajout de l'unité si disponible
-        category,
-      });
-    });
-  });
-
-  return shoppingList;
+  
+  // Organiser les aliments par catégorie
+  const categorizedItems = {};
+  
+  // Parcourir tous les aliments nécessaires
+  for (const [foodId, entry] of Object.entries(requiredFoods)) {
+    const food = getFoodById(foodId);
+    if (!food) {
+      console.warn(`Aliment non trouvé: ${foodId}`);
+      continue;
+    }
+    
+    // Convertir la quantité en unité appropriée
+    const { quantity, unit } = convertToAppropriateUnit(food, entry.quantity);
+    
+    // Créer l'élément de liste de courses
+    const shoppingItem = {
+      id: food.id,
+      name: food.name,
+      quantity: Math.round(quantity * 10) / 10, // Arrondi à 1 décimale
+      unit,
+      checked: false
+    };
+    
+    // Ajouter à la catégorie appropriée
+    const category = food.category || 'autres';
+    if (!categorizedItems[category]) {
+      categorizedItems[category] = [];
+    }
+    
+    categorizedItems[category].push(shoppingItem);
+  }
+  
+  // Trier les éléments par nom dans chaque catégorie
+  for (const category in categorizedItems) {
+    categorizedItems[category].sort((a, b) => a.name.localeCompare(b.name));
+  }
+  
+  return {
+    categories: categorizedItems
+  };
 }
-
-// Fonction pour générer des IDs uniques (simple exemple)
-function generateUniqueId() {
-  return Math.random().toString(36).substr(2, 9);
-}
-
-export default generateShoppingList;
 
 /**
  * Convertit une quantité en unité la plus appropriée pour un aliment
@@ -92,15 +131,13 @@ function convertToAppropriateUnit(food, quantity) {
   };
 }
 
-
-
 /**
  * Estime le coût total d'une liste de courses (si les prix sont disponibles)
  * @param {Object} shoppingList - La liste de courses
  * @param {Array} foods - Liste complète des aliments
  * @returns {number} Le coût total estimé
  */
-/*export function estimateShoppingListCost(shoppingList, foods) {
+export function estimateShoppingListCost(shoppingList, foods) {
   let totalCost = 0;
   
   // Parcourir toutes les catégories
@@ -120,7 +157,7 @@ function convertToAppropriateUnit(food, quantity) {
   }
   
   return totalCost;
-}*/
+}
 
 /**
  * Optimise une liste de courses en regroupant les aliments similaires
@@ -144,26 +181,31 @@ export function optimizeShoppingList(shoppingList) {
  * @param {Object} shoppingList - La liste de courses
  * @returns {string} La liste au format texte
  */
-/*export function shoppingListToText(shoppingList) {
-  let text = "LISTE DE COURSES\n\n";
+export function shoppingListToText(shoppingList) {
+  let text = \"LISTE DE COURSES\
+\
+\";
   
   // Parcourir toutes les catégories
   for (const category in shoppingList.categories) {
     if (shoppingList.categories[category].length === 0) continue;
     
     // Ajouter le nom de la catégorie
-    text += `${formatCategoryName(category).toUpperCase()}:\n`;
+    text += `${formatCategoryName(category).toUpperCase()}:\
+`;
     
     // Ajouter chaque élément
     for (const item of shoppingList.categories[category]) {
-      text += `- ${item.quantity} ${item.unit} ${item.name}\n`;
+      text += `- ${item.quantity} ${item.unit} ${item.name}\
+`;
     }
     
-    text += "\n";
+    text += \"\
+\";
   }
   
   return text;
-}*/
+}
 
 /**
  * Formate le nom d'une catégorie pour l'affichage
@@ -192,7 +234,7 @@ function formatCategoryName(category) {
  * @param {Array} foods - Liste complète des aliments
  * @returns {Object} Proportions de macronutriments
  */
-/*export function analyzeShoppingListMacros(shoppingList, foods) {
+export function analyzeShoppingListMacros(shoppingList, foods) {
   // Initialiser les totaux
   let totalCalories = 0;
   let totalProtein = 0;
@@ -231,4 +273,53 @@ function formatCategoryName(category) {
     fat: Math.round((fatCalories / totalMacroCalories) * 100) || 0,
     carbs: Math.round((carbsCalories / totalMacroCalories) * 100) || 0
   };
-}*/
+}
+`,
+  `message`: `Complétion de l'utilitaire de génération de liste de courses`
+}
+{
+  "content": {
+    "name": "shoppingListGenerator.js",
+    "path": "src/utils/shoppingListGenerator.js",
+    "sha": "6d7464f2f226d31193935b4c679c653a62451f9e",
+    "size": 9185,
+    "url": "https://api.github.com/repos/jcoules13/keto-meal-planner/contents/src/utils/shoppingListGenerator.js?ref=main",
+    "html_url": "https://github.com/jcoules13/keto-meal-planner/blob/main/src/utils/shoppingListGenerator.js",
+    "git_url": "https://api.github.com/repos/jcoules13/keto-meal-planner/git/blobs/6d7464f2f226d31193935b4c679c653a62451f9e",
+    "download_url": "https://raw.githubusercontent.com/jcoules13/keto-meal-planner/main/src/utils/shoppingListGenerator.js",
+    "type": "file",
+    "_links": {
+      "self": "https://api.github.com/repos/jcoules13/keto-meal-planner/contents/src/utils/shoppingListGenerator.js?ref=main",
+      "git": "https://api.github.com/repos/jcoules13/keto-meal-planner/git/blobs/6d7464f2f226d31193935b4c679c653a62451f9e",
+      "html": "https://github.com/jcoules13/keto-meal-planner/blob/main/src/utils/shoppingListGenerator.js"
+    }
+  },
+  "commit": {
+    "sha": "ffb6270ce68fc26bf9ad5d94f81e52bff290f4e0",
+    "node_id": "C_kwDOOZZVYdoAKGZmYjYyNzBjZTY4ZmMyNmJmOWFkNWQ5NGY4MWU1MmJmZjI5MGY0ZTA",
+    "url": "https://api.github.com/repos/jcoules13/keto-meal-planner/git/commits/ffb6270ce68fc26bf9ad5d94f81e52bff290f4e0",
+    "html_url": "https://github.com/jcoules13/keto-meal-planner/commit/ffb6270ce68fc26bf9ad5d94f81e52bff290f4e0",
+    "author": {
+      "name": "jcoules13",
+      "email": "144330373+jcoules13@users.noreply.github.com",
+      "date": "2025-04-16T05:14:27Z"
+    },
+    "committer": {
+      "name": "jcoules13",
+      "email": "144330373+jcoules13@users.noreply.github.com",
+      "date": "2025-04-16T05:14:27Z"
+    },
+    "message": "Complétion de l'utilitaire de génération de liste de courses",
+    "tree": {
+      "sha": "e727a4f8fc38ac609f9716a533f52528e1226703",
+      "url": "https://api.github.com/repos/jcoules13/keto-meal-planner/git/trees/e727a4f8fc38ac609f9716a533f52528e1226703"
+    },
+    "parents": [
+      {
+        "sha": "52df033a2d4873d231db842b95ba33012698fef6",
+        "url": "https://api.github.com/repos/jcoules13/keto-meal-planner/git/commits/52df033a2d4873d231db842b95ba33012698fef6",
+        "html_url": "https://github.com/jcoules13/keto-meal-planner/commit/52df033a2d4873d231db842b95ba33012698fef6"
+      }
+    ]
+  }
+}
