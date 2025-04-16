@@ -101,8 +101,6 @@
     --secondary-800: #c6a8e0;
     --secondary-900: #e3d6f4;
 
-    /* Couleurs neutres restent les mêmes car elles sont un spectre */
-
     /* Couleurs sémantiques (ajustées pour le mode sombre) */
     --success: #0d9669;
     --warning: #d18609;
@@ -242,6 +240,11 @@
 
   .badge-error {
     @apply bg-error bg-opacity-20 text-error;
+  }
+  
+  /* Style pour le sélecteur de thème */
+  .theme-switcher {
+    @apply relative cursor-pointer p-1.5 rounded-lg text-primary-600 dark:text-primary-400 hover:bg-neutral-100 dark:hover:bg-neutral-700 transition-colors;
   }
 }
 
