@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
-import { FaAppleAlt, FaUtensils, FaClipboardList, FaWeight } from 'react-icons/fa';
+import Icon from '../components/ui/Icon';
 
 /**
  * Page d'accueil de l'application
@@ -23,7 +23,7 @@ const HomePage: React.FC = () => {
       <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
         <div className="bg-gray-800 p-6 rounded-lg shadow-lg flex flex-col items-center">
           <span className="text-4xl text-green-400 mb-4">
-            <FaAppleAlt />
+            <Icon icon="FaAppleAlt" />
           </span>
           <h2 className="text-xl font-semibold mb-2">Base d'aliments</h2>
           <p className="text-center text-gray-300 mb-4">
@@ -36,7 +36,7 @@ const HomePage: React.FC = () => {
         
         <div className="bg-gray-800 p-6 rounded-lg shadow-lg flex flex-col items-center">
           <span className="text-4xl text-yellow-400 mb-4">
-            <FaUtensils />
+            <Icon icon="FaUtensils" />
           </span>
           <h2 className="text-xl font-semibold mb-2">Recettes Keto</h2>
           <p className="text-center text-gray-300 mb-4">
@@ -49,7 +49,7 @@ const HomePage: React.FC = () => {
         
         <div className="bg-gray-800 p-6 rounded-lg shadow-lg flex flex-col items-center">
           <span className="text-4xl text-blue-400 mb-4">
-            <FaClipboardList />
+            <Icon icon="FaClipboardList" />
           </span>
           <h2 className="text-xl font-semibold mb-2">Plans de repas</h2>
           <p className="text-center text-gray-300 mb-4">
@@ -62,7 +62,7 @@ const HomePage: React.FC = () => {
         
         <div className="bg-gray-800 p-6 rounded-lg shadow-lg flex flex-col items-center">
           <span className="text-4xl text-purple-400 mb-4">
-            <FaWeight />
+            <Icon icon="FaWeight" />
           </span>
           <h2 className="text-xl font-semibold mb-2">Suivi de poids</h2>
           <p className="text-center text-gray-300 mb-4">
