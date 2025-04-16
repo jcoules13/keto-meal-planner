@@ -1,0 +1,83 @@
+/* Styles pour la page d'accueil avec prise en charge complète du thème */
+.home-page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1.5rem;
+}
+
+.home-content {
+  max-width: 48rem;
+  margin: 0 auto;
+}
+
+.page-title {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  color: var(--text-primary);
+  font-family: 'Montserrat', sans-serif;
+}
+
+.light .page-title {
+  color: var(--primary-600);
+}
+
+.dark .page-title {
+  color: var(--primary-400);
+}
+
+.intro-text {
+  font-size: 1.125rem;
+  margin-bottom: 2rem;
+  color: var(--text-primary);
+}
+
+.features-card {
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.light .features-card {
+  background-color: white;
+  border: 1px solid var(--neutral-200);
+}
+
+.dark .features-card {
+  background-color: var(--neutral-800);
+  border: 1px solid var(--neutral-700);
+}
+
+.features-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: var(--text-primary);
+  font-family: 'Montserrat', sans-serif;
+}
+
+.features-list {
+  list-style-type: disc;
+  padding-left: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.features-list li {
+  margin-bottom: 0.75rem;
+  color: var(--text-primary);
+}
+
+/* Adaptations responsive */
+@media (max-width: 768px) {
+  .home-page {
+    padding: 1rem;
+  }
+  
+  .page-title {
+    font-size: 1.75rem;
+  }
+  
+  .features-card {
+    padding: 1.25rem;
+  }
+}
