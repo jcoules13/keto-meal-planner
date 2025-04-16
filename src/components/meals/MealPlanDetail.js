@@ -184,36 +184,35 @@ const MealPlanDetail = ({ planId }) => {
                 {hasMeals && (
                   <div className="hidden sm:block mr-6 w-32">
                     <div className="flex justify-between text-xs text-gray-400 mb-1">
-                      <span className="text-yellow-500">{dayTotals.macroRatios.fat}% lipides</span>
-                      <span className="text-red-500">{dayTotals.macroRatios.protein}% protéines</span>
-                      <span className="text-green-500">{dayTotals.macroRatios.carbs}% glucides</span>
+                      <span className="text-yellow-500">{dayTotals.macroRatios.fat}%</span>
+                      <span className="text-red-500">{dayTotals.macroRatios.protein}%</span>
+                      <span className="text-green-500">{dayTotals.macroRatios.carbs}%</span>
                     </div>
                     {renderMacroBar(dayTotals.macroRatios)}
-                    
-                    {isKetoCompliant(dayTotals.macroRatios) ? (
-                      <div className="text-xs text-green-500 mt-1 text-right">✓ Keto</div>
-                    ) : (
-                      <div className="text-xs text-yellow-500 mt-1 text-right">⚠ Non keto</div>
-                    )}
                   </div>
                 )}
                 
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleAddMeal(dayIndex);
-                  }}
-                  className="p-2 bg-primary-600 text-white rounded-full hover:bg-primary-700 mr-3"
-                  title="Ajouter un repas"
-                >
-                  <FaPlus />
-                </button>
-                
-                {isExpanded ? <FaChevronUp /> : <FaChevronDown />}
+                <div className="flex items-center">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleAddMeal(dayIndex);
+                    }}
+                    className="p-2 text-gray-400 hover:text-gray-200 rounded-full mr-2"
+                    title="Ajouter un repas"
+                  >
+                    <FaPlus />
+                  </button>
+                  {isExpanded ? (
+                    <FaChevronUp className="text-gray-400" />
+                  ) : (
+                    <FaChevronDown className="text-gray-400" />
+                  )}
+                </div>
               </div>
             </div>
             
-            {/* Contenu du jour (repas) */}
+            {/* Contenu du jour (conditionnellement affiché) */}
             {isExpanded && (
               <div className="p-4 border-t border-gray-700">
                 {hasMeals ? (
@@ -222,25 +221,49 @@ const MealPlanDetail = ({ planId }) => {
                       <div key={meal.id} className="bg-gray-700 rounded-lg p-3">
                         <div className="flex justify-between items-start">
                           <div>
-                            <h4 className="font-medium text-gray-100">
+                            <div className="font-medium text-gray-100">
                               {getMealTypeLabel(meal.type)}
-                            </h4>
-                            <div className="text-sm text-gray-400 mt-1">
-                              {meal.calories} kcal
+                              {meal.notes && (
+                                <span className="ml-2 text-sm font-normal text-gray-400">
+                                  {meal.notes}
+                                </span>
+                              )}
                             </div>
+                            
+                            {/* Liste des aliments/recettes */}
+                            <ul className="mt-2 space-y-1 text-sm text-gray-400">
+                              {meal.items && meal.items.map((item, itemIndex) => (
+                                <li key={itemIndex} className="flex items-center">
+                                  <span className="w-2 h-2 bg-gray-500 rounded-full mr-2"></span>
+                                  <span>
+                                    {item.name}
+                                    {item.type === 'food' && (
+                                      <span className="text-xs text-gray-500 ml-1">
+                                        ({item.quantity} g)
+                                      </span>
+                                    )}
+                                    {item.type === 'recipe' && item.servings && (
+                                      <span className="text-xs text-gray-500 ml-1">
+                                        ({item.servings} portion{item.servings > 1 ? 's' : ''})
+                                      </span>
+                                    )}
+                                  </span>
+                                </li>
+                              ))}
+                            </ul>
                           </div>
                           
                           <div className="flex">
                             <button
                               onClick={() => handleEditMeal(dayIndex, meal.id)}
-                              className="p-1.5 text-blue-400 hover:text-blue-300 mr-2"
+                              className="p-2 text-gray-400 hover:text-gray-200 rounded-full"
                               title="Modifier ce repas"
                             >
                               <FaEdit />
                             </button>
                             <button
                               onClick={() => handleDeleteMealConfirm(dayIndex, meal.id)}
-                              className="p-1.5 text-red-400 hover:text-red-300"
+                              className="p-2 text-red-400 hover:text-red-300 rounded-full"
                               title="Supprimer ce repas"
                             >
                               <FaTrashAlt />
@@ -248,50 +271,100 @@ const MealPlanDetail = ({ planId }) => {
                           </div>
                         </div>
                         
-                        {/* Contenu du repas */}
-                        <div className="mt-3">
-                          {meal.items && meal.items.length > 0 ? (
-                            <ul className="divide-y divide-gray-600">
-                              {meal.items.map((item, itemIndex) => (
-                                <li key={itemIndex} className="py-2 flex justify-between">
-                                  <div className="flex items-center">
-                                    <FaUtensils className="text-gray-500 mr-2" />
-                                    <span>{item.name}</span>
-                                  </div>
-                                  <div className="text-gray-400 text-sm">
-                                    {item.type === 'food' 
-                                      ? `${item.quantity} ${item.unit || 'g'}`
-                                      : `${item.servings} portion${item.servings !== 1 ? 's' : ''}`
-                                    }
-                                  </div>
-                                </li>
-                              ))}
-                            </ul>
-                          ) : (
-                            <div className="text-gray-500 italic">
-                              Aucun élément dans ce repas
-                            </div>
+                        {/* Informations nutritionnelles */}
+                        <div className="mt-3 pt-3 border-t border-gray-600 flex flex-wrap justify-between items-center">
+                          <div className="flex flex-wrap gap-2 items-center">
+                            <span className="text-sm text-gray-400">
+                              {meal.calories} kcal
+                            </span>
+                            
+                            {meal.macros && (
+                              <>
+                                <span className="text-xs px-2 py-0.5 bg-gray-600 rounded text-yellow-400">
+                                  {meal.macros.fat.toFixed(1)}g lipides
+                                </span>
+                                <span className="text-xs px-2 py-0.5 bg-gray-600 rounded text-red-400">
+                                  {meal.macros.protein.toFixed(1)}g protéines
+                                </span>
+                                <span className="text-xs px-2 py-0.5 bg-gray-600 rounded text-green-400">
+                                  {meal.macros.netCarbs.toFixed(1)}g glucides
+                                </span>
+                              </>
+                            )}
+                          </div>
+                          
+                          {meal.pHValue && (
+                            <span 
+                              className={`text-xs px-2 py-0.5 rounded ${
+                                meal.pHValue >= 7 
+                                  ? 'bg-blue-900 text-blue-200' 
+                                  : 'bg-orange-900 text-orange-200'
+                              }`}
+                              title={meal.pHValue >= 7 ? 'Alcalin' : 'Acide'}
+                            >
+                              pH {meal.pHValue.toFixed(1)}
+                            </span>
                           )}
                         </div>
-                        
-                        {/* Notes */}
-                        {meal.notes && (
-                          <div className="mt-3 p-2 bg-gray-800 rounded text-sm text-gray-400 italic">
-                            {meal.notes}
-                          </div>
-                        )}
                       </div>
                     ))}
+                    
+                    {/* Résumé du jour */}
+                    {hasMeals && (
+                      <div className="mt-4 pt-4 border-t border-gray-700">
+                        <div className="flex justify-between items-center">
+                          <h4 className="font-medium text-gray-300">Résumé du jour</h4>
+                          <span 
+                            className={`text-xs px-2 py-1 rounded-full ${
+                              isKetoCompliant(dayTotals.macroRatios)
+                                ? 'bg-green-900 text-green-200'
+                                : 'bg-red-900 text-red-200'
+                            }`}
+                          >
+                            {isKetoCompliant(dayTotals.macroRatios) 
+                              ? 'Keto compliant' 
+                              : 'Non keto'}
+                          </span>
+                        </div>
+                        
+                        <div className="mt-2 grid grid-cols-1 sm:grid-cols-4 gap-3">
+                          <div className="bg-gray-700 p-2 rounded">
+                            <div className="text-sm text-gray-400">Calories</div>
+                            <div className="text-lg font-semibold text-gray-100">
+                              {dayTotals.calories}
+                            </div>
+                          </div>
+                          <div className="bg-gray-700 p-2 rounded">
+                            <div className="text-sm text-yellow-400">Lipides</div>
+                            <div className="text-lg font-semibold text-gray-100">
+                              {dayTotals.macros.fat.toFixed(1)}g ({dayTotals.macroRatios.fat}%)
+                            </div>
+                          </div>
+                          <div className="bg-gray-700 p-2 rounded">
+                            <div className="text-sm text-red-400">Protéines</div>
+                            <div className="text-lg font-semibold text-gray-100">
+                              {dayTotals.macros.protein.toFixed(1)}g ({dayTotals.macroRatios.protein}%)
+                            </div>
+                          </div>
+                          <div className="bg-gray-700 p-2 rounded">
+                            <div className="text-sm text-green-400">Glucides nets</div>
+                            <div className="text-lg font-semibold text-gray-100">
+                              {dayTotals.macros.netCarbs.toFixed(1)}g ({dayTotals.macroRatios.carbs}%)
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 ) : (
-                  <div className="text-center py-6">
-                    <FaUtensils className="text-gray-600 text-3xl mx-auto mb-3" />
-                    <p className="text-gray-500 mb-3">Aucun repas planifié pour cette journée</p>
+                  <div className="text-center py-8">
+                    <FaUtensils className="mx-auto text-3xl text-gray-600 mb-2" />
+                    <p className="text-gray-400">Aucun repas planifié pour cette journée</p>
                     <button
                       onClick={() => handleAddMeal(dayIndex)}
-                      className="px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 inline-flex items-center"
+                      className="mt-2 px-4 py-2 bg-primary-600 text-white rounded-md flex items-center gap-2 hover:bg-primary-700 mx-auto"
                     >
-                      <FaPlus className="mr-2" /> Ajouter un repas
+                      <FaPlus /> Ajouter un repas
                     </button>
                   </div>
                 )}
@@ -301,30 +374,17 @@ const MealPlanDetail = ({ planId }) => {
         );
       })}
       
-      {/* Modal formulaire de repas */}
+      {/* Formulaire de repas (modal) */}
       {showMealForm && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-gray-800 rounded-lg w-full max-w-2xl max-h-[90vh] overflow-auto">
-            <div className="p-4 border-b border-gray-700 flex justify-between items-center">
-              <h3 className="text-xl font-semibold text-gray-100">
-                {currentMealFormData.mealId ? 'Modifier le repas' : 'Ajouter un repas'}
-              </h3>
-              <button
-                onClick={handleMealFormClose}
-                className="text-gray-400 hover:text-gray-300 text-xl"
-              >
-                &times;
-              </button>
-            </div>
-            <div className="p-4">
-              <MealForm
-                planId={plan.id}
-                dayIndex={currentMealFormData.dayIndex}
-                mealId={currentMealFormData.mealId}
-                onSave={handleMealFormClose}
-                onCancel={handleMealFormClose}
-              />
-            </div>
+          <div className="bg-gray-800 rounded-lg max-w-2xl w-full max-h-[90vh] overflow-auto">
+            <MealForm
+              planId={plan.id}
+              dayIndex={currentMealFormData.dayIndex}
+              mealId={currentMealFormData.mealId}
+              onSave={handleMealFormClose}
+              onCancel={handleMealFormClose}
+            />
           </div>
         </div>
       )}
