@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "target": "es6", // Modernisation du target
+    "target": "es5", // Modernisation du target
     "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
     "skipLibCheck": true,
