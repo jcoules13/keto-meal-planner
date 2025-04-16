@@ -2,6 +2,45 @@
 
 Ce document fournit des informations pour tester et déboguer les différentes fonctionnalités de l'application.
 
+## Erreurs de compilation courantes
+
+### Composants manquants
+- **Erreur**: `Module not found: Error: Can't resolve './components/layout/Header'`
+- **Solution**: Créer les composants de mise en page manquants dans le dossier correspondant (`src/components/layout/`)
+- **Note**: Les composants de mise en page essentiels sont `Header.tsx` et `Footer.tsx`
+
+### Pages manquantes
+- **Erreur**: `Module not found: Error: Can't resolve './pages/HomePage'`
+- **Solution**: Créer les pages manquantes dans le dossier correspondant (`src/pages/`)
+- **Note**: Les pages essentielles sont `HomePage.tsx` et `NotFoundPage.tsx`. Les autres pages (`ProfilePage`, `FoodsPage`, etc.) doivent également être créées.
+
+### Variables inutilisées
+- **Erreur**: `'FaTrashAlt' is defined but never used` ou `'mealPlans' is assigned a value but never used`
+- **Solution**: Supprimer les importations et variables inutilisées ou les utiliser dans le code
+- **Exemple**: Dans `ShoppingList.js`, supprimer l'importation de `FaTrashAlt` si elle n'est pas utilisée
+
+### Structure des dossiers
+Si votre application ne compile pas en raison de composants manquants, assurez-vous que la structure de dossiers suivante existe :
+```
+src/
+├── components/
+│   ├── layout/
+│   │   ├── Header.tsx
+│   │   └── Footer.tsx
+│   ├── meals/
+│   ├── recipes/
+│   └── ...
+├── pages/
+│   ├── HomePage.tsx
+│   ├── ProfilePage.tsx
+│   ├── FoodsPage.tsx
+│   ├── RecipesPage.tsx
+│   ├── MealPlanPage.tsx
+│   ├── WeightTrackerPage.tsx
+│   └── NotFoundPage.tsx
+└── ...
+```
+
 ## RecipeContext - Gestion des recettes
 
 ### Points à vérifier
@@ -460,6 +499,8 @@ Ce document fournit des informations pour tester et déboguer les différentes f
 - Vérifier que le contexte MealPlan est correctement initialisé
 - S'assurer que l'ID du plan passé en prop est valide
 - Vérifier que la fonction de génération de liste n'échoue pas en cas d'ingrédients manquants
+- Supprimer les importations inutilisées (comme `FaTrashAlt`) pour éviter les avertissements ESLint
+- S'assurer que toutes les variables déclarées sont effectivement utilisées
 
 ### MealForm.js - Formulaire d'ajout/modification de repas
 
