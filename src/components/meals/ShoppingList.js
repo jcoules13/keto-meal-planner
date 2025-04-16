@@ -39,10 +39,10 @@ const ShoppingList = ({ shoppingList }) => {
               {groupedItems[category].map(item => (
                 <li key={item.id} className="shopping-item">
                   <input
-                    type="checkbox"
-                    id={`item-${item.id}`}
-                    checked={checkedItems[item.id] || false}
-                    onChange={() => handleCheckboxChange(item.id)}
+                      type="checkbox"
+                      id={`item-${item.id}`}
+                      checked={checkedItems[item.id] || false}
+                      onChange={() => handleCheckboxChange(item.id)}
                   />
                   <label htmlFor={`item-${item.id}`} className={checkedItems[item.id] ? 'checked' : ''}>{item.name}</label>
                 </li>

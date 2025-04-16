@@ -16,7 +16,6 @@ const MealPlanPage = () => {
     isGenerating, 
     error, 
     selectMealPlan,
-    createEmptyPlan,
     deleteMealPlan,
     addMeal,
     updateMeal,

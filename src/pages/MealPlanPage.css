@@ -1,0 +1,95 @@
+.meal-plan-page {
+  font-family: Arial, sans-serif;
+  padding: 20px;
+  background-color: #f4f4f4;
+  min-height: 100vh;
+}
+
+.meal-plan-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.page-title {
+  color: #333;
+  font-size: 2em;
+}
+
+.create-plan-button,
+.back-button {
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1em;
+}
+
+.back-button {
+  background-color: #008cba;
+}
+
+.error-container {
+  background-color: #ffebee;
+  border: 1px solid #f44336;
+  padding: 10px;
+  margin-bottom: 20px;
+  border-radius: 5px;
+}
+
+.error-message {
+  color: #f44336;
+  margin: 0;
+}
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.loading-spinner {
+  border: 4px solid rgba(0, 0, 0, 0.1);
+  border-left-color: #4caf50;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  animation: spin 1s linear infinite;
+  margin-bottom: 10px;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.meal-plan-content {
+  background-color: white;
+  padding: 20px;
+  border-radius: 5px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+@media (max-width: 600px) {
+  .meal-plan-header {
+    flex-direction: column;
+    gap: 10px;
+  }
+  .page-title {
+    font-size: 1.5em;
+  }
+  .create-plan-button,
+  .back-button {
+    font-size: 0.9em;
+    padding: 8px 12px;
+  }
+}
