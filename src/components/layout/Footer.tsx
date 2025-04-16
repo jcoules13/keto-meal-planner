@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 /**
  * Composant de pied de page de l'application
@@ -18,12 +19,12 @@ const Footer: React.FC = () => {
             <a href="https://github.com/jcoules13/keto-meal-planner" target="_blank" rel="noopener noreferrer" className="text-gray-300 hover:text-white text-sm">
               GitHub
             </a>
-            <a href="#" className="text-gray-300 hover:text-white text-sm">
+            <Link to="/privacy" className="text-gray-300 hover:text-white text-sm">
               Politique de confidentialité
-            </a>
-            <a href="#" className="text-gray-300 hover:text-white text-sm">
+            </Link>
+            <Link to="/terms" className="text-gray-300 hover:text-white text-sm">
               Conditions d'utilisation
-            </a>
+            </Link>
           </div>
         </div>
       </div>
