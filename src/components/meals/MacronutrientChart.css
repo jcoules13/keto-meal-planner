@@ -244,26 +244,3 @@
 .dark .carbs-ideal::before {
   background-color: var(--color-success-600);
 }
-/* Variables de couleur pour les macronutriments - ajoutez ces à votre fichier CSS global */
-:root {
-  --color-protein-100: #fecaca;
-  --color-protein-300: #fca5a5;
-  --color-protein-500: #ef4444;
-  --color-protein-600: #dc2626;
-  --color-protein-800: #991b1b;
-  --color-protein-900: #7f1d1d;
-  
-  --color-fat-100: #fed7aa;
-  --color-fat-300: #fdba74;
-  --color-fat-500: #f97316;
-  --color-fat-600: #ea580c;
-  --color-fat-800: #9a3412;
-  --color-fat-900: #7c2d12;
-  
-  --color-carbs-100: #bbf7d0;
-  --color-carbs-300: #86efac;
-  --color-carbs-500: #22c55e;
-  --color-carbs-600: #16a34a;
-  --color-carbs-800: #166534;
-  --color-carbs-900: #14532d;
-}
