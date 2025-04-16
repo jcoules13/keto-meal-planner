@@ -29,7 +29,7 @@ function App() {
         <FoodProvider>
           <RecipeProvider>
             {/* Bouton flottant de changement de thème, visible sur toutes les pages */}
-            <ThemeSwitcher />
+            {/* <ThemeSwitcher /> */}
             
             <Routes>
               <Route path="/" element={<MainLayout><HomePage /></MainLayout>} />
