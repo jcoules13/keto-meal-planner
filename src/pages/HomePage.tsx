@@ -1,18 +1,12 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
-import * as FaIcons from 'react-icons/fa';
+import { FaAppleAlt, FaUtensils, FaClipboardList, FaWeight } from 'react-icons/fa';
 
 /**
  * Page d'accueil de l'application
  */
 const HomePage: React.FC = () => {
-  // Cast des icônes comme composants React
-  const AppleIcon = FaIcons.FaAppleAlt as React.FC<React.SVGProps<SVGSVGElement>>;
-  const UtensilsIcon = FaIcons.FaUtensils as React.FC<React.SVGProps<SVGSVGElement>>;
-  const ClipboardIcon = FaIcons.FaClipboardList as React.FC<React.SVGProps<SVGSVGElement>>;
-  const WeightIcon = FaIcons.FaWeight as React.FC<React.SVGProps<SVGSVGElement>>;
-
   return (
     <div className="container mx-auto px-4 py-8">
       <Helmet>
@@ -29,7 +23,8 @@ const HomePage: React.FC = () => {
       <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
         <div className="bg-gray-800 p-6 rounded-lg shadow-lg flex flex-col items-center">
           <span className="text-4xl text-green-400 mb-4">
-            <AppleIcon />
+            {/* Utilisation directe du composant importé */}
+            <FaAppleAlt />
           </span>
           <h2 className="text-xl font-semibold mb-2">Base d'aliments</h2>
           <p className="text-center text-gray-300 mb-4">
@@ -42,7 +37,8 @@ const HomePage: React.FC = () => {
         
         <div className="bg-gray-800 p-6 rounded-lg shadow-lg flex flex-col items-center">
           <span className="text-4xl text-yellow-400 mb-4">
-            <UtensilsIcon />
+            {/* Utilisation directe du composant importé */}
+            <FaUtensils />
           </span>
           <h2 className="text-xl font-semibold mb-2">Recettes Keto</h2>
           <p className="text-center text-gray-300 mb-4">
@@ -55,7 +51,8 @@ const HomePage: React.FC = () => {
         
         <div className="bg-gray-800 p-6 rounded-lg shadow-lg flex flex-col items-center">
           <span className="text-4xl text-blue-400 mb-4">
-            <ClipboardIcon />
+            {/* Utilisation directe du composant importé */}
+            <FaClipboardList />
           </span>
           <h2 className="text-xl font-semibold mb-2">Plans de repas</h2>
           <p className="text-center text-gray-300 mb-4">
@@ -68,7 +65,8 @@ const HomePage: React.FC = () => {
         
         <div className="bg-gray-800 p-6 rounded-lg shadow-lg flex flex-col items-center">
           <span className="text-4xl text-purple-400 mb-4">
-            <WeightIcon />
+            {/* Utilisation directe du composant importé */}
+            <FaWeight />
           </span>
           <h2 className="text-xl font-semibold mb-2">Suivi de poids</h2>
           <p className="text-center text-gray-300 mb-4">
