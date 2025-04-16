@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useTheme } from '../../contexts/ThemeContext';
 
-// Icônes pour les différents thèmes
+// Icônes pour les différents thèmes (conservées telles quelles)
 const themeIcons: Record<string, React.ReactNode> = {
   light: (
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6">
@@ -61,22 +61,96 @@ const themeNames: Record<string, string> = {
   halloween: 'Halloween'
 };
 
+// Couleurs pour les badges de thème
+const themeColors: Record<string, string> = {
+  light: 'bg-yellow-100 text-yellow-800 border-yellow-200',
+  dark: 'bg-indigo-900 text-indigo-100 border-indigo-700',
+  spring: 'bg-green-100 text-green-800 border-green-200',
+  summer: 'bg-cyan-100 text-cyan-800 border-cyan-200',
+  autumn: 'bg-orange-100 text-orange-800 border-orange-200',
+  winter: 'bg-blue-900 text-blue-100 border-blue-700',
+  christmas: 'bg-red-100 text-red-800 border-red-200',
+  halloween: 'bg-purple-900 text-purple-100 border-purple-700'
+};
+
 const ThemeSwitcher: React.FC = () => {
-  const { theme, getNextTheme, setTheme } = useTheme();
+  const { theme, getNextTheme, setTheme, allThemes } = useTheme();
+  const [showMenu, setShowMenu] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
   
+  // Fermer le menu lorsque l'utilisateur clique en dehors
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setShowMenu(false);
+      }
+    }
+    
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
   const handleClick = () => {
-    // Obtenir le thème suivant dans la liste et l'appliquer
-    const nextTheme = getNextTheme();
-    setTheme(nextTheme);
+    setShowMenu(!showMenu);
   };
   
+  const handleThemeSelect = (selectedTheme: string) => {
+    setTheme(selectedTheme);
+    setShowMenu(false);
+  };
+  
+  // Obtenir le prochain thème à afficher
+  const nextTheme = getNextTheme();
+  
   return (
-    <div 
-      className="theme-switcher" 
-      onClick={handleClick}
-      title={`Thème actuel : ${themeNames[theme]}. Cliquer pour changer.`}
-    >
-      {themeIcons[theme]}
+    <div className="relative" ref={menuRef}>
+      {/* Bouton avec l'icône du thème actuel et indication du thème suivant */}
+      <button
+        className="flex items-center gap-1 p-1.5 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-700 transition-colors"
+        onClick={handleClick}
+        title={`Thème actuel : ${themeNames[theme]}. Cliquer pour changer.`}
+      >
+        <span className="relative">
+          {/* Icône du thème actuel */}
+          <span className={`text-primary-600 dark:text-primary-400 ${theme === 'dark' ? 'text-indigo-300' : ''}`}>
+            {themeIcons[theme]}
+          </span>
+          
+          {/* Petit badge avec l'icône du prochain thème */}
+          <span className="absolute -right-1 -bottom-1 bg-white dark:bg-neutral-800 rounded-full border border-neutral-200 dark:border-neutral-600 p-0.5 shadow-sm transform scale-75">
+            {themeIcons[nextTheme]}
+          </span>
+        </span>
+      </button>
+      
+      {/* Menu déroulant avec tous les thèmes disponibles */}
+      {showMenu && (
+        <div className="absolute right-0 mt-1 w-48 rounded-md shadow-lg bg-white dark:bg-neutral-800 ring-1 ring-black ring-opacity-5 z-50 py-1 border border-neutral-200 dark:border-neutral-700">
+          <div className="px-3 py-2 text-xs font-medium text-neutral-500 dark:text-neutral-400 border-b border-neutral-200 dark:border-neutral-700">
+            Thème actuel: 
+            <span className={`inline-flex items-center ml-1 px-2 py-0.5 rounded-full text-xs font-medium border ${themeColors[theme]}`}>
+              {themeNames[theme]}
+            </span>
+          </div>
+          
+          <div className="py-1">
+            {allThemes.map((t) => (
+              <button
+                key={t}
+                className={`flex items-center gap-2 px-4 py-2 text-sm w-full text-left hover:bg-neutral-100 dark:hover:bg-neutral-700 transition-colors ${
+                  t === theme ? 'bg-neutral-50 dark:bg-neutral-750' : ''
+                }`}
+                onClick={() => handleThemeSelect(t)}
+              >
+                <span className="text-primary-600 dark:text-primary-400">{themeIcons[t]}</span>
+                <span className="text-neutral-700 dark:text-neutral-200">{themeNames[t]}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 };
