@@ -255,6 +255,186 @@ Ce document fournit des informations pour tester et déboguer les différentes f
    - Tester dans une fenêtre de navigation privée pour détecter les problèmes de quota
    - Vérifier les erreurs de parsing JSON dans la console
 
+## MealPlanContext - Gestion des plans de repas et listes de courses
+
+### Points à vérifier
+
+1. **Chargement initial des plans de repas**
+   - Les plans de repas sont correctement chargés depuis localStorage
+   - L'état de chargement (`isGenerating`) est correctement géré
+   - Les erreurs éventuelles sont capturées et affichées
+   - Le plan actif est correctement restauré
+
+2. **Gestion des plans de repas**
+   - Création d'un nouveau plan avec un ID unique
+   - Validation correcte des données du plan
+   - Modification et suppression des plans existants
+   - Persistance dans localStorage
+
+3. **Gestion des repas dans le plan**
+   - Ajout de repas à un jour spécifique
+   - Modification et suppression de repas existants
+   - Attribution d'ID uniques aux repas
+
+4. **Génération de liste de courses**
+   - Extraction correcte des ingrédients à partir des recettes et aliments
+   - Agrégation des quantités pour les ingrédients identiques
+   - Conversion en unités pratiques (ex: œufs au lieu de grammes)
+   - Organisation par catégories
+   - Gestion des cases à cocher
+
+5. **Intégration avec autres contextes**
+   - Accès correct aux données de FoodContext et RecipeContext
+   - Calculs nutritionnels cohérents avec le reste de l'application
+
+### Tests à effectuer
+
+1. **Test de création de plan de repas**
+   ```javascript
+   const { createEmptyPlan, mealPlans } = useMealPlan();
+   
+   // Créer un nouveau plan vide pour une semaine
+   const today = new Date().toISOString().split('T')[0]; // Format YYYY-MM-DD
+   const endDate = new Date();
+   endDate.setDate(endDate.getDate() + 6);
+   const endDateStr = endDate.toISOString().split('T')[0];
+   
+   const planId = createEmptyPlan(
+     "Mon plan hebdomadaire",
+     today,
+     endDateStr,
+     "keto_standard"
+   );
+   
+   // Vérifier que le plan a été créé
+   console.log(mealPlans.some(p => p.id === planId));
+   console.log(mealPlans.find(p => p.id === planId));
+   
+   // Vérifier que le plan a 7 jours
+   const createdPlan = mealPlans.find(p => p.id === planId);
+   console.log(createdPlan.days.length === 7);
+   ```
+
+2. **Test d'ajout de repas au plan**
+   ```javascript
+   const { addMeal, mealPlans, currentPlan } = useMealPlan();
+   
+   // Utiliser le plan actif ou le premier plan disponible
+   const planId = currentPlan?.id || mealPlans[0]?.id;
+   if (!planId) {
+     console.error("Aucun plan disponible pour le test");
+     return;
+   }
+   
+   // Ajouter un repas au premier jour du plan
+   const meal = {
+     type: "déjeuner",
+     items: [
+       {
+         type: "recipe",
+         id: "salade-avocat-saumon", // ID d'une recette existante
+         servings: 1
+       }
+     ]
+   };
+   
+   const mealId = addMeal(planId, 0, meal);
+   
+   // Vérifier que le repas a été ajouté
+   const updatedPlan = mealPlans.find(p => p.id === planId);
+   console.log(updatedPlan.days[0].meals.some(m => m.id === mealId));
+   ```
+
+3. **Test de génération de liste de courses**
+   ```javascript
+   const { generateShoppingListFromPlan, shoppingList, currentPlan } = useMealPlan();
+   
+   // Utiliser le plan actif ou le premier plan disponible
+   const planId = currentPlan?.id || mealPlans[0]?.id;
+   if (!planId) {
+     console.error("Aucun plan disponible pour le test");
+     return;
+   }
+   
+   // Générer la liste de courses
+   generateShoppingListFromPlan(planId);
+   
+   // Vérifier que la liste a été générée
+   console.log(shoppingList !== null);
+   console.log(shoppingList);
+   
+   // Vérifier la structure de la liste
+   console.log(Object.keys(shoppingList.categories).length > 0);
+   ```
+
+4. **Test de mise à jour d'un élément de la liste de courses**
+   ```javascript
+   const { updateShoppingItem, shoppingList } = useMealPlan();
+   
+   // S'assurer qu'une liste existe
+   if (!shoppingList || Object.keys(shoppingList.categories).length === 0) {
+     console.error("Aucune liste de courses disponible pour le test");
+     return;
+   }
+   
+   // Prendre la première catégorie et le premier élément
+   const firstCategory = Object.keys(shoppingList.categories)[0];
+   const firstItem = shoppingList.categories[firstCategory][0];
+   
+   // Cocher l'élément
+   updateShoppingItem(firstCategory, firstItem.id, true);
+   
+   // Vérifier que l'élément est coché
+   console.log(shoppingList.categories[firstCategory].find(item => item.id === firstItem.id).checked);
+   ```
+
+5. **Test de calcul nutritionnel d'un jour**
+   ```javascript
+   const { getDayNutritionTotals, currentPlan } = useMealPlan();
+   
+   // S'assurer qu'un plan existe avec au moins un repas
+   if (!currentPlan || !currentPlan.days[0].meals.length) {
+     console.error("Aucun repas disponible pour le test");
+     return;
+   }
+   
+   // Calculer les totaux nutritionnels pour le premier jour
+   const totals = getDayNutritionTotals(currentPlan.id, 0);
+   
+   // Vérifier les totaux
+   console.log(totals);
+   console.log("Calories:", totals.calories);
+   console.log("Ratio de lipides:", totals.macroRatios.fat, "%");
+   console.log("Ratio de protéines:", totals.macroRatios.protein, "%");
+   console.log("Ratio de glucides:", totals.macroRatios.carbs, "%");
+   ```
+
+### Erreurs courantes
+
+1. **Erreurs de référence circulaire entre contextes**
+   - Assurez-vous que les dépendances entre les contextes sont correctement déclarées
+   - Vérifiez que les fonctions externes (getFoodById, getRecipeById) sont passées aux utilitaires
+
+2. **Problèmes avec la génération de liste de courses**
+   - Vérifier que toutes les recettes et aliments référencés existent
+   - S'assurer que les structures d'objets (day, meal, item) sont correctes
+   - Vérifier que la conversion d'unités est appropriée
+
+3. **Erreurs de calcul nutritionnel**
+   - Vérifier la cohérence des calculs pour les recettes et les aliments
+   - S'assurer que les ratios de macronutriments totalisent 100%
+   - Vérifier que les propriétés nutritionnelles attendues sont présentes
+
+4. **Problèmes de validation des plans de repas**
+   - Vérifiez les dates (format et validité)
+   - Assurez-vous que toutes les propriétés requises sont présentes
+   - Vérifiez que les ID sont uniques
+
+5. **Problèmes de persistance**
+   - Vérifier les noms de clés localStorage (`keto-meal-planner-meal-plans`, etc.)
+   - S'assurer que la structure des objets est compatible avec JSON.stringify()
+   - Vérifier les limites de taille de localStorage pour les grands plans
+
 ## FoodsPage - Page de visualisation des aliments
 
 ### Points à vérifier
