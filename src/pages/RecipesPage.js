@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useRecipe } from '../contexts/RecipeContext';
+import { useTheme } from '../contexts/ThemeContext';
 import RecipeCard from '../components/recipes/RecipeCard';
 import RecipeDetail from '../components/recipes/RecipeDetail';
 import RecipeForm from '../components/recipes/RecipeForm';
@@ -14,6 +15,9 @@ const RecipesPage = () => {
     setFilter, 
     resetFilters 
   } = useRecipe();
+  
+  // Utiliser le contexte de thème
+  const { theme } = useTheme();
   
   // États locaux
   const [searchTerm, setSearchTerm] = useState('');
@@ -103,7 +107,7 @@ const RecipesPage = () => {
   
   // Rendu de la page
   return (
-    <div className="recipes-page">
+    <div className={`recipes-page ${theme}`}>
       <div className="recipes-header">
         <h1 className="page-title">Recettes</h1>
         <button className="new-recipe-button" onClick={handleNewRecipe}>
