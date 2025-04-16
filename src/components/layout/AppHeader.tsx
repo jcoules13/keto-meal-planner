@@ -15,7 +15,7 @@ const AppHeader: React.FC = () => {
   return (
     <>
       {/* Nouvelle barre supérieure pour l'indicateur de thème */}
-      <div className="bg-card-bg border-b border-border-color py-1 dark:bg-neutral-900 dark:border-neutral-700">
+      <div className="bg-white dark:bg-neutral-900 border-b border-neutral-200 dark:border-neutral-700 py-1">
         <div className="container mx-auto px-4 flex justify-between items-center">
           <ThemeIndicator />
           <div className="text-xs text-neutral-500 dark:text-neutral-400 hidden sm:block">
