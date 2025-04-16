@@ -1,78 +1,123 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useReducer, useEffect } from 'react';
 
-// Types de thème disponibles
-type Theme = 'light' | 'dark';
+// Types
+type BaseTheme = 'light' | 'dark';
+type SeasonTheme = 'spring' | 'summer' | 'autumn' | 'winter';
+type HolidayTheme = 'christmas' | 'halloween';
+type Theme = BaseTheme | SeasonTheme | HolidayTheme;
 
-// Interface définissant la structure du contexte de thème
-interface ThemeContextType {
+const allThemes: Theme[] = [
+  'light', 'dark', 
+  'spring', 'summer', 'autumn', 'winter', 
+  'christmas', 'halloween'
+];
+
+interface ThemeState {
   theme: Theme;
+}
+
+interface ThemeContextType extends ThemeState {
   toggleTheme: () => void;
   setTheme: (theme: Theme) => void;
+  getNextTheme: () => Theme;
+  allThemes: Theme[];
 }
 
-// Création du contexte avec une valeur par défaut undefined
+type ThemeAction = 
+  | { type: 'SET_THEME'; payload: Theme }
+  | { type: 'TOGGLE_THEME' }
+  | { type: 'NEXT_THEME' };
+
+// État initial
+const initialState: ThemeState = {
+  theme: 'light'
+};
+
+// Reducer
+function themeReducer(state: ThemeState, action: ThemeAction): ThemeState {
+  switch (action.type) {
+    case 'SET_THEME':
+      return {
+        ...state,
+        theme: action.payload
+      };
+    case 'TOGGLE_THEME':
+      return {
+        ...state,
+        theme: state.theme === 'light' ? 'dark' : 'light'
+      };
+    case 'NEXT_THEME': {
+      const currentIndex = allThemes.indexOf(state.theme);
+      const nextIndex = (currentIndex + 1) % allThemes.length;
+      return {
+        ...state,
+        theme: allThemes[nextIndex]
+      };
+    }
+    default:
+      return state;
+  }
+}
+
+// Création du contexte
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
-// Props pour le ThemeProvider
-interface ThemeProviderProps {
-  children: ReactNode;
-  initialTheme?: Theme;
+// Hook personnalisé pour utiliser le contexte
+export function useTheme() {
+  const context = useContext(ThemeContext);
+  if (!context) {
+    throw new Error('useTheme doit être utilisé à l\'intérieur d\'un ThemeProvider');
+  }
+  return context;
 }
 
-/**
- * ThemeProvider - Composant fournissant le contexte de thème à l'application
- */
-export const ThemeProvider: React.FC<ThemeProviderProps> = ({ 
-  children, 
-  initialTheme 
-}) => {
-  // État local pour stocker le thème actuel
-  const [theme, setThemeState] = useState<Theme>(() => {
-    // Récupération du thème depuis localStorage si disponible
-    const savedTheme = localStorage.getItem('theme') as Theme;
-    
-    // Utilisation du thème initial si fourni
-    if (initialTheme) {
-      return initialTheme;
-    }
-    
-    // Sinon, utiliser le thème sauvegardé ou le thème préféré du système
-    return savedTheme || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-  });
+// Provider
+export function ThemeProvider({ children }: { children: React.ReactNode }) {
+  const [state, dispatch] = useReducer(themeReducer, initialState);
 
-  // Fonction pour basculer entre les thèmes
-  const toggleTheme = () => {
-    setThemeState(prevTheme => prevTheme === 'light' ? 'dark' : 'light');
-  };
-
-  // Fonction pour définir directement un thème
-  const setTheme = (newTheme: Theme) => {
-    setThemeState(newTheme);
-  };
-
-  // Effet pour appliquer le thème au document HTML
+  // Charger le thème depuis localStorage au démarrage
   useEffect(() => {
-    // Sauvegarde du thème dans localStorage
-    localStorage.setItem('theme', theme);
+    const savedTheme = localStorage.getItem('keto-meal-planner-theme');
+    if (savedTheme && allThemes.includes(savedTheme as Theme)) {
+      dispatch({ type: 'SET_THEME', payload: savedTheme as Theme });
+    } else {
+      // Utiliser la préférence système comme fallback pour light/dark
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      dispatch({ type: 'SET_THEME', payload: prefersDark ? 'dark' : 'light' });
+    }
+  }, []);
+
+  // Appliquer le thème sur le document
+  useEffect(() => {
+    // Sauvegarder dans localStorage
+    localStorage.setItem('keto-meal-planner-theme', state.theme);
     
-    // Application des classes CSS au niveau du document
-    const root = window.document.documentElement;
+    // Enlever toutes les classes de thème précédentes
+    document.documentElement.classList.remove(...allThemes, 'dark');
     
-    // Suppression des classes de thème existantes
-    root.classList.remove('light', 'dark');
+    // Ajouter la classe du thème actuel
+    document.documentElement.classList.add(state.theme);
     
-    // Ajout de la classe correspondant au thème actuel
-    root.classList.add(theme);
+    // Si le thème est saisonnier ou vacances, ajouter aussi le mode clair/sombre approprié
+    if (['spring', 'summer', 'autumn', 'winter', 'christmas', 'halloween'].includes(state.theme)) {
+      // Winter et Halloween ont un fond sombre
+      if (state.theme === 'winter' || state.theme === 'halloween') {
+        document.documentElement.classList.add('dark');
+      }
+    } else if (state.theme === 'dark') {
+      // Ajouter la classe 'dark' pour le thème sombre standard
+      document.documentElement.classList.add('dark');
+    }
     
     // Définition de la couleur du thème pour les appareils mobiles
     const metaThemeColor = document.querySelector('meta[name="theme-color"]');
     if (metaThemeColor) {
       metaThemeColor.setAttribute(
         'content',
-        theme === 'dark' ? '#121212' : '#ffffff'
+        ['dark', 'winter', 'halloween'].includes(state.theme) ? '#121212' : '#ffffff'
       );
     }
-  }, [theme]);
+  }, [state.theme]);
 
   // Effet pour suivre les changements de préférence du système
   useEffect(() => {
@@ -80,9 +125,12 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({
     
     // Fonction de gestion du changement de préférence
     const handleChange = () => {
-      // Ne mettre à jour le thème que si l'utilisateur n'a pas explicitement choisi un thème
-      if (!localStorage.getItem('theme')) {
-        setThemeState(mediaQuery.matches ? 'dark' : 'light');
+      // Ne mettre à jour le thème que si l'utilisateur est en mode auto (thème de base)
+      if (['light', 'dark'].includes(state.theme)) {
+        dispatch({ 
+          type: 'SET_THEME', 
+          payload: mediaQuery.matches ? 'dark' : 'light' 
+        });
       }
     };
 
@@ -91,34 +139,35 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({
     
     // Nettoyage de l'écouteur à la destruction du composant
     return () => mediaQuery.removeEventListener('change', handleChange);
-  }, []);
+  }, [state.theme]);
 
-  // Valeur du contexte à fournir aux composants enfants
-  const contextValue: ThemeContextType = {
-    theme,
+  const toggleTheme = () => {
+    dispatch({ type: 'TOGGLE_THEME' });
+  };
+
+  const setTheme = (theme: Theme) => {
+    dispatch({ type: 'SET_THEME', payload: theme });
+  };
+
+  const getNextTheme = (): Theme => {
+    const currentIndex = allThemes.indexOf(state.theme);
+    const nextIndex = (currentIndex + 1) % allThemes.length;
+    return allThemes[nextIndex];
+  };
+
+  const value = {
+    ...state,
     toggleTheme,
     setTheme,
+    getNextTheme,
+    allThemes
   };
 
   return (
-    <ThemeContext.Provider value={contextValue}>
+    <ThemeContext.Provider value={value}>
       {children}
     </ThemeContext.Provider>
   );
-};
-
-/**
- * useTheme - Hook personnalisé pour accéder au contexte de thème
- */
-export const useTheme = (): ThemeContextType => {
-  const context = useContext(ThemeContext);
-  
-  // Vérification que le hook est utilisé dans un ThemeProvider
-  if (context === undefined) {
-    throw new Error('useTheme doit être utilisé à l\'intérieur d\'un ThemeProvider');
-  }
-  
-  return context;
-};
+}
 
 export default ThemeProvider;
