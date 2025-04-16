@@ -44,10 +44,15 @@ Ce document permet de suivre la progression du développement de l'application.
   - [x] Persistance dans localStorage
 - [x] Formulaire de création/édition de recettes
 - [x] Bibliothèque de recettes prédéfinies
-- [ ] Algorithme de génération de plans de repas
-- [ ] Distribution des calories et macronutriments
-- [ ] Interface de planification
-- [ ] MealPlanContext pour les plans de repas
+- [x] MealPlanContext pour les plans de repas
+  - [x] Implémentation du context avec useReducer
+  - [x] Gestion des plans de repas et des jours
+  - [x] Ajout, modification et suppression de repas
+  - [x] Calcul des totaux nutritionnels par jour
+  - [x] Persistance dans localStorage
+- [x] Algorithme de génération de plans de repas
+- [x] Distribution des calories et macronutriments
+- [x] Interface de planification
 
 ## Phase 4: Fonctionnalités avancées
 
@@ -60,11 +65,24 @@ Ce document permet de suivre la progression du développement de l'application.
   - [x] Formulaire d'entrée de poids
   - [x] Affichage de l'historique des mesures
   - [x] Intégration avec le UserContext
-- [ ] Algorithme de génération de liste de courses
-- [ ] Interface de liste de courses
+- [x] Algorithme de génération de liste de courses
+  - [x] Extraction des ingrédients des repas et recettes
+  - [x] Agrégation des quantités pour les ingrédients identiques
+  - [x] Organisation par catégories
+  - [x] Conversion en unités pratiques
+- [x] Interface de liste de courses
+  - [x] Composant ShoppingList
+  - [x] Filtrage par catégories
+  - [x] Cases à cocher interactives
+  - [x] Exportation au format texte
 - [ ] Mode keto alcalin
-- [ ] Indicateurs de pH
+  - [x] Calcul du pH moyen des repas
+  - [ ] Équilibrage automatique des repas pour atteindre un pH alcalin
+  - [ ] Visualisation de l'équilibre acido-basique
 - [ ] Configuration du jeûne intermittent
+  - [ ] Interface de configuration des fenêtres de jeûne
+  - [ ] Adaptation des plans de repas aux horaires de jeûne
+  - [ ] Visualisation des périodes de jeûne/alimentation
 
 ## Phase 5: Finitions et optimisations
 
@@ -83,13 +101,13 @@ Ce document permet de suivre la progression du développement de l'application.
 
 ## État d'avancement actuel
 
-**Phase actuelle**: Phase 4 - Fonctionnalités avancées
+**Phase actuelle**: Phase 4 - Fonctionnalités avancées (presque complète)
 
-**Prochaine tâche**: Mise en œuvre de l'algorithme de génération de liste de courses
+**Prochaine tâche**: Implémentation du mode keto alcalin avec équilibrage automatique des repas
 
 **Dernières tâches complétées**:
-- Implémentation complète de la page de recettes (RecipesPage)
-- Création des composants pour l'affichage (RecipeCard, RecipeDetail)
-- Création du formulaire de création/édition de recettes (RecipeForm)
-- Intégration avec le RecipeContext et le FoodContext pour les calculs nutritionnels
-- Correction de l'application des thèmes clair/sombre sur tous les composants
+- Implémentation du MealPlanContext pour la gestion des plans de repas
+- Création du composant ShoppingList pour afficher et gérer les listes de courses
+- Création du composant MealForm pour ajouter et modifier des repas
+- Mise en œuvre de l'algorithme de génération de liste de courses
+- Intégration des calculs de pH pour la préparation du mode keto alcalin
