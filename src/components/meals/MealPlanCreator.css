@@ -1,0 +1,262 @@
+.meal-plan-creator {
+  background-color: var(--color-white);
+  border-radius: 0.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  padding: 1.5rem;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.dark .meal-plan-creator {
+  background-color: var(--color-neutral-800);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+}
+
+.meal-plan-creator h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--color-neutral-800);
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.dark .meal-plan-creator h2 {
+  color: var(--color-neutral-100);
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-row {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.form-row .form-group {
+  flex: 1;
+  margin-bottom: 0;
+}
+
+label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: var(--color-neutral-700);
+}
+
+.dark label {
+  color: var(--color-neutral-300);
+}
+
+.input-with-icon {
+  position: relative;
+}
+
+.input-icon {
+  position: absolute;
+  left: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--color-neutral-500);
+}
+
+input[type="text"],
+input[type="date"] {
+  width: 100%;
+  padding: 0.75rem 0.75rem 0.75rem 2.5rem;
+  border: 1px solid var(--color-neutral-300);
+  border-radius: 0.375rem;
+  font-size: 1rem;
+  background-color: var(--color-white);
+  color: var(--color-neutral-900);
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.dark input[type="text"],
+.dark input[type="date"] {
+  background-color: var(--color-neutral-900);
+  border-color: var(--color-neutral-700);
+  color: var(--color-neutral-100);
+}
+
+input[type="text"]:focus,
+input[type="date"]:focus {
+  outline: none;
+  border-color: var(--color-primary-500);
+  box-shadow: 0 0 0 3px var(--color-primary-100);
+}
+
+.dark input[type="text"]:focus,
+.dark input[type="date"]:focus {
+  border-color: var(--color-primary-400);
+  box-shadow: 0 0 0 3px var(--color-primary-900);
+}
+
+input.error {
+  border-color: var(--color-error-500);
+}
+
+input.error:focus {
+  box-shadow: 0 0 0 3px var(--color-error-100);
+}
+
+.dark input.error {
+  border-color: var(--color-error-400);
+}
+
+.dark input.error:focus {
+  box-shadow: 0 0 0 3px var(--color-error-900);
+}
+
+.error-message {
+  color: var(--color-error-600);
+  font-size: 0.875rem;
+  margin-top: 0.5rem;
+}
+
+.dark .error-message {
+  color: var(--color-error-400);
+}
+
+.diet-type-options {
+  display: flex;
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
+
+.diet-option {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex: 1;
+  padding: 1rem;
+  border: 2px solid var(--color-neutral-200);
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: border-color 0.2s, background-color 0.2s;
+}
+
+.dark .diet-option {
+  border-color: var(--color-neutral-700);
+}
+
+.diet-option:hover {
+  background-color: var(--color-neutral-50);
+}
+
+.dark .diet-option:hover {
+  background-color: var(--color-neutral-900);
+}
+
+.diet-option.selected {
+  border-color: var(--color-primary-500);
+  background-color: var(--color-primary-50);
+}
+
+.dark .diet-option.selected {
+  border-color: var(--color-primary-400);
+  background-color: var(--color-primary-900);
+}
+
+.diet-icon {
+  width: 3rem;
+  height: 3rem;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: 700;
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+
+.keto-standard-icon {
+  background-color: var(--color-primary-600);
+  color: white;
+}
+
+.keto-alkaline-icon {
+  background-color: var(--color-success-600);
+  color: white;
+}
+
+.diet-info h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+  color: var(--color-neutral-800);
+}
+
+.dark .diet-info h3 {
+  color: var(--color-neutral-100);
+}
+
+.diet-info p {
+  font-size: 0.875rem;
+  color: var(--color-neutral-600);
+  line-height: 1.4;
+}
+
+.dark .diet-info p {
+  color: var(--color-neutral-400);
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.cancel-button {
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.375rem;
+  font-weight: 500;
+  color: var(--color-neutral-700);
+  background-color: var(--color-neutral-100);
+  transition: background-color 0.2s;
+}
+
+.cancel-button:hover {
+  background-color: var(--color-neutral-200);
+}
+
+.dark .cancel-button {
+  color: var(--color-neutral-300);
+  background-color: var(--color-neutral-700);
+}
+
+.dark .cancel-button:hover {
+  background-color: var(--color-neutral-600);
+}
+
+.create-button {
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.375rem;
+  font-weight: 500;
+  color: white;
+  background-color: var(--color-primary-600);
+  transition: background-color 0.2s;
+}
+
+.create-button:hover {
+  background-color: var(--color-primary-700);
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .meal-plan-creator {
+    padding: 1rem;
+  }
+  
+  .form-row {
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+  
+  .diet-type-options {
+    flex-direction: column;
+  }
+}

@@ -1,0 +1,85 @@
+.seasonality-indicator {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.all-year-indicator {
+  padding: 1rem;
+  background-color: rgba(var(--success-rgb), 0.1);
+  border-radius: 0.5rem;
+  text-align: center;
+}
+
+.all-year-label {
+  color: var(--success);
+  font-weight: 600;
+}
+
+.seasons-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.5rem;
+}
+
+.season-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  text-align: center;
+  transition: all 0.2s;
+}
+
+.season-item.available {
+  background-color: var(--neutral-700);
+  border: 1px solid var(--neutral-600);
+  color: var(--text-primary);
+}
+
+.season-item.not-available {
+  background-color: var(--neutral-900);
+  border: 1px solid var(--neutral-800);
+  color: var(--text-tertiary);
+  opacity: 0.7;
+}
+
+.season-item.current {
+  border-color: var(--primary-500);
+  box-shadow: 0 0 0 1px var(--primary-500);
+}
+
+.season-item.available.current {
+  background-color: rgba(var(--primary-rgb), 0.2);
+}
+
+.season-icon {
+  font-size: 1.5rem;
+}
+
+.season-name {
+  font-size: 0.875rem;
+}
+
+.current-season-note {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  margin-top: 0.5rem;
+}
+
+.in-season-message {
+  color: var(--success);
+}
+
+.off-season-message {
+  color: var(--warning);
+}
+
+@media screen and (max-width: 480px) {
+  .seasons-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
