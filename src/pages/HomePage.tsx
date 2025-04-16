@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
-import { FaUtensils, FaAppleAlt, FaClipboardList, FaWeight } from 'react-icons/fa';
+import * as FaIcons from 'react-icons/fa';
 
 /**
  * Page d'accueil de l'application
@@ -22,7 +22,9 @@ const HomePage: React.FC = () => {
       
       <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
         <div className="bg-gray-800 p-6 rounded-lg shadow-lg flex flex-col items-center">
-          <FaAppleAlt className="text-4xl text-green-400 mb-4" />
+          <span className="text-4xl text-green-400 mb-4">
+            <FaIcons.FaAppleAlt />
+          </span>
           <h2 className="text-xl font-semibold mb-2">Base d'aliments</h2>
           <p className="text-center text-gray-300 mb-4">
             Accédez à notre base de données d'aliments avec valeurs nutritionnelles et pH.
@@ -33,7 +35,9 @@ const HomePage: React.FC = () => {
         </div>
         
         <div className="bg-gray-800 p-6 rounded-lg shadow-lg flex flex-col items-center">
-          <FaUtensils className="text-4xl text-yellow-400 mb-4" />
+          <span className="text-4xl text-yellow-400 mb-4">
+            <FaIcons.FaUtensils />
+          </span>
           <h2 className="text-xl font-semibold mb-2">Recettes Keto</h2>
           <p className="text-center text-gray-300 mb-4">
             Découvrez des recettes adaptées au régime keto standard et alcalin.
@@ -44,7 +48,9 @@ const HomePage: React.FC = () => {
         </div>
         
         <div className="bg-gray-800 p-6 rounded-lg shadow-lg flex flex-col items-center">
-          <FaClipboardList className="text-4xl text-blue-400 mb-4" />
+          <span className="text-4xl text-blue-400 mb-4">
+            <FaIcons.FaClipboardList />
+          </span>
           <h2 className="text-xl font-semibold mb-2">Plans de repas</h2>
           <p className="text-center text-gray-300 mb-4">
             Créez et gérez vos plans de repas personnalisés avec liste de courses.
@@ -55,7 +61,9 @@ const HomePage: React.FC = () => {
         </div>
         
         <div className="bg-gray-800 p-6 rounded-lg shadow-lg flex flex-col items-center">
-          <FaWeight className="text-4xl text-purple-400 mb-4" />
+          <span className="text-4xl text-purple-400 mb-4">
+            <FaIcons.FaWeight />
+          </span>
           <h2 className="text-xl font-semibold mb-2">Suivi de poids</h2>
           <p className="text-center text-gray-300 mb-4">
             Suivez votre progression et visualisez vos résultats au fil du temps.
