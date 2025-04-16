@@ -2,6 +2,90 @@
 
 Ce document fournit des informations pour tester et déboguer les différentes fonctionnalités de l'application.
 
+## ThemeContext - Système de thèmes
+
+### Points à vérifier
+
+1. **Initialisation et changement de thème**
+   - Le thème est correctement chargé depuis localStorage au démarrage
+   - La préférence système est utilisée comme fallback
+   - La classe de thème (`light`, `dark`, etc.) est correctement appliquée à l'élément racine
+   - Le changement de thème fonctionne instantanément et sans erreurs
+   - Les thèmes sont persistants entre les sessions
+
+2. **Application du thème par composant**
+   - Le thème est correctement appliqué à tous les composants de page
+   - Le composant MainLayout applique la classe de thème à toute la page
+   - Les composants qui utilisent useTheme() directement reçoivent et utilisent le thème correctement
+
+3. **Variables CSS de thème**
+   - Les variables CSS `--bg-primary`, `--bg-secondary`, `--text-primary`, etc. sont correctement redéfinies
+   - Les transitions entre thèmes sont fluides
+   - Les contrastes sont suffisants pour une bonne lisibilité dans chaque thème
+
+### Tests à effectuer
+
+1. **Test de basculement de thème**
+   ```javascript
+   const { theme, toggleTheme, setTheme } = useTheme();
+   
+   // Vérifier le thème actuel
+   console.log(`Thème actuel: ${theme}`);
+   
+   // Basculer le thème
+   toggleTheme();
+   
+   // Vérifier que le thème a changé
+   console.log(`Nouveau thème: ${theme}`);
+   
+   // Définir un thème spécifique
+   setTheme('dark');
+   console.log(`Thème défini: ${theme}`);
+   ```
+
+2. **Test de persistance du thème**
+   ```javascript
+   // Vérifier le localStorage
+   const savedTheme = localStorage.getItem('keto-meal-planner-theme');
+   console.log(`Thème sauvegardé: ${savedTheme}`);
+   
+   // Le thème devrait être cohérent avec celui affiché
+   const { theme } = useTheme();
+   console.log(`Thème cohérent: ${savedTheme === theme}`);
+   ```
+
+3. **Test des variables CSS du thème**
+   ```javascript
+   // Inspecter l'élément racine pour vérifier la classe de thème
+   const rootClasses = document.documentElement.classList;
+   console.log(`Classes racine: ${[...rootClasses].join(', ')}`);
+   
+   // Vérifier les variables CSS de thème
+   const computedStyle = getComputedStyle(document.documentElement);
+   console.log(`Couleur de fond primaire: ${computedStyle.getPropertyValue('--bg-primary')}`);
+   console.log(`Couleur de texte primaire: ${computedStyle.getPropertyValue('--text-primary')}`);
+   ```
+
+### Erreurs courantes
+
+1. **Incohérence visuelle entre les pages**
+   - Certaines pages peuvent ne pas utiliser le hook useTheme() correctement
+   - Vérifier que MainLayout est bien utilisé pour toutes les pages principales
+   - S'assurer que les composants spécifiques utilisent les variables CSS de thème
+
+2. **Variables CSS codées en dur**
+   - Rechercher les couleurs définies directement dans le CSS au lieu d'utiliser des variables
+   - Vérifier l'utilisation de valeurs Tailwind directement (comme bg-white) au lieu des classes adaptées au thème
+
+3. **Classes de thème manquantes**
+   - Vérifier que la classe de thème (light/dark) est bien présente sur le conteneur parent
+   - S'assurer que les sélecteurs CSS incluent correctement le préfixe de thème (`.light .element`, `.dark .element`)
+
+4. **Problèmes de localStorage**
+   - Vérifier que la clé 'keto-meal-planner-theme' est utilisée correctement
+   - S'assurer que le thème est sauvegardé à chaque changement
+   - Vérifier les erreurs dans la console liées à localStorage
+
 ## RecipeContext - Gestion des recettes
 
 ### Points à vérifier
@@ -435,133 +519,51 @@ Ce document fournit des informations pour tester et déboguer les différentes f
    - S'assurer que la structure des objets est compatible avec JSON.stringify()
    - Vérifier les limites de taille de localStorage pour les grands plans
 
-## FoodsPage - Page de visualisation des aliments
+## RecipesPage et FoodsPage - Problèmes d'affichage de thème
+
+Si vous rencontrez des problèmes d'incohérence de thème entre les pages, suivez ces étapes de débogage:
 
 ### Points à vérifier
 
-1. **Intégration avec le routage**
-   - La page est correctement reliée à la route `/foods` dans App.tsx
-   - La navigation vers la page fonctionne depuis le menu principal
-   - Le FoodProvider est bien présent dans l'arbre de composants
+1. **Structure HTML et classes de thème**
+   - Vérifier que chaque composant de page inclut la classe de thème (`${theme}`) dans son conteneur principal
+   - S'assurer que MainLayout enveloppe correctement toutes les pages principales
 
-2. **Rendu des composants**
-   - Tous les composants (FoodCard, FoodDetail, SearchBar, etc.) s'affichent correctement
-   - Les états de chargement et d'erreur sont correctement gérés
-   - Les filtres fonctionnent comme attendu
+2. **Variables CSS et hardcoding**
+   - Rechercher les valeurs CSS hardcodées à remplacer par des variables
+   - Vérifier l'utilisation cohérente de `var(--bg-primary)`, `var(--text-primary)`, etc.
+   - Rechercher les classes Tailwind directes sans préfixe de thème (`dark:`)
 
-3. **Interactions utilisateur**
-   - Le clic sur une carte d'aliment ouvre correctement le détail
-   - La recherche filtre correctement les aliments affichés
-   - Les filtres de catégorie, régime, etc. fonctionnent correctement
-   - Le bouton pour réinitialiser les filtres fonctionne
-
-4. **Responsive design**
-   - L'interface s'adapte correctement aux différentes tailles d'écran
-   - Le panneau de filtres se comporte correctement en mode mobile
-
-### Dépendances requises
-
-Pour que la page FoodsPage fonctionne correctement, les dépendances suivantes doivent être installées:
-
-```
-npm install react-icons react-helmet @types/react-helmet
-```
-
-### Erreurs courantes
-
-1. **Erreurs liées aux dépendances manquantes**
-   - Si les icônes ne s'affichent pas : vérifier que `react-icons` est installé
-   - Si des erreurs concernant `react-helmet` apparaissent : vérifier son installation
-
-2. **Problèmes d'affichage des aliments**
-   - Vérifier que FoodContext est correctement intégré et initialisé
-   - S'assurer que la méthode getFilteredFoods() renvoie les résultats attendus
-   - Vérifier que la structure des objets alimentaires correspond à celle attendue par les composants
-
-3. **Problèmes de performance**
-   - Si le rendu est lent, vérifier l'utilisation de useMemo et useCallback
-   - Pour les listes longues, envisager l'implémentation d'une virtualisation
-
-## RecipesPage - Gestion et affichage des recettes
-
-### Points à vérifier
-
-1. **Intégration avec le routage**
-   - La page est correctement reliée à la route `/recipes` dans App.tsx
-   - La navigation vers la page fonctionne depuis le menu principal
-   - Le RecipeContext et le FoodContext sont bien présents dans l'arbre de composants
-
-2. **Fonctionnalités d'affichage**
-   - Les cartes de recettes (RecipeCard) s'affichent correctement avec toutes les informations
-   - Le détail des recettes (RecipeDetail) montre correctement tous les ingrédients et instructions
-   - Le formulaire de recette (RecipeForm) permet de créer et modifier des recettes
-   - Les états de chargement et d'erreur sont gérés correctement
-
-3. **Interactions utilisateur**
-   - Création d'une nouvelle recette fonctionne correctement
-   - Modification d'une recette existante met à jour tous les champs
-   - Suppression d'une recette fonctionne après confirmation
-   - L'ajout/suppression aux favoris fonctionne instantanément
-   - La recherche et les filtres fonctionnent comme attendu
-
-4. **Calculs nutritionnels**
-   - Les macronutriments sont correctement calculés lors de l'ajout/modification d'ingrédients
-   - La barre de macronutriments reflète correctement les proportions
-   - Les badges keto/alcalin sont attribués selon les bonnes règles (keto: <10g glucides nets, alcalin: pH>7)
-
-5. **Formulaire de recette**
-   - Tous les champs sont correctement validés
-   - L'ajout et la suppression d'ingrédients fonctionnent
-   - L'ajout et la suppression d'instructions fonctionnent
-   - La recherche d'aliments dans le formulaire fonctionne
-
-### Dépendances requises
-
-Pour que la page RecipesPage fonctionne correctement, assurez-vous que les contextes suivants sont implémentés :
-
-- `RecipeContext`
-- `FoodContext`
+3. **Styles spécifiques au thème**
+   - S'assurer que les sélecteurs `.light` et `.dark` sont utilisés pour les styles spécifiques
+   - Vérifier la spécificité des sélecteurs CSS pour éviter les écrasements
 
 ### Tests à effectuer
 
-1. **Test du cycle complet d'une recette**
-   - Créer une nouvelle recette avec plusieurs ingrédients
-   - Vérifier que les valeurs nutritionnelles sont correctement calculées
-   - Sauvegarder la recette et vérifier qu'elle apparaît dans la liste
-   - Modifier la recette en ajoutant/supprimant des ingrédients
-   - Vérifier que les modifications sont sauvegardées
-   - Supprimer la recette et vérifier qu'elle est bien retirée de la liste
+1. **Inspection visuelle de cohérence**
+   - Naviguer entre toutes les pages et vérifier visuellement la cohérence du thème
+   - Basculer entre les thèmes clair et sombre sur chaque page
 
-2. **Test des filtres**
-   - Utiliser la barre de recherche pour trouver une recette spécifique
-   - Filtrer par type de repas et vérifier les résultats
-   - Filtrer par temps de préparation et vérifier les résultats
-   - Cocher/décocher les filtres keto, alcalin et favoris
-   - Réinitialiser tous les filtres
+2. **Validation des classes**
+   - Inspecter l'élément dans les outils de développement et vérifier la présence des classes de thème
+   - Comparer les styles calculés entre différentes pages pour les mêmes éléments
 
-3. **Test de responsive design**
-   - Vérifier l'affichage sur desktop
-   - Vérifier l'affichage sur tablette (768px de largeur)
-   - Vérifier l'affichage sur mobile (375px de largeur)
+3. **Test de localStorage**
+   - Vérifier que le thème est correctement sauvegardé en naviguant entre les pages
+   - Rafraîchir la page et s'assurer que le thème est conservé
 
-### Erreurs courantes
+### Solutions rapides pour les problèmes courants
 
-1. **Problèmes d'affichage des recettes**
-   - Vérifier que le RecipeContext est correctement initialisé
-   - S'assurer que la méthode getFilteredRecipes() renvoie les résultats attendus
-   - Vérifier que la structure des objets recette correspond à celle attendue par les composants
+1. **Page ne réagissant pas au changement de thème**
+   - Ajouter `const { theme } = useTheme();` au composant de page
+   - Ajouter la classe de thème au conteneur principal: `<div className={`page-container ${theme}`}>`
 
-2. **Problèmes de formulaire**
-   - Vérifier que les aliments sont correctement chargés dans le sélecteur d'ingrédients
-   - S'assurer que les quantités sont bien converties en nombres
-   - Vérifier que les listes d'ingrédients et d'instructions ne sont pas vides lors de la soumission
+2. **Couleurs incohérentes entre les pages**
+   - Remplacer les couleurs hardcodées par des variables CSS
+   - Utiliser les sélecteurs `.light` et `.dark` dans le CSS
 
-3. **Erreurs de calcul**
-   - Vérifier que les aliments référencés dans les ingrédients existent dans la base de données
-   - S'assurer que les unités de mesure sont correctement gérées
-   - Confirmer que les calculs de macronutriments et de pH sont exacts
+3. **Problème de contraste ou lisibilité**
+   - Ajuster les variables de couleur de premier plan/arrière-plan pour chaque thème
+   - Vérifier les ratios de contraste pour l'accessibilité
 
-4. **Problèmes de performance**
-   - Pour les utilisateurs avec beaucoup de recettes, optimiser les rendus avec React.memo
-   - Utiliser useMemo pour les calculs coûteux comme le filtrage
-   - Considérer la pagination pour les listes de plus de 20 recettes
+Pour plus de détails sur l'implémentation des thèmes, consultez le fichier THEME.md à la racine du projet.
