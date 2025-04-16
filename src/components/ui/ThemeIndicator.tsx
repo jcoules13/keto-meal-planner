@@ -1,10 +1,7 @@
 // src/components/ui/ThemeIndicator.tsx
 import React from 'react';
 import { useTheme } from '../../contexts/ThemeContext';
-import { 
-  FaSun, FaMoon, FaLeaf, FaUmbrella, 
-  FaCanadianMapleLeaf, FaSnowflake, FaGhost, FaTree 
-} from 'react-icons/fa'; // Assurez-vous d'avoir react-icons installé
+import * as FaIcons from 'react-icons/fa';
 
 /**
  * Composant qui affiche l'indicateur du thème actuel
@@ -12,27 +9,27 @@ import {
 const ThemeIndicator: React.FC = () => {
   const { theme } = useTheme();
   
-  // Fonction pour obtenir l'icône correspondant au thème actuel
-  const getThemeIcon = () => {
+  // Fonction pour rendre l'icône correspondant au thème actuel
+  const renderThemeIcon = () => {
     switch (theme) {
       case 'light':
-        return <FaSun className="text-yellow-400" />;
+        return React.createElement(FaIcons.FaSun, { className: "text-yellow-400" });
       case 'dark':
-        return <FaMoon className="text-indigo-300" />;
+        return React.createElement(FaIcons.FaMoon, { className: "text-indigo-300" });
       case 'spring':
-        return <FaLeaf className="text-green-400" />;
+        return React.createElement(FaIcons.FaLeaf, { className: "text-green-400" });
       case 'summer':
-        return <FaUmbrella className="text-cyan-400" />;
+        return React.createElement(FaIcons.FaUmbrella, { className: "text-cyan-400" });
       case 'autumn':
-        return <FaCanadianMapleLeaf className="text-orange-500" />;
+        return React.createElement(FaIcons.FaMapLeaf || FaIcons.FaLeaf, { className: "text-orange-500" });
       case 'winter':
-        return <FaSnowflake className="text-blue-300" />;
+        return React.createElement(FaIcons.FaSnowflake, { className: "text-blue-300" });
       case 'halloween':
-        return <FaGhost className="text-purple-400" />;
+        return React.createElement(FaIcons.FaGhost, { className: "text-purple-400" });
       case 'christmas':
-        return <FaTree className="text-green-500" />;
+        return React.createElement(FaIcons.FaTree, { className: "text-green-500" });
       default:
-        return <FaSun className="text-yellow-400" />;
+        return React.createElement(FaIcons.FaSun, { className: "text-yellow-400" });
     }
   };
 
@@ -87,7 +84,7 @@ const ThemeIndicator: React.FC = () => {
   return (
     <div className="flex items-center">
       <div className={`flex items-center gap-1.5 rounded-full py-0.5 px-2.5 border ${getBadgeColor()} transition-colors`}>
-        <span className="text-sm">{getThemeIcon()}</span>
+        <span className="text-sm">{renderThemeIcon()}</span>
         <span className="text-xs font-medium">{getThemeLabel()}</span>
       </div>
     </div>
