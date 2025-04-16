@@ -54,6 +54,9 @@ Ce fichier retrace l'historique des modifications apportées au projet.
 - Base de données initiale avec 20 aliments adaptés au régime keto
 - Fonction de détection automatique de la saison courante
 - Persistance des aliments personnalisés dans le localStorage
+- Création d'un nouveau composant HomePage avec support complet de thème
+- Guide de gestion des thèmes (THEME.md) pour assurer une implémentation cohérente
+- Centralisation de l'application des thèmes dans le composant MainLayout
 
 ### Modifié
 - Guide de débogage (DEBUGGING.md) mis à jour avec des informations sur le MealPlanContext
@@ -68,12 +71,19 @@ Ce fichier retrace l'historique des modifications apportées au projet.
 - Variables CSS redéfinies pour assurer un contraste approprié dans le thème clair
 - Ajustements des styles de FoodsPage pour garantir la compatibilité avec le thème clair
 - Correction des couleurs de fond et de texte dans les différentes sections de l'application
+- Refactorisation complète de RecipesPage.css pour utiliser les variables CSS de thème
+- Mise à jour de RecipesPage.js pour utiliser correctement le hook useTheme
+- Refactorisation de App.tsx pour utiliser le nouveau composant HomePage modulaire
+- Mise à jour du composant MainLayout pour appliquer automatiquement le thème courant
 
 ### Corrigé
 - Correction du thème clair qui utilisait incorrectement des couleurs sombres
 - Correction des contrastes et de la lisibilité des textes en mode clair
 - Résolution de problèmes de compatibilité entre les différents composants et le thème
 - Amélioration de l'accessibilité visuelle avec des couleurs plus appropriées pour chaque thème
+- Résolution du problème de thème incohérent entre les différentes pages de l'application
+- Correction des variables CSS hardcodées dans RecipesPage.css qui empêchaient le changement de thème
+- Uniformisation de l'apparence des pages pour tous les thèmes (clair/sombre)
 
 ### Technique
 - Implémentation du pattern Observer pour la synchronisation entre les contextes
@@ -87,3 +97,5 @@ Ce fichier retrace l'historique des modifications apportées au projet.
 - Optimisation des recherches avec filtrage à la demande
 - Structure des données optimisée pour faciliter les recherches et le filtrage
 - Réorganisation des variables CSS pour améliorer la maintenance des thèmes
+- Architecture centralisée pour la gestion des thèmes évitant les répétitions de code
+- Utilisation de sélecteurs CSS spécifiques au thème (.light, .dark) pour une meilleure maintenabilité
