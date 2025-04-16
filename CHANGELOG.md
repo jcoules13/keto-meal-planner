@@ -18,6 +18,11 @@ Ce fichier retrace l'historique des modifications apportées au projet.
 - Calcul du pH moyen des repas pour le régime keto alcalin
 - Création automatique de plans vides pour une période donnée
 - Analyse des proportions de macronutriments dans la liste de courses
+- Composant ShoppingList pour l'affichage et la gestion des listes de courses
+- Composant MealForm pour l'ajout et la modification de repas dans un plan
+- Filtrage des éléments de liste de courses par catégorie et par statut (cochés/non cochés)
+- Calcul dynamique des valeurs nutritionnelles lors de la composition des repas
+- Interface intuitive pour la recherche et la sélection d'aliments et de recettes
 - Page des recettes (RecipesPage) avec interface complète et responsive
 - Formulaire de création/édition de recettes avec calcul automatique des valeurs nutritionnelles et du pH
 - Affichage des recettes sous forme de cartes avec informations clés et macronutriments
@@ -56,7 +61,7 @@ Ce fichier retrace l'historique des modifications apportées au projet.
 - Persistance des aliments personnalisés dans le localStorage
 
 ### Modifié
-- Guide de débogage (DEBUGGING.md) mis à jour avec des informations sur le MealPlanContext
+- Guide de débogage (DEBUGGING.md) mis à jour avec des informations sur le MealPlanContext, ShoppingList et MealForm
 - Structure d'interdépendance des contextes pour faciliter les calculs nutritionnels
 - Amélioration du système de validation des données pour les plans et recettes
 - App.tsx mis à jour pour intégrer la page RecipesPage dans le routage
@@ -68,12 +73,17 @@ Ce fichier retrace l'historique des modifications apportées au projet.
 - Variables CSS redéfinies pour assurer un contraste approprié dans le thème clair
 - Ajustements des styles de FoodsPage pour garantir la compatibilité avec le thème clair
 - Correction des couleurs de fond et de texte dans les différentes sections de l'application
+- Mise à jour de la checklist de développement pour refléter les nouvelles fonctionnalités implémentées
 
 ### Corrigé
 - Correction du thème clair qui utilisait incorrectement des couleurs sombres
 - Correction des contrastes et de la lisibilité des textes en mode clair
 - Résolution de problèmes de compatibilité entre les différents composants et le thème
 - Amélioration de l'accessibilité visuelle avec des couleurs plus appropriées pour chaque thème
+- Résolution du problème de fichier MealPlanContext.js qui était corrompu
+- Recréation des fichiers MealForm.js et ShoppingList.js qui avaient été supprimés
+- Correction des bugs d'affichage dans l'interface des listes de courses
+- Gestion appropriée des cas où les aliments ou recettes référencés n'existent plus
 
 ### Technique
 - Implémentation du pattern Observer pour la synchronisation entre les contextes
@@ -83,6 +93,7 @@ Ce fichier retrace l'historique des modifications apportées au projet.
 - Ajout des dépendances react-icons et react-helmet pour l'interface utilisateur
 - Implémentation d'un composant de layout générique (PageLayout)
 - Intégration entre FoodContext et RecipeContext pour les calculs nutritionnels basés sur les ingrédients
+- Implémentation du nouveau service shoppingListGenerator pour la génération optimisée des listes de courses
 - Utilisation du pattern Context + useReducer pour une gestion d'état prévisible
 - Optimisation des recherches avec filtrage à la demande
 - Structure des données optimisée pour faciliter les recherches et le filtrage
