@@ -114,9 +114,7 @@ const MealPlanPage = () => {
   
   const handleGenerateShoppingList = () => {
     if (currentPlan) {
-      generateShoppingListFromPlan(currentPlan.id);
-      // Rediriger vers la page de liste de courses
-      window.location.href = '/shopping-list';
+        generateShoppingListFromPlan(currentPlan.id);
     }
   };
   
