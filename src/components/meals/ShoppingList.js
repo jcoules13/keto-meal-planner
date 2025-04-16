@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useMealPlan } from '../../contexts/MealPlanContext';
 import { exportShoppingListAsText } from '../../services/shoppingListGenerator';
-import { FaClipboard, FaTrashAlt, FaFilter, FaShoppingBasket, FaCheck } from 'react-icons/fa';
+import { FaClipboard, FaFilter, FaShoppingBasket, FaCheck } from 'react-icons/fa';
 
 /**
  * Composant d'affichage de liste de courses
@@ -9,7 +9,6 @@ import { FaClipboard, FaTrashAlt, FaFilter, FaShoppingBasket, FaCheck } from 're
  */
 const ShoppingList = ({ planId }) => {
   const { 
-    mealPlans, 
     shoppingList, 
     generateShoppingListFromPlan, 
     updateShoppingItem,
