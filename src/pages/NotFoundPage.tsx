@@ -1,12 +1,15 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
-import Icon from '../components/ui/Icon';
+import * as FaIcons from 'react-icons/fa';
 
 /**
  * Page 404 - Page non trouvée
  */
 const NotFoundPage: React.FC = () => {
+  // Cast de l'icône comme composant React
+  const WarningIcon = FaIcons.FaExclamationTriangle as React.FC<React.SVGProps<SVGSVGElement>>;
+
   return (
     <div className="container mx-auto px-4 py-16 flex flex-col items-center justify-center">
       <Helmet>
@@ -14,7 +17,7 @@ const NotFoundPage: React.FC = () => {
       </Helmet>
       
       <span className="text-6xl text-yellow-500 mb-6">
-        <Icon icon="FaExclamationTriangle" />
+        <WarningIcon />
       </span>
       
       <h1 className="text-4xl font-bold mb-4 text-center">Page non trouvée</h1>
