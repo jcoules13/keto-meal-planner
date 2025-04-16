@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useTheme } from '../../contexts/ThemeContext';
-import Icon from '../ui/Icon';
+import * as FaIcons from 'react-icons/fa';
 
 /**
  * Composant d'en-tête de l'application
@@ -15,6 +15,10 @@ const Header: React.FC = () => {
   const isActive = (path: string) => {
     return location.pathname === path ? 'text-primary-500 font-medium' : 'text-gray-300 hover:text-white';
   };
+
+  // Cast des icônes comme composants React
+  const SunIcon = FaIcons.FaSun as React.FC<React.SVGProps<SVGSVGElement>>;
+  const MoonIcon = FaIcons.FaMoon as React.FC<React.SVGProps<SVGSVGElement>>;
 
   return (
     <header className="bg-gray-800 text-white shadow-md">
@@ -53,11 +57,11 @@ const Header: React.FC = () => {
         >
           {theme === 'dark' ? (
             <span className="text-yellow-300">
-              <Icon icon="FaSun" />
+              <SunIcon />
             </span>
           ) : (
             <span className="text-blue-300">
-              <Icon icon="FaMoon" />
+              <MoonIcon />
             </span>
           )}
         </button>
