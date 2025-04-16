@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useTheme } from '../../contexts/ThemeContext';
-import { FaSun, FaMoon } from 'react-icons/fa';
+import Icon from '../ui/Icon';
 
 /**
  * Composant d'en-tête de l'application
@@ -53,11 +53,11 @@ const Header: React.FC = () => {
         >
           {theme === 'dark' ? (
             <span className="text-yellow-300">
-              <FaSun />
+              <Icon icon="FaSun" />
             </span>
           ) : (
             <span className="text-blue-300">
-              <FaMoon />
+              <Icon icon="FaMoon" />
             </span>
           )}
         </button>
