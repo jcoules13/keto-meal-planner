@@ -1,7 +1,6 @@
 // src/components/ui/ThemeIndicator.tsx
 import React from 'react';
 import { useTheme } from '../../contexts/ThemeContext';
-import * as FaIcons from 'react-icons/fa';
 
 /**
  * Composant qui affiche l'indicateur du thème actuel
@@ -9,27 +8,27 @@ import * as FaIcons from 'react-icons/fa';
 const ThemeIndicator: React.FC = () => {
   const { theme } = useTheme();
   
-  // Fonction pour rendre l'icône correspondant au thème actuel
-  const renderThemeIcon = () => {
+  // Fonction pour obtenir l'emoji correspondant au thème actuel
+  const getThemeEmoji = () => {
     switch (theme) {
       case 'light':
-        return React.createElement(FaIcons.FaSun, { className: "text-yellow-400" });
+        return '☀️';
       case 'dark':
-        return React.createElement(FaIcons.FaMoon, { className: "text-indigo-300" });
+        return '🌙';
       case 'spring':
-        return React.createElement(FaIcons.FaLeaf, { className: "text-green-400" });
+        return '🌱';
       case 'summer':
-        return React.createElement(FaIcons.FaUmbrella, { className: "text-cyan-400" });
+        return '🏖️';
       case 'autumn':
-        return React.createElement(FaIcons.FaMapLeaf || FaIcons.FaLeaf, { className: "text-orange-500" });
+        return '🍂';
       case 'winter':
-        return React.createElement(FaIcons.FaSnowflake, { className: "text-blue-300" });
+        return '❄️';
       case 'halloween':
-        return React.createElement(FaIcons.FaGhost, { className: "text-purple-400" });
+        return '👻';
       case 'christmas':
-        return React.createElement(FaIcons.FaTree, { className: "text-green-500" });
+        return '🎄';
       default:
-        return React.createElement(FaIcons.FaSun, { className: "text-yellow-400" });
+        return '☀️';
     }
   };
 
@@ -84,7 +83,7 @@ const ThemeIndicator: React.FC = () => {
   return (
     <div className="flex items-center">
       <div className={`flex items-center gap-1.5 rounded-full py-0.5 px-2.5 border ${getBadgeColor()} transition-colors`}>
-        <span className="text-sm">{renderThemeIcon()}</span>
+        <span className="text-base">{getThemeEmoji()}</span>
         <span className="text-xs font-medium">{getThemeLabel()}</span>
       </div>
     </div>
