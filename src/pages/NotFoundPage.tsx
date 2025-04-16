@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
-import { FaExclamationTriangle } from 'react-icons/fa';
+import Icon from '../components/ui/Icon';
 
 /**
  * Page 404 - Page non trouvée
@@ -14,7 +14,7 @@ const NotFoundPage: React.FC = () => {
       </Helmet>
       
       <span className="text-6xl text-yellow-500 mb-6">
-        <FaExclamationTriangle />
+        <Icon icon="FaExclamationTriangle" />
       </span>
       
       <h1 className="text-4xl font-bold mb-4 text-center">Page non trouvée</h1>
