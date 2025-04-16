@@ -1,0 +1,211 @@
+.macronutrient-chart {
+  background-color: var(--color-white);
+  border-radius: 0.5rem;
+  padding: 1rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.dark .macronutrient-chart {
+  background-color: var(--color-neutral-800);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.macronutrient-chart.small {
+  padding: 0.5rem;
+  font-size: 0.75rem;
+}
+
+.macronutrient-chart.large {
+  padding: 1.5rem;
+}
+
+.chart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.macronutrient-chart.small .chart-header {
+  margin-bottom: 0.5rem;
+}
+
+.chart-title {
+  font-weight: 600;
+  color: var(--color-neutral-800);
+  font-size: 0.9rem;
+}
+
+.dark .chart-title {
+  color: var(--color-neutral-200);
+}
+
+.macronutrient-chart.small .chart-title {
+  font-size: 0.75rem;
+}
+
+.macronutrient-chart.large .chart-title {
+  font-size: 1.1rem;
+}
+
+.keto-badge {
+  font-size: 0.7rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 9999px;
+  font-weight: 500;
+}
+
+.macronutrient-chart.small .keto-badge {
+  font-size: 0.6rem;
+  padding: 0.15rem 0.35rem;
+}
+
+.macronutrient-chart.large .keto-badge {
+  font-size: 0.8rem;
+  padding: 0.3rem 0.6rem;
+}
+
+.keto-badge.ketogenic {
+  background-color: var(--color-success-100);
+  color: var(--color-success-800);
+}
+
+.dark .keto-badge.ketogenic {
+  background-color: var(--color-success-900);
+  color: var(--color-success-300);
+}
+
+.keto-badge.non-ketogenic {
+  background-color: var(--color-error-100);
+  color: var(--color-error-800);
+}
+
+.dark .keto-badge.non-ketogenic {
+  background-color: var(--color-error-900);
+  color: var(--color-error-300);
+}
+
+.chart-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.macronutrient-chart.small .chart-bars {
+  gap: 0.5rem;
+}
+
+.macronutrient-chart.large .chart-bars {
+  gap: 1rem;
+}
+
+.chart-bar-container {
+  width: 100%;
+}
+
+.chart-bar-label {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.25rem;
+  font-size: 0.8rem;
+}
+
+.macronutrient-chart.small .chart-bar-label {
+  font-size: 0.7rem;
+  margin-bottom: 0.15rem;
+}
+
+.macronutrient-chart.large .chart-bar-label {
+  font-size: 0.9rem;
+  margin-bottom: 0.35rem;
+}
+
+.macro-name {
+  color: var(--color-neutral-600);
+}
+
+.dark .macro-name {
+  color: var(--color-neutral-400);
+}
+
+.macro-value {
+  font-weight: 600;
+  color: var(--color-neutral-800);
+}
+
+.dark .macro-value {
+  color: var(--color-neutral-200);
+}
+
+.chart-bar {
+  height: 0.75rem;
+  background-color: var(--color-neutral-200);
+  border-radius: 9999px;
+  overflow: hidden;
+}
+
+.dark .chart-bar {
+  background-color: var(--color-neutral-700);
+}
+
+.macronutrient-chart.small .chart-bar {
+  height: 0.5rem;
+}
+
+.macronutrient-chart.large .chart-bar {
+  height: 1rem;
+}
+
+.chart-bar-fill {
+  height: 100%;
+  min-width: 1%;
+  transition: width 0.5s ease;
+}
+
+.protein-bar {
+  background-color: var(--color-protein);
+}
+
+.fat-bar {
+  background-color: var(--color-fat);
+}
+
+.carbs-bar {
+  background-color: var(--color-carbs);
+}
+
+.chart-footer {
+  margin-top: 1rem;
+  font-size: 0.75rem;
+}
+
+.macronutrient-chart.large .chart-footer {
+  font-size: 0.85rem;
+}
+
+.ideal-range {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: var(--color-neutral-500);
+}
+
+.dark .ideal-range {
+  color: var(--color-neutral-500);
+}
+
+.macro-ideal {
+  font-weight: 500;
+}
+
+.protein-ideal {
+  color: var(--color-protein);
+}
+
+.fat-ideal {
+  color: var(--color-fat);
+}
+
+.carbs-ideal {
+  color: var(--color-carbs);
+}
