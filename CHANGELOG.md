@@ -5,6 +5,19 @@ Ce fichier retrace l'historique des modifications apportées au projet.
 ## [Non publié]
 
 ### Ajouté
+- Implémentation du MealPlanContext pour la gestion des plans de repas
+- Algorithme de génération de liste de courses optimisé
+- Utilitaires pour la manipulation et validation de plans de repas
+- Calcul des totaux nutritionnels par jour et par plan
+- Vérification de conformité des plans par rapport aux objectifs nutritionnels
+- Conversion intelligente des quantités en unités pratiques
+- Gestion de la persistance des plans de repas et listes de courses
+- Organisation de la liste de courses par catégories
+- Gestion des cases à cocher pour la liste de courses
+- Fonctionnalité d'exportation de la liste au format texte
+- Calcul du pH moyen des repas pour le régime keto alcalin
+- Création automatique de plans vides pour une période donnée
+- Analyse des proportions de macronutriments dans la liste de courses
 - Page des recettes (RecipesPage) avec interface complète et responsive
 - Formulaire de création/édition de recettes avec calcul automatique des valeurs nutritionnelles et du pH
 - Affichage des recettes sous forme de cartes avec informations clés et macronutriments
@@ -43,6 +56,9 @@ Ce fichier retrace l'historique des modifications apportées au projet.
 - Persistance des aliments personnalisés dans le localStorage
 
 ### Modifié
+- Guide de débogage (DEBUGGING.md) mis à jour avec des informations sur le MealPlanContext
+- Structure d'interdépendance des contextes pour faciliter les calculs nutritionnels
+- Amélioration du système de validation des données pour les plans et recettes
 - App.tsx mis à jour pour intégrer la page RecipesPage dans le routage
 - Application cohérente des thèmes clair/sombre sur tous les composants principaux
 - Amélioration du système de thèmes pour une meilleure prise en charge des modes clair/sombre
@@ -60,6 +76,10 @@ Ce fichier retrace l'historique des modifications apportées au projet.
 - Amélioration de l'accessibilité visuelle avec des couleurs plus appropriées pour chaque thème
 
 ### Technique
+- Implémentation du pattern Observer pour la synchronisation entre les contextes
+- Utilisation de techniques avancées de memoization pour optimiser les calculs nutritionnels
+- Système d'agrégation et de groupement pour la génération de liste de courses
+- Structure de données optimisée pour les plans de repas et listes de courses
 - Ajout des dépendances react-icons et react-helmet pour l'interface utilisateur
 - Implémentation d'un composant de layout générique (PageLayout)
 - Intégration entre FoodContext et RecipeContext pour les calculs nutritionnels basés sur les ingrédients
