@@ -4,15 +4,12 @@ import { ThemeProvider } from './contexts/ThemeContext';
 import { UserProvider } from './contexts/UserContext';
 import { FoodProvider } from './contexts/FoodContext';
 import { RecipeProvider } from './contexts/RecipeContext';
-import { MealPlanProvider } from './contexts/MealPlanContext';
 import MainLayout from './components/layout/MainLayout';
 import ThemeSwitcher from './components/ui/ThemeSwitcher';
 import ProfilePage from './pages/ProfilePage';
 import FoodsPage from './pages/FoodsPage';
 import WeightTrackerPage from './pages/WeightTrackerPage';
 import RecipesPage from './pages/RecipesPage';
-import MealPlanPage from './pages/MealPlanPage';
-import ShoppingListPage from './pages/ShoppingListPage';
 
 // Pages temporaires pour démarrer
 const HomePage = () => (
@@ -37,6 +34,15 @@ const HomePage = () => (
   </div>
 );
 
+// Page placeholder
+const PlaceholderPage = ({ title }: { title: string }) => (
+  <div className="text-center py-12">
+    <h1 className="text-2xl font-title font-bold mb-4">{title}</h1>
+    <p className="text-neutral-600 dark:text-neutral-400">
+      Cette fonctionnalité est en cours de développement.
+    </p>
+  </div>
+);
 
 function App() {
   return (
@@ -44,23 +50,21 @@ function App() {
       <UserProvider>
         <FoodProvider>
           <RecipeProvider>
-            <MealPlanProvider>
-              {/* Bouton flottant de changement de thème, visible sur toutes les pages */}
-              <ThemeSwitcher />
-              
-              <Routes>
-                <Route path="/" element={<MainLayout><HomePage /></MainLayout>} />
-                <Route path="/meal-planner" element={<MainLayout><MealPlanPage /></MainLayout>} />
-                <Route path="/recipes" element={<MainLayout><RecipesPage /></MainLayout>} />
-                {/* Utiliser le composant FoodsPage */}
-                <Route path="/foods" element={<MainLayout><FoodsPage /></MainLayout>} />
-                <Route path="/shopping-list" element={<MainLayout><ShoppingListPage /></MainLayout>} />
-                {/* Utiliser le composant WeightTrackerPage */}
-                <Route path="/weight-tracker" element={<MainLayout><WeightTrackerPage /></MainLayout>} />
-                <Route path="/profile" element={<MainLayout><ProfilePage /></MainLayout>} />
-                <Route path="*" element={<Navigate to="/" replace />} />
-              </Routes>
-            </MealPlanProvider>
+            {/* Bouton flottant de changement de thème, visible sur toutes les pages */}
+            <ThemeSwitcher />
+            
+            <Routes>
+              <Route path="/" element={<MainLayout><HomePage /></MainLayout>} />
+              <Route path="/meal-planner" element={<MainLayout><PlaceholderPage title="Planificateur de repas" /></MainLayout>} />
+              <Route path="/recipes" element={<MainLayout><RecipesPage /></MainLayout>} />
+              {/* Utiliser le composant FoodsPage */}
+              <Route path="/foods" element={<MainLayout><FoodsPage /></MainLayout>} />
+              <Route path="/shopping-list" element={<MainLayout><PlaceholderPage title="Liste de courses" /></MainLayout>} />
+              {/* Utiliser le composant WeightTrackerPage */}
+              <Route path="/weight-tracker" element={<MainLayout><WeightTrackerPage /></MainLayout>} />
+              <Route path="/profile" element={<MainLayout><ProfilePage /></MainLayout>} />
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
           </RecipeProvider>
         </FoodProvider>
       </UserProvider>
