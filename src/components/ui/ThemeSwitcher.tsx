@@ -1,7 +1,13 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useTheme } from '../../contexts/ThemeContext';
 
-// Icônes pour les différents thèmes (conservées telles quelles)
+// Définir le type Theme pour correspondre à celui du ThemeContext
+type BaseTheme = 'light' | 'dark';
+type SeasonTheme = 'spring' | 'summer' | 'autumn' | 'winter';
+type HolidayTheme = 'christmas' | 'halloween';
+type Theme = BaseTheme | SeasonTheme | HolidayTheme;
+
+// Icônes pour les différents thèmes
 const themeIcons: Record<string, React.ReactNode> = {
   light: (
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6">
@@ -96,7 +102,7 @@ const ThemeSwitcher: React.FC = () => {
     setShowMenu(!showMenu);
   };
   
-  const handleThemeSelect = (selectedTheme: string) => {
+  const handleThemeSelect = (selectedTheme: Theme) => {
     setTheme(selectedTheme);
     setShowMenu(false);
   };
