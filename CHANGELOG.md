@@ -5,6 +5,12 @@ Ce fichier retrace l'historique des modifications apportées au projet.
 ## [Non publié]
 
 ### Ajouté
+- Création des composants de mise en page manquants : Header.tsx et Footer.tsx
+- Création des pages essentielles manquantes : HomePage.tsx et NotFoundPage.tsx
+- Section "Erreurs de compilation courantes" dans le guide DEBUGGING.md
+- Structure de navigation complète dans le Header avec gestion des liens actifs
+- Page d'accueil avec présentation des fonctionnalités principales de l'application
+- Page 404 pour gérer les routes inexistantes
 - Implémentation du MealPlanContext pour la gestion des plans de repas
 - Algorithme de génération de liste de courses optimisé
 - Utilitaires pour la manipulation et validation de plans de repas
@@ -61,7 +67,9 @@ Ce fichier retrace l'historique des modifications apportées au projet.
 - Persistance des aliments personnalisés dans le localStorage
 
 ### Modifié
-- Guide de débogage (DEBUGGING.md) mis à jour avec des informations sur le MealPlanContext, ShoppingList et MealForm
+- Guide de débogage (DEBUGGING.md) mis à jour avec des informations sur la résolution des erreurs de compilation
+- Restructuration du code pour faciliter la maintenance et le débogage
+- Suppression des imports et variables inutilisés dans le composant ShoppingList.js
 - Structure d'interdépendance des contextes pour faciliter les calculs nutritionnels
 - Amélioration du système de validation des données pour les plans et recettes
 - App.tsx mis à jour pour intégrer la page RecipesPage dans le routage
@@ -76,6 +84,10 @@ Ce fichier retrace l'historique des modifications apportées au projet.
 - Mise à jour de la checklist de développement pour refléter les nouvelles fonctionnalités implémentées
 
 ### Corrigé
+- Correction des erreurs de compilation liées aux composants de mise en page manquants
+- Création des fichiers de composants essentiels manquants (Header, Footer, HomePage, NotFoundPage)
+- Suppression des variables inutilisées dans le composant ShoppingList pour éliminer les avertissements ESLint
+- Correction de la structure de dossiers pour assurer la cohérence avec les imports dans App.tsx
 - Correction du thème clair qui utilisait incorrectement des couleurs sombres
 - Correction des contrastes et de la lisibilité des textes en mode clair
 - Résolution de problèmes de compatibilité entre les différents composants et le thème
@@ -86,6 +98,9 @@ Ce fichier retrace l'historique des modifications apportées au projet.
 - Gestion appropriée des cas où les aliments ou recettes référencés n'existent plus
 
 ### Technique
+- Implémentation d'une structure de navigation plus robuste avec React Router
+- Intégration complète des icônes de react-icons dans toute l'application
+- Amélioration de la gestion des thèmes avec useContext pour une meilleure réactivité
 - Implémentation du pattern Observer pour la synchronisation entre les contextes
 - Utilisation de techniques avancées de memoization pour optimiser les calculs nutritionnels
 - Système d'agrégation et de groupement pour la génération de liste de courses
