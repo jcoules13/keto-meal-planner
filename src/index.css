@@ -8,15 +8,16 @@
   html {
     font-family: 'Open Sans', system-ui, sans-serif;
   }
-  
+
   h1, h2, h3, h4, h5, h6 {
     font-family: 'Montserrat', sans-serif;
     font-weight: 600;
   }
-  
+
   /* Définition des variables CSS pour les thèmes */
   :root {
-    /* Couleurs de base */
+    /* Palette de couleurs - mode clair (par défaut) */
+    /* Couleurs primaires */
     --primary-50: #f0fdf4;
     --primary-100: #dcfce7;
     --primary-200: #bbf7d0;
@@ -27,7 +28,8 @@
     --primary-700: #15803d;
     --primary-800: #166534;
     --primary-900: #14532d;
-    
+
+    /* Couleurs secondaires */
     --secondary-50: #f5f3ff;
     --secondary-100: #ede9fe;
     --secondary-200: #ddd6fe;
@@ -38,439 +40,218 @@
     --secondary-700: #6d28d9;
     --secondary-800: #5b21b6;
     --secondary-900: #4c1d95;
-    
-    --neutral-50: #fafafa;
-    --neutral-100: #f5f5f5;
-    --neutral-200: #e5e5e5;
-    --neutral-300: #d4d4d4;
-    --neutral-400: #a3a3a3;
-    --neutral-500: #737373;
-    --neutral-600: #525252;
-    --neutral-700: #404040;
-    --neutral-800: #262626;
-    --neutral-900: #171717;
-    
-    --success: #22c55e;
-    --success-rgb: 34, 197, 94;
+
+    /* Couleurs neutres */
+    --neutral-50: #f8f9fa;
+    --neutral-100: #e9ecef;
+    --neutral-200: #dee2e6;
+    --neutral-300: #ced4da;
+    --neutral-400: #adb5bd;
+    --neutral-500: #6c757d;
+    --neutral-600: #495057;
+    --neutral-700: #343a40;
+    --neutral-800: #212529;
+    --neutral-900: #121416;
+
+    /* Couleurs sémantiques */
+    --success: #10b981;
     --warning: #f59e0b;
-    --warning-rgb: 245, 158, 11;
     --error: #ef4444;
-    --error-rgb: 239, 68, 68;
-    --info: #0ea5e9;
-    --info-rgb: 14, 165, 233;
-    
-    /* Variables de texte et fond pour le thème clair par défaut */
-    --text-primary: var(--neutral-900);
-    --text-secondary: var(--neutral-700);
-    --bg-primary: var(--neutral-50);
-    --bg-secondary: var(--neutral-100);
-    --border-color: var(--neutral-200);
-  }
-  
-  /* Variables pour les couleurs sémantiques nutritionnelles */
-  :root {
-    --protein: #e11d48;
-    --protein-rgb: 225, 29, 72;
-    --fat: #f59e0b;
-    --fat-rgb: 245, 158, 11;
-    --carbs: #2dd4bf;
-    --carbs-rgb: 45, 212, 191;
-    --acidic: #ef4444;
-    --alkaline: #22c55e;
-  }
-  
-  /* Par défaut, le corps utilise le thème clair */
-  body {
-    background-color: var(--bg-primary);
-    color: var(--text-primary);
-    transition: background-color 0.3s ease, color 0.3s ease;
-  }
-  
-  /* Thème sombre - redéfinit les variables pour inverser les couleurs */
-  .dark {
-    --text-primary: var(--neutral-100);
-    --text-secondary: var(--neutral-300);
-    --bg-primary: var(--neutral-900);
-    --bg-secondary: var(--neutral-800);
-    --border-color: var(--neutral-700);
-  }
-  
-  /* Thème clair - application explicite */
-  .light body {
-    background-color: var(--neutral-50);
-    color: var(--neutral-900);
-  }
-  
-  /* Thème sombre - application explicite */
-  .dark body {
-    background-color: var(--neutral-900);
-    color: var(--neutral-100);
+    --info: #3b82f6;
+
+    /* Couleurs spécifiques au thème clair */
+    --background: #ffffff;
+    --card-bg: #f8f9fa;
+    --input-bg: #ffffff;
+    --text-primary: #212529;
+    --text-secondary: #495057;
+    --text-tertiary: #6c757d;
+    --border-color: #dee2e6;
+
+    /* Ombres */
+    --shadow-card: 0 4px 6px rgba(0, 0, 0, 0.05);
+    --shadow-dropdown: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    --shadow-button: 0 2px 4px rgba(0, 0, 0, 0.05);
   }
 
-  /* Thèmes saisonniers */
-  .spring body {
-    @apply bg-green-50 text-green-900;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Cpath fill='%2322c55e' fill-opacity='0.05' d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z'%3E%3C/path%3E%3C/svg%3E");
+  /* Thème sombre */
+  .dark {
+    /* Palette de couleurs - mode sombre */
+    /* Couleurs primaires (ajustées pour le mode sombre) */
+    --primary-50: #0f2412;
+    --primary-100: #132f17;
+    --primary-200: #1a3f1f;
+    --primary-300: #245d2e;
+    --primary-400: #2f7a3d;
+    --primary-500: #3b964b;
+    --primary-600: #4cb75e;
+    --primary-700: #71c982;
+    --primary-800: #97dba5;
+    --primary-900: #c2eecb;
+
+    /* Couleurs secondaires (ajustées pour le mode sombre) */
+    --secondary-50: #1a1422;
+    --secondary-100: #24192f;
+    --secondary-200: #321d47;
+    --secondary-300: #45295e;
+    --secondary-400: #5a3582;
+    --secondary-500: #7046a1;
+    --secondary-600: #8559b7;
+    --secondary-700: #a77eca;
+    --secondary-800: #c6a8e0;
+    --secondary-900: #e3d6f4;
+
+    /* Couleurs neutres restent les mêmes car elles sont un spectre */
+
+    /* Couleurs sémantiques (ajustées pour le mode sombre) */
+    --success: #0d9669;
+    --warning: #d18609;
+    --error: #dc2626;
+    --info: #2563eb;
+
+    /* Couleurs spécifiques au thème sombre */
+    --background: #121212;
+    --card-bg: #1e1e1e;
+    --input-bg: #2d2d2d;
+    --text-primary: #ffffff;
+    --text-secondary: #d1d5db;
+    --text-tertiary: #9ca3af;
+    --border-color: #374151;
+
+    /* Ombres ajustées pour le mode sombre */
+    --shadow-card: 0 4px 6px rgba(0, 0, 0, 0.3);
+    --shadow-dropdown: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+    --shadow-button: 0 2px 4px rgba(0, 0, 0, 0.3);
   }
-  
-  .summer body {
-    @apply bg-yellow-50 text-yellow-900;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Cpath fill='%23f59e0b' fill-opacity='0.05' d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z'%3E%3C/path%3E%3C/svg%3E");
+
+  /* Thème printemps */
+  .spring {
+    --background: #f0f9e8;
+    --card-bg: #ffffff;
+    --text-primary: #1f2937;
+    --text-secondary: #4b5563;
+    --primary-500: #65b741;
+    --secondary-500: #e78ea9;
+    --border-color: #d1fae5;
   }
-  
-  .autumn body {
-    @apply bg-orange-50 text-orange-900;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Cpath fill='%23f97316' fill-opacity='0.05' d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z'%3E%3C/path%3E%3C/svg%3E");
+
+  /* Thème été */
+  .summer {
+    --background: #f9fafb;
+    --card-bg: #ffffff;
+    --text-primary: #1f2937;
+    --text-secondary: #4b5563;
+    --primary-500: #2dd4bf;
+    --secondary-500: #fb923c;
+    --border-color: #e5e7eb;
   }
-  
-  .winter body {
-    @apply bg-blue-900 text-blue-100;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Cpath fill='%23ffffff' fill-opacity='0.05' d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z'%3E%3C/path%3E%3C/svg%3E");
+
+  /* Thème automne */
+  .autumn {
+    --background: #f8f5f0;
+    --card-bg: #ffffff;
+    --text-primary: #1f2937;
+    --text-secondary: #4b5563;
+    --primary-500: #d97706;
+    --secondary-500: #b45309;
+    --border-color: #fef3c7;
   }
-  
-  /* Thèmes de fêtes */
-  .christmas body {
-    @apply bg-red-900 text-red-100;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Cpath fill='%2322c55e' fill-opacity='0.1' d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z'%3E%3C/path%3E%3C/svg%3E");
+
+  /* Thème hiver (base sombre) */
+  .winter {
+    --background: #0f172a;
+    --card-bg: #1e293b;
+    --input-bg: #334155;
+    --text-primary: #f1f5f9;
+    --text-secondary: #cbd5e1;
+    --text-tertiary: #94a3b8;
+    --primary-500: #38bdf8;
+    --secondary-500: #a5b4fc;
+    --border-color: #334155;
   }
-  
-  .halloween body {
-    @apply bg-orange-900 text-orange-100;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Cpath fill='%23000000' fill-opacity='0.1' d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z'%3E%3C/path%3E%3C/svg%3E");
+
+  /* Thème Halloween (base sombre) */
+  .halloween {
+    --background: #18181b;
+    --card-bg: #27272a;
+    --input-bg: #3f3f46;
+    --text-primary: #fafafa;
+    --text-secondary: #d4d4d8;
+    --text-tertiary: #a1a1aa;
+    --primary-500: #f97316;
+    --secondary-500: #7e22ce;
+    --border-color: #3f3f46;
+  }
+
+  /* Thème Noël */
+  .christmas {
+    --background: #fff1f2;
+    --card-bg: #ffffff;
+    --text-primary: #1f2937;
+    --text-secondary: #4b5563;
+    --primary-500: #dc2626;
+    --secondary-500: #16a34a;
+    --border-color: #fee2e2;
   }
 }
 
+/* Styles de composants personnalisés */
 @layer components {
-  /* Bouton flottant de changement de thème */
-  .theme-switcher {
-    @apply fixed bottom-4 right-4 w-12 h-12 rounded-full flex items-center justify-center 
-           shadow-lg z-50 transition-all duration-300 cursor-pointer;
-  }
-  
-  /* Styles spécifiques pour le bouton en fonction du thème */
-  .light .theme-switcher {
-    @apply bg-neutral-100 text-neutral-900 hover:bg-neutral-200;
-  }
-  
-  .dark .theme-switcher {
-    @apply bg-neutral-800 text-neutral-100 hover:bg-neutral-700;
-  }
-  
-  .spring .theme-switcher {
-    @apply bg-green-100 text-green-900 hover:bg-green-200;
-  }
-  
-  .summer .theme-switcher {
-    @apply bg-yellow-100 text-yellow-900 hover:bg-yellow-200;
-  }
-  
-  .autumn .theme-switcher {
-    @apply bg-orange-100 text-orange-900 hover:bg-orange-200;
-  }
-  
-  .winter .theme-switcher {
-    @apply bg-blue-700 text-blue-100 hover:bg-blue-600;
-  }
-  
-  .christmas .theme-switcher {
-    @apply bg-red-700 text-red-100 hover:bg-red-600;
-  }
-  
-  .halloween .theme-switcher {
-    @apply bg-orange-700 text-orange-100 hover:bg-orange-600;
-  }
-  
-  /* Styles des composants de base */
-  .btn {
-    @apply px-4 py-2 rounded font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2;
-  }
-  
-  .btn-primary {
-    @apply bg-primary-600 text-white hover:bg-primary-700 focus:ring-primary-500 dark:bg-primary-500 dark:hover:bg-primary-600;
-  }
-  
-  .btn-secondary {
-    @apply bg-secondary-600 text-white hover:bg-secondary-700 focus:ring-secondary-500 dark:bg-secondary-500 dark:hover:bg-secondary-600;
-  }
-  
-  .btn-outline {
-    @apply border border-primary-600 text-primary-600 hover:bg-primary-50 focus:ring-primary-500 
-           dark:border-primary-400 dark:text-primary-400 dark:hover:bg-primary-900/30;
-  }
-  
-  /* Adapter les styles des cartes aux différents thèmes */
+  /* Carte de base commune à tous les thèmes */
   .card {
-    @apply rounded-lg shadow-md p-4 transition-colors duration-200;
+    @apply bg-card-bg rounded-lg shadow-card p-4 transition-all duration-200;
   }
-  
-  .light .card {
-    @apply bg-white text-neutral-900;
+
+  /* Bouton principal */
+  .btn-primary {
+    @apply bg-primary-500 hover:bg-primary-600 text-white font-medium py-2 px-4 rounded-md transition-colors duration-150 shadow-button;
   }
-  
-  .dark .card {
-    @apply bg-neutral-800 text-neutral-100;
+
+  /* Bouton secondaire */
+  .btn-secondary {
+    @apply bg-secondary-500 hover:bg-secondary-600 text-white font-medium py-2 px-4 rounded-md transition-colors duration-150 shadow-button;
   }
-  
-  .spring .card {
-    @apply bg-white bg-opacity-90 text-green-900 dark:bg-green-800 dark:bg-opacity-90 dark:text-green-100;
+
+  /* Champ de formulaire */
+  .form-input {
+    @apply bg-input-bg border border-border-color rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500 text-text-primary;
   }
-  
-  .summer .card {
-    @apply bg-white bg-opacity-90 text-yellow-900 dark:bg-yellow-800 dark:bg-opacity-90 dark:text-yellow-100;
+
+  /* En-tête de section */
+  .section-header {
+    @apply font-heading text-2xl font-bold text-text-primary mb-4;
   }
-  
-  .autumn .card {
-    @apply bg-white bg-opacity-90 text-orange-900 dark:bg-orange-800 dark:bg-opacity-90 dark:text-orange-100;
+
+  /* Lien de navigation */
+  .nav-link {
+    @apply text-text-secondary hover:text-primary-500 transition-colors duration-150;
   }
-  
-  .winter .card {
-    @apply bg-blue-800 bg-opacity-90 text-blue-100;
-  }
-  
-  .christmas .card {
-    @apply bg-red-800 bg-opacity-90 text-red-100;
-  }
-  
-  .halloween .card {
-    @apply bg-orange-800 bg-opacity-90 text-orange-100;
-  }
-  
-  /* Styles des formulaires */
-  .input {
-    @apply w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors duration-200;
-  }
-  
-  .light .input {
-    @apply bg-white text-neutral-800 border-neutral-300;
-  }
-  
-  .dark .input {
-    @apply bg-neutral-700 text-white border-neutral-600;
-  }
-  
-  .label {
-    @apply block text-sm font-medium mb-1 transition-colors duration-200;
-  }
-  
-  .light .label {
-    @apply text-neutral-700;
-  }
-  
-  .dark .label {
-    @apply text-neutral-300;
-  }
-  
-  .select {
-    @apply w-full pl-3 pr-8 py-2 border rounded-md appearance-none bg-no-repeat bg-right focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors duration-200;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='currentColor'%3E%3Cpath fill-rule='evenodd' d='M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z' clip-rule='evenodd' /%3E%3C/svg%3E");
-    background-size: 20px 20px;
-    background-position: right 0.5rem center;
-  }
-  
-  .light .select {
-    @apply bg-white text-neutral-800 border-neutral-300;
-  }
-  
-  .dark .select {
-    @apply bg-neutral-700 text-white border-neutral-600;
-  }
-  
-  .checkbox {
-    @apply h-4 w-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500 transition-colors duration-200;
-  }
-  
-  .dark .checkbox {
-    @apply border-gray-600;
-  }
-  
-  /* Badges et tags */
+
+  /* Badge */
   .badge {
-    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium transition-colors duration-200;
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
   }
-  
-  .badge-primary {
-    @apply bg-primary-100 text-primary-800;
+
+  .badge-success {
+    @apply bg-success bg-opacity-20 text-success;
   }
-  
-  .dark .badge-primary {
-    @apply bg-primary-900 text-primary-100;
+
+  .badge-warning {
+    @apply bg-warning bg-opacity-20 text-warning;
   }
-  
-  .badge-secondary {
-    @apply bg-secondary-100 text-secondary-800;
+
+  .badge-error {
+    @apply bg-error bg-opacity-20 text-error;
   }
-  
-  .dark .badge-secondary {
-    @apply bg-secondary-900 text-secondary-100;
+}
+
+/* Utilitaires personnalisés */
+@layer utilities {
+  .text-shadow {
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   }
-  
-  .badge-keto {
-    @apply bg-green-100 text-green-800;
-  }
-  
-  .dark .badge-keto {
-    @apply bg-green-900 text-green-100;
-  }
-  
-  .badge-alkaline {
-    @apply bg-blue-100 text-blue-800;
-  }
-  
-  .dark .badge-alkaline {
-    @apply bg-blue-900 text-blue-100;
-  }
-  
-  .badge-seasonal {
-    @apply bg-yellow-100 text-yellow-800;
-  }
-  
-  .dark .badge-seasonal {
-    @apply bg-yellow-900 text-yellow-100;
-  }
-  
-  /* Styles pour les FoodCards et autres éléments spécifiques */
-  .food-card {
-    @apply transition-all duration-200 rounded-lg overflow-hidden cursor-pointer;
-  }
-  
-  .light .food-card {
-    @apply bg-white shadow-md hover:shadow-lg text-neutral-900;
-  }
-  
-  .dark .food-card {
-    @apply bg-neutral-800 shadow-md hover:shadow-lg text-neutral-100;
-  }
-  
-  /* Styles spécifiques pour les indicateurs nutritionnels */
-  .macro-indicator {
-    @apply relative w-full h-4 rounded-full overflow-hidden mb-1 transition-colors duration-200;
-  }
-  
-  .light .macro-indicator {
-    @apply bg-neutral-200;
-  }
-  
-  .dark .macro-indicator {
-    @apply bg-neutral-700;
-  }
-  
-  .macro-indicator-fill {
-    @apply absolute top-0 left-0 h-full rounded-full transition-all duration-300;
-  }
-  
-  .macro-indicator-protein {
-    @apply bg-rose-500;
-  }
-  
-  .dark .macro-indicator-protein {
-    @apply bg-rose-400;
-  }
-  
-  .macro-indicator-fat {
-    @apply bg-amber-500;
-  }
-  
-  .dark .macro-indicator-fat {
-    @apply bg-amber-400;
-  }
-  
-  .macro-indicator-carbs {
-    @apply bg-teal-500;
-  }
-  
-  .dark .macro-indicator-carbs {
-    @apply bg-teal-400;
-  }
-  
-  /* Indicateurs de pH */
-  .pH-indicator {
-    @apply flex items-center gap-2 my-2 transition-colors duration-200;
-  }
-  
-  .pH-value {
-    @apply h-6 w-12 flex items-center justify-center text-xs font-bold rounded text-white;
-  }
-  
-  .pH-value-low {
-    @apply bg-red-500;
-  }
-  
-  .pH-value-neutral {
-    @apply bg-gray-500;
-  }
-  
-  .pH-value-high {
-    @apply bg-green-500;
-  }
-  
-  .pH-scale {
-    @apply w-full h-2 rounded-full relative;
-    background: linear-gradient(to right, rgb(239, 68, 68), rgb(163, 163, 163), rgb(34, 197, 94));
-  }
-  
-  .pH-marker {
-    @apply absolute w-2 h-4 bg-blue-500 rounded-full transform -translate-x-1/2 -translate-y-1/4;
-  }
-  
-  /* Animation pour les états de chargement */
-  @keyframes pulse {
-    0%, 100% {
-      opacity: 1;
-    }
-    50% {
-      opacity: 0.5;
-    }
-  }
-  
-  .animate-pulse {
-    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-  }
-  
-  /* Animation pour le bouton de thème */
-  @keyframes float {
-    0%, 100% {
-      transform: translateY(0);
-    }
-    50% {
-      transform: translateY(-5px);
-    }
-  }
-  
-  .theme-switcher {
-    animation: float 3s ease-in-out infinite;
-  }
-  
-  /* États vides et de chargement */
-  .empty-state {
-    @apply flex flex-col items-center justify-center py-12 px-4 text-center transition-colors duration-200;
-  }
-  
-  .light .empty-state {
-    @apply text-neutral-500;
-  }
-  
-  .dark .empty-state {
-    @apply text-neutral-400;
-  }
-  
-  .loading-spinner {
-    @apply w-10 h-10 border-4 rounded-full animate-spin transition-colors duration-200;
-  }
-  
-  .light .loading-spinner {
-    @apply border-neutral-200 border-t-primary-600;
-  }
-  
-  .dark .loading-spinner {
-    @apply border-neutral-700 border-t-primary-400;
-  }
-  
-  /* Autres éléments spécifiques au mode sombre */
-  .dark .separator {
-    @apply border-neutral-700;
-  }
-  
-  .dark ::placeholder {
-    @apply text-neutral-500;
+
+  .text-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-primary-500 to-secondary-500;
   }
 }
