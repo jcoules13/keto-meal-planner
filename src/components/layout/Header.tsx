@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useTheme } from '../../contexts/ThemeContext';
-import { FaSun, FaMoon } from 'react-icons/fa';
+import * as FaIcons from 'react-icons/fa';
 
 /**
  * Composant d'en-tête de l'application
@@ -51,7 +51,15 @@ const Header: React.FC = () => {
           className="p-2 rounded-full hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white"
           aria-label={theme === 'dark' ? 'Activer le mode clair' : 'Activer le mode sombre'}
         >
-          {theme === 'dark' ? <FaSun className="text-yellow-300" /> : <FaMoon className="text-blue-300" />}
+          {theme === 'dark' ? (
+            <span className="text-yellow-300">
+              <FaIcons.FaSun />
+            </span>
+          ) : (
+            <span className="text-blue-300">
+              <FaIcons.FaMoon />
+            </span>
+          )}
         </button>
       </div>
     </header>
