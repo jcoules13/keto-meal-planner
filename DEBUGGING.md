@@ -2,45 +2,6 @@
 
 Ce document fournit des informations pour tester et déboguer les différentes fonctionnalités de l'application.
 
-## Erreurs de compilation courantes
-
-### Composants manquants
-- **Erreur**: `Module not found: Error: Can't resolve './components/layout/Header'`
-- **Solution**: Créer les composants de mise en page manquants dans le dossier correspondant (`src/components/layout/`)
-- **Note**: Les composants de mise en page essentiels sont `Header.tsx` et `Footer.tsx`
-
-### Pages manquantes
-- **Erreur**: `Module not found: Error: Can't resolve './pages/HomePage'`
-- **Solution**: Créer les pages manquantes dans le dossier correspondant (`src/pages/`)
-- **Note**: Les pages essentielles sont `HomePage.tsx` et `NotFoundPage.tsx`. Les autres pages (`ProfilePage`, `FoodsPage`, etc.) doivent également être créées.
-
-### Variables inutilisées
-- **Erreur**: `'FaTrashAlt' is defined but never used` ou `'mealPlans' is assigned a value but never used`
-- **Solution**: Supprimer les importations et variables inutilisées ou les utiliser dans le code
-- **Exemple**: Dans `ShoppingList.js`, supprimer l'importation de `FaTrashAlt` si elle n'est pas utilisée
-
-### Structure des dossiers
-Si votre application ne compile pas en raison de composants manquants, assurez-vous que la structure de dossiers suivante existe :
-```
-src/
-├── components/
-│   ├── layout/
-│   │   ├── Header.tsx
-│   │   └── Footer.tsx
-│   ├── meals/
-│   ├── recipes/
-│   └── ...
-├── pages/
-│   ├── HomePage.tsx
-│   ├── ProfilePage.tsx
-│   ├── FoodsPage.tsx
-│   ├── RecipesPage.tsx
-│   ├── MealPlanPage.tsx
-│   ├── WeightTrackerPage.tsx
-│   └── NotFoundPage.tsx
-└── ...
-```
-
 ## RecipeContext - Gestion des recettes
 
 ### Points à vérifier
@@ -474,57 +435,133 @@ src/
    - S'assurer que la structure des objets est compatible avec JSON.stringify()
    - Vérifier les limites de taille de localStorage pour les grands plans
 
-## Composants nouvellement ajoutés
+## FoodsPage - Page de visualisation des aliments
 
-### ShoppingList.js - Composant de liste de courses
+### Points à vérifier
 
-#### Points à vérifier
-1. **Génération de la liste**
-   - La liste se génère correctement à partir du plan sélectionné
-   - Les éléments sont regroupés par catégories
-   - Les quantités sont correctement additionnées pour les ingrédients identiques
+1. **Intégration avec le routage**
+   - La page est correctement reliée à la route `/foods` dans App.tsx
+   - La navigation vers la page fonctionne depuis le menu principal
+   - Le FoodProvider est bien présent dans l'arbre de composants
 
-2. **Interactions utilisateur**
-   - Les cases à cocher fonctionnent correctement
-   - La fonction de filtrage par catégorie fonctionne
-   - Le bouton pour masquer/afficher les éléments cochés fonctionne
-   - La copie dans le presse-papier fonctionne
+2. **Rendu des composants**
+   - Tous les composants (FoodCard, FoodDetail, SearchBar, etc.) s'affichent correctement
+   - Les états de chargement et d'erreur sont correctement gérés
+   - Les filtres fonctionnent comme attendu
 
-3. **Affichage**
-   - Les informations du plan (nom, dates) sont correctement affichées
-   - Les articles et leurs quantités sont clairement présentés
-   - L'interface est responsive
+3. **Interactions utilisateur**
+   - Le clic sur une carte d'aliment ouvre correctement le détail
+   - La recherche filtre correctement les aliments affichés
+   - Les filtres de catégorie, régime, etc. fonctionnent correctement
+   - Le bouton pour réinitialiser les filtres fonctionne
 
-#### Erreurs courantes
-- Vérifier que le contexte MealPlan est correctement initialisé
-- S'assurer que l'ID du plan passé en prop est valide
-- Vérifier que la fonction de génération de liste n'échoue pas en cas d'ingrédients manquants
-- Supprimer les importations inutilisées (comme `FaTrashAlt`) pour éviter les avertissements ESLint
-- S'assurer que toutes les variables déclarées sont effectivement utilisées
+4. **Responsive design**
+   - L'interface s'adapte correctement aux différentes tailles d'écran
+   - Le panneau de filtres se comporte correctement en mode mobile
 
-### MealForm.js - Formulaire d'ajout/modification de repas
+### Dépendances requises
 
-#### Points à vérifier
-1. **Ajout d'éléments**
-   - La recherche d'aliments fonctionne correctement
-   - La recherche de recettes fonctionne correctement
-   - Les éléments sont ajoutés avec les quantités spécifiées
-   - Les éléments peuvent être supprimés de la liste
+Pour que la page FoodsPage fonctionne correctement, les dépendances suivantes doivent être installées:
 
-2. **Validation du formulaire**
-   - Le formulaire exige au moins un élément avant soumission
-   - Les champs de type (petit-déjeuner, déjeuner, etc.) fonctionnent correctement
-   - Le champ de notes est correctement sauvegardé
+```
+npm install react-icons react-helmet @types/react-helmet
+```
 
-3. **Calculs nutritionnels**
-   - Les valeurs nutritionnelles sont calculées en temps réel
-   - Les totaux reflètent correctement la somme des éléments ajoutés
-   
-4. **Mode édition**
-   - Les données du repas existant sont correctement chargées
-   - La mise à jour du repas fonctionne correctement
+### Erreurs courantes
 
-#### Erreurs courantes
-- Vérifier que les contextes Food et Recipe sont correctement initialisés
-- S'assurer que les calculs nutritionnels gèrent correctement les différentes unités
-- Vérifier la gestion des cas où la recette ou l'aliment n'existe plus dans la base de données
+1. **Erreurs liées aux dépendances manquantes**
+   - Si les icônes ne s'affichent pas : vérifier que `react-icons` est installé
+   - Si des erreurs concernant `react-helmet` apparaissent : vérifier son installation
+
+2. **Problèmes d'affichage des aliments**
+   - Vérifier que FoodContext est correctement intégré et initialisé
+   - S'assurer que la méthode getFilteredFoods() renvoie les résultats attendus
+   - Vérifier que la structure des objets alimentaires correspond à celle attendue par les composants
+
+3. **Problèmes de performance**
+   - Si le rendu est lent, vérifier l'utilisation de useMemo et useCallback
+   - Pour les listes longues, envisager l'implémentation d'une virtualisation
+
+## RecipesPage - Gestion et affichage des recettes
+
+### Points à vérifier
+
+1. **Intégration avec le routage**
+   - La page est correctement reliée à la route `/recipes` dans App.tsx
+   - La navigation vers la page fonctionne depuis le menu principal
+   - Le RecipeContext et le FoodContext sont bien présents dans l'arbre de composants
+
+2. **Fonctionnalités d'affichage**
+   - Les cartes de recettes (RecipeCard) s'affichent correctement avec toutes les informations
+   - Le détail des recettes (RecipeDetail) montre correctement tous les ingrédients et instructions
+   - Le formulaire de recette (RecipeForm) permet de créer et modifier des recettes
+   - Les états de chargement et d'erreur sont gérés correctement
+
+3. **Interactions utilisateur**
+   - Création d'une nouvelle recette fonctionne correctement
+   - Modification d'une recette existante met à jour tous les champs
+   - Suppression d'une recette fonctionne après confirmation
+   - L'ajout/suppression aux favoris fonctionne instantanément
+   - La recherche et les filtres fonctionnent comme attendu
+
+4. **Calculs nutritionnels**
+   - Les macronutriments sont correctement calculés lors de l'ajout/modification d'ingrédients
+   - La barre de macronutriments reflète correctement les proportions
+   - Les badges keto/alcalin sont attribués selon les bonnes règles (keto: <10g glucides nets, alcalin: pH>7)
+
+5. **Formulaire de recette**
+   - Tous les champs sont correctement validés
+   - L'ajout et la suppression d'ingrédients fonctionnent
+   - L'ajout et la suppression d'instructions fonctionnent
+   - La recherche d'aliments dans le formulaire fonctionne
+
+### Dépendances requises
+
+Pour que la page RecipesPage fonctionne correctement, assurez-vous que les contextes suivants sont implémentés :
+
+- `RecipeContext`
+- `FoodContext`
+
+### Tests à effectuer
+
+1. **Test du cycle complet d'une recette**
+   - Créer une nouvelle recette avec plusieurs ingrédients
+   - Vérifier que les valeurs nutritionnelles sont correctement calculées
+   - Sauvegarder la recette et vérifier qu'elle apparaît dans la liste
+   - Modifier la recette en ajoutant/supprimant des ingrédients
+   - Vérifier que les modifications sont sauvegardées
+   - Supprimer la recette et vérifier qu'elle est bien retirée de la liste
+
+2. **Test des filtres**
+   - Utiliser la barre de recherche pour trouver une recette spécifique
+   - Filtrer par type de repas et vérifier les résultats
+   - Filtrer par temps de préparation et vérifier les résultats
+   - Cocher/décocher les filtres keto, alcalin et favoris
+   - Réinitialiser tous les filtres
+
+3. **Test de responsive design**
+   - Vérifier l'affichage sur desktop
+   - Vérifier l'affichage sur tablette (768px de largeur)
+   - Vérifier l'affichage sur mobile (375px de largeur)
+
+### Erreurs courantes
+
+1. **Problèmes d'affichage des recettes**
+   - Vérifier que le RecipeContext est correctement initialisé
+   - S'assurer que la méthode getFilteredRecipes() renvoie les résultats attendus
+   - Vérifier que la structure des objets recette correspond à celle attendue par les composants
+
+2. **Problèmes de formulaire**
+   - Vérifier que les aliments sont correctement chargés dans le sélecteur d'ingrédients
+   - S'assurer que les quantités sont bien converties en nombres
+   - Vérifier que les listes d'ingrédients et d'instructions ne sont pas vides lors de la soumission
+
+3. **Erreurs de calcul**
+   - Vérifier que les aliments référencés dans les ingrédients existent dans la base de données
+   - S'assurer que les unités de mesure sont correctement gérées
+   - Confirmer que les calculs de macronutriments et de pH sont exacts
+
+4. **Problèmes de performance**
+   - Pour les utilisateurs avec beaucoup de recettes, optimiser les rendus avec React.memo
+   - Utiliser useMemo pour les calculs coûteux comme le filtrage
+   - Considérer la pagination pour les listes de plus de 20 recettes
