@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTheme } from '../../contexts/ThemeContext';
 import AppHeader from './AppHeader';
 
 interface MainLayoutProps {
@@ -6,8 +7,11 @@ interface MainLayoutProps {
 }
 
 const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
+  // Utiliser le contexte de thème
+  const { theme } = useTheme();
+  
   return (
-    <div className="flex flex-col min-h-screen bg-neutral-50 dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100">
+    <div className={`layout-container ${theme} flex flex-col min-h-screen bg-neutral-50 dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100`}>
       <AppHeader />
       <main className="flex-grow container mx-auto px-4 py-6">
         {children}
