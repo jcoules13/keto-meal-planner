@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import ThemeSwitcher from '../ui/ThemeSwitcher';
+import ThemeToggle from '../ui/ThemeToggle';
 
 const AppHeader: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
