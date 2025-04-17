@@ -1,14 +1,12 @@
 import React, { useState } from 'react';
 import { Helmet } from 'react-helmet';
-import { FaUtensils, FaShoppingBasket, FaCalendarAlt } from 'react-icons/fa';
+import { FaUtensils, FaCalendarAlt } from 'react-icons/fa';
 import { useMealPlan } from '../contexts/MealPlanContext';
 import { useUser } from '../contexts/UserContext';
 import { FridgeProvider } from '../contexts/FridgeContext';
+import FridgeSelector from '../components/meals/FridgeSelector';
+import MealGenerator from '../components/meals/MealGenerator';
 import './MealPlannerPage.css';
-
-// Composants à importer une fois créés
-// import FridgeSelector from '../components/meals/FridgeSelector';
-// import MealGenerator from '../components/meals/MealGenerator';
 
 /**
  * Page de planification de repas intelligente
@@ -18,10 +16,46 @@ import './MealPlannerPage.css';
 const MealPlannerPage = () => {
   // États locaux
   const [activeTab, setActiveTab] = useState('weekly'); // 'weekly' ou 'fridge'
+  const [weeklySubTab, setWeeklySubTab] = useState('generate'); // 'generate' ou 'empty'
+  const [fridgeSubTab, setFridgeSubTab] = useState('selector'); // 'selector' ou 'generator'
   
   // Contextes
   const { dietType, ketoProfile, calorieTarget, macroTargets } = useUser();
-  const { createEmptyPlan } = useMealPlan();
+  const { createEmptyPlan, currentPlan } = useMealPlan();
+  
+  // Création d'un plan vide
+  const handleCreateEmptyPlan = () => {
+    // Créer les dates pour cette semaine
+    const today = new Date();
+    const startOfWeek = new Date(today);
+    startOfWeek.setDate(today.getDate() - today.getDay() + 1); // Lundi de cette semaine
+    
+    const endOfWeek = new Date(startOfWeek);
+    endOfWeek.setDate(startOfWeek.getDate() + 6); // Dimanche de cette semaine
+    
+    // Formater les dates au format YYYY-MM-DD
+    const formatDate = (date) => {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    };
+    
+    const startDateStr = formatDate(startOfWeek);
+    const endDateStr = formatDate(endOfWeek);
+    
+    // Créer le plan
+    createEmptyPlan(
+      `Plan du ${startOfWeek.getDate()}/${startOfWeek.getMonth() + 1} au ${endOfWeek.getDate()}/${endOfWeek.getMonth() + 1}`,
+      startDateStr,
+      endDateStr,
+      dietType
+    );
+    
+    // Rediriger vers la page du plan (à implémenter)
+    console.log("Plan vide créé avec succès!");
+    // Vous pourriez rediriger ou afficher un message de succès ici
+  };
   
   // Changement d'onglet
   const handleTabChange = (tab) => {
@@ -55,7 +89,7 @@ const MealPlannerPage = () => {
             className={`tab ${activeTab === 'fridge' ? 'active' : ''}`}
             onClick={() => handleTabChange('fridge')}
           >
-            <FaShoppingBasket />
+            <FaUtensils />
             <span>Quoi dans mon frigo ?</span>
           </button>
         </div>
@@ -101,7 +135,10 @@ const MealPlannerPage = () => {
                 <p>
                   Créez un plan de repas complet pour la semaine en fonction de vos besoins nutritionnels.
                 </p>
-                <button className="primary-button">
+                <button 
+                  className="primary-button"
+                  onClick={() => setWeeklySubTab('generate')}
+                >
                   Générer mon plan
                 </button>
               </div>
@@ -114,42 +151,74 @@ const MealPlannerPage = () => {
                 <p>
                   Commencez avec un plan vide et ajoutez vos propres repas manuellement.
                 </p>
-                <button className="secondary-button">
+                <button 
+                  className="secondary-button"
+                  onClick={handleCreateEmptyPlan}
+                >
                   Créer un plan vide
                 </button>
               </div>
             </div>
             
-            {/* Composant à implémenter */}
-            {/* <MealGenerator mode="weekly" /> */}
+            {/* Message de plan créé si nécessaire */}
+            {currentPlan && (
+              <div className="success-message">
+                <p>
+                  Votre plan "{currentPlan.name}" a été créé avec succès. 
+                  Vous pouvez maintenant ajouter des repas.
+                </p>
+              </div>
+            )}
           </div>
         )}
         
         {activeTab === 'fridge' && (
           <FridgeProvider>
             <div className="fridge-planner">
-              <div className="planner-intro">
-                <h2>Quoi dans mon frigo ?</h2>
-                <p>
-                  Sélectionnez les aliments disponibles dans votre réfrigérateur et vos placards, 
-                  et nous générerons des repas adaptés à vos besoins nutritionnels avec ces ingrédients.
-                </p>
+              <div className="tab-navigation">
+                <button
+                  className={`tab-button ${fridgeSubTab === 'selector' ? 'active' : ''}`}
+                  onClick={() => setFridgeSubTab('selector')}
+                >
+                  1. Mon frigo
+                </button>
+                <button
+                  className={`tab-button ${fridgeSubTab === 'generator' ? 'active' : ''}`}
+                  onClick={() => setFridgeSubTab('generator')}
+                >
+                  2. Générer des repas
+                </button>
               </div>
               
-              {/* Composants à implémenter */}
-              <div className="fridge-content">
-                <p className="temporary-message">
-                  Fonctionnalité en cours de développement. Cette section vous permettra de:
-                </p>
-                <ul className="feature-list">
-                  <li>Sélectionner les aliments disponibles chez vous</li>
-                  <li>Spécifier les quantités approximatives</li>
-                  <li>Générer des repas pour la journée en utilisant ces ingrédients</li>
-                  <li>Ajouter ces repas à votre plan hebdomadaire</li>
-                </ul>
+              <div className="tab-content">
+                {fridgeSubTab === 'selector' && (
+                  <div className="tab-panel">
+                    <FridgeSelector />
+                    <div className="navigation-actions">
+                      <button
+                        className="next-step-button"
+                        onClick={() => setFridgeSubTab('generator')}
+                      >
+                        Étape suivante : Générer des repas
+                      </button>
+                    </div>
+                  </div>
+                )}
+                
+                {fridgeSubTab === 'generator' && (
+                  <div className="tab-panel">
+                    <MealGenerator />
+                    <div className="navigation-actions">
+                      <button
+                        className="back-button"
+                        onClick={() => setFridgeSubTab('selector')}
+                      >
+                        Retour : Mon frigo
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
-              {/* <FridgeSelector /> */}
-              {/* <MealGenerator mode="fridge" /> */}
             </div>
           </FridgeProvider>
         )}
