@@ -40,6 +40,7 @@ export interface UserState {
   age: number;
   height: number; // en cm
   weight: number; // en kg
+  initialWeight: number; // poids de départ pour calculer la progression
   activityLevel: ActivityLevel;
   targetWeight: number; // en kg
   weightGoal: WeightGoal; // objectif de poids
@@ -67,6 +68,8 @@ type UserAction =
   | { type: 'UPDATE_PREFERENCES'; payload: Partial<UserPreferences> }
   | { type: 'UPDATE_FASTING'; payload: Partial<IntermittentFastingConfig> }
   | { type: 'SET_MEAL_FREQUENCY'; payload: number }
+  | { type: 'SET_TARGET_WEIGHT'; payload: number }
+  | { type: 'RESET_INITIAL_WEIGHT' }
   | { type: 'RECALCULATE_TARGETS' };
 
 // Interface du contexte
@@ -83,6 +86,8 @@ interface UserContextType extends UserState {
   updatePreferences: (preferences: Partial<UserPreferences>) => void;
   updateFasting: (fastingSettings: Partial<IntermittentFastingConfig>) => void;
   setMealFrequency: (frequency: number) => void;
+  setTargetWeight: (targetWeight: number) => void;
+  resetInitialWeight: () => void;
   recalculateTargets: () => void;
 }
 
@@ -94,6 +99,7 @@ const initialState: UserState = {
   age: 30,
   height: 175, // en cm
   weight: 75, // en kg
+  initialWeight: 75, // même que weight au départ
   activityLevel: 'modérément_actif',
   targetWeight: 70, // en kg
   weightGoal: 'maintien_poids', // objectif de poids par défaut
@@ -125,12 +131,21 @@ const initialState: UserState = {
 // Reducer
 function userReducer(state: UserState, action: UserAction): UserState {
   switch (action.type) {
-    case 'UPDATE_PROFILE':
-      return {
+    case 'UPDATE_PROFILE': {
+      // Si le poids est modifié et l'objectif de poids n'est pas défini, mettre à jour le poids initial
+      const newState = {
         ...state,
         ...action.payload,
         isProfileComplete: true
       };
+
+      // Si c'est la première mise à jour du profil, initialiser le poids initial
+      if (!state.isProfileComplete && action.payload.weight && !newState.initialWeight) {
+        newState.initialWeight = action.payload.weight;
+      }
+
+      return newState;
+    }
     
     case 'SET_DIET_TYPE':
       return {
@@ -179,6 +194,21 @@ function userReducer(state: UserState, action: UserAction): UserState {
       return {
         ...state,
         mealFrequency: action.payload
+      };
+      
+    case 'SET_TARGET_WEIGHT': {
+      // Quand on définit un nouvel objectif de poids, on réinitialise aussi le poids initial
+      return {
+        ...state,
+        targetWeight: action.payload,
+        initialWeight: state.weight // Utiliser le poids actuel comme point de départ
+      };
+    }
+    
+    case 'RESET_INITIAL_WEIGHT':
+      return {
+        ...state,
+        initialWeight: state.weight // Réinitialiser le poids initial au poids actuel
       };
     
     case 'RECALCULATE_TARGETS': {
@@ -230,6 +260,10 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const savedUser = loadFromStorage<UserState | null>('user', null);
     if (savedUser) {
+      // S'assurer que initialWeight existe (pour la compatibilité)
+      if (!savedUser.initialWeight) {
+        savedUser.initialWeight = savedUser.weight;
+      }
       dispatch({ type: 'UPDATE_PROFILE', payload: savedUser });
     }
   }, []);
@@ -290,6 +324,15 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     dispatch({ type: 'SET_MEAL_FREQUENCY', payload: frequency });
   };
   
+  const setTargetWeight = (targetWeight: number) => {
+    dispatch({ type: 'SET_TARGET_WEIGHT', payload: targetWeight });
+    dispatch({ type: 'RECALCULATE_TARGETS' });
+  };
+  
+  const resetInitialWeight = () => {
+    dispatch({ type: 'RESET_INITIAL_WEIGHT' });
+  };
+  
   const recalculateTargets = () => {
     dispatch({ type: 'RECALCULATE_TARGETS' });
   };
@@ -306,6 +349,8 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     updatePreferences,
     updateFasting,
     setMealFrequency,
+    setTargetWeight,
+    resetInitialWeight,
     recalculateTargets
   };
   
