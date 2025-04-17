@@ -7,6 +7,7 @@ export type Gender = 'homme' | 'femme' | 'autre';
 export type ActivityLevel = 'sédentaire' | 'légèrement_actif' | 'modérément_actif' | 'très_actif' | 'extrêmement_actif';
 export type DietType = 'keto_standard' | 'keto_alcalin';
 export type WeightGoal = 'perte_poids' | 'maintien_poids' | 'prise_poids';
+export type KetoProfile = 'standard' | 'perte_poids' | 'prise_masse' | 'cyclique' | 'hyperproteine';
 
 export interface UserData {
   gender: Gender;
@@ -99,20 +100,54 @@ export function calculateCalorieNeeds(userData: UserData): number {
 }
 
 /**
- * Calcule les besoins en macronutriments pour un régime keto
+ * Calcule les besoins en macronutriments pour un régime keto selon le profil sélectionné
  */
-export function calculateMacroNeeds(calories: number, dietType: DietType): NutritionalNeeds['macros'] {
-  // Distribution keto standard: 75% lipides, 20% protéines, 5% glucides
-  // Distribution keto alcalin: légèrement plus de protéines (23%) et moins de lipides (72%)
+export function calculateMacroNeeds(calories: number, dietType: DietType, ketoProfile: KetoProfile = 'standard'): NutritionalNeeds['macros'] {
+  let fatPercentage: number;
+  let proteinPercentage: number;
+  let carbsPercentage: number;
   
-  let fatPercentage = 0.75;
-  let proteinPercentage = 0.20;
-  let carbsPercentage = 0.05;
-  
-  if (dietType === 'keto_alcalin') {
-    fatPercentage = 0.72;
-    proteinPercentage = 0.23;
-    carbsPercentage = 0.05;
+  // Répartition des macros en fonction du profil keto
+  switch (ketoProfile) {
+    case 'perte_poids': // Régime cétogène classique pour perte de poids
+      fatPercentage = 0.75; // 75%
+      proteinPercentage = 0.20; // 20%
+      carbsPercentage = 0.05; // 5%
+      break;
+    
+    case 'prise_masse': // Prise de masse musculaire
+      fatPercentage = 0.70; // 70%
+      proteinPercentage = 0.25; // 25%
+      carbsPercentage = 0.05; // 5%
+      break;
+    
+    case 'cyclique': // Régime cétogène cyclique (CKD)
+      // Note: Le CKD implique normalement une période de recharge en glucides,
+      // mais nous utilisons une répartition moyenne ici
+      fatPercentage = 0.70; // 70%
+      proteinPercentage = 0.20; // 20%
+      carbsPercentage = 0.10; // 10%
+      break;
+    
+    case 'hyperproteine': // Régime hyperprotéiné cétogène
+      fatPercentage = 0.40; // 40%
+      proteinPercentage = 0.50; // 50%
+      carbsPercentage = 0.10; // 10%
+      break;
+    
+    case 'standard': // Régime keto standard (maintien)
+    default:
+      // Ajustement en fonction du type de régime (standard ou alcalin)
+      if (dietType === 'keto_alcalin') {
+        fatPercentage = 0.72; // 72%
+        proteinPercentage = 0.23; // 23%
+        carbsPercentage = 0.05; // 5%
+      } else {
+        fatPercentage = 0.75; // 75%
+        proteinPercentage = 0.20; // 20%
+        carbsPercentage = 0.05; // 5%
+      }
+      break;
   }
   
   // Calories par gramme: Lipides = 9 kcal/g, Protéines = 4 kcal/g, Glucides = 4 kcal/g
@@ -126,9 +161,9 @@ export function calculateMacroNeeds(calories: number, dietType: DietType): Nutri
 /**
  * Calcule les besoins nutritionnels complets (calories + macros)
  */
-export function calculateNutritionalNeeds(userData: UserData, dietType: DietType): NutritionalNeeds {
+export function calculateNutritionalNeeds(userData: UserData, dietType: DietType, ketoProfile: KetoProfile = 'standard'): NutritionalNeeds {
   const calories = calculateCalorieNeeds(userData);
-  const macros = calculateMacroNeeds(calories, dietType);
+  const macros = calculateMacroNeeds(calories, dietType, ketoProfile);
   
   return {
     calories,
