@@ -3,7 +3,7 @@
  */
 
 // Types
-export type Gender = 'homme' | 'femme' | 'autre';
+export type Gender = 'homme' | 'femme' ;
 export type ActivityLevel = 'sédentaire' | 'légèrement_actif' | 'modérément_actif' | 'très_actif' | 'extrêmement_actif';
 export type DietType = 'keto_standard' | 'keto_alcalin';
 export type WeightGoal = 'perte_poids' | 'maintien_poids' | 'prise_poids';
