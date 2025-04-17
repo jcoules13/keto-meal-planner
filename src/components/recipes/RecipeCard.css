@@ -1,7 +1,7 @@
 .recipe-card {
-  background-color: var(--background-primary);
+  background-color: var(--bg-card);
   border-radius: 0.75rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-card);
   padding: 1rem;
   display: flex;
   flex-direction: column;
@@ -10,12 +10,12 @@
   transition: transform 0.2s, box-shadow 0.2s;
   position: relative;
   overflow: hidden;
-  border: 1px solid var(--border-color);
+  border: 1px solid var(--border-card);
 }
 
 .recipe-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-dropdown);
 }
 
 .recipe-card-header {
@@ -50,11 +50,11 @@
 }
 
 .favorite-button:hover {
-  background-color: rgba(var(--primary-color-rgb), 0.1);
+  background-color: rgba(var(--primary-500-rgb), 0.1);
 }
 
 .favorite-button.is-favorite {
-  color: var(--warning-color);
+  color: var(--warning);
 }
 
 .recipe-card-description {
@@ -149,12 +149,16 @@
 }
 
 .recipe-tag {
-  background-color: var(--background-tertiary);
+  background-color: var(--neutral-700);
   color: var(--text-secondary);
   font-size: 0.75rem;
   padding: 0.25rem 0.5rem;
   border-radius: 9999px;
   white-space: nowrap;
+}
+
+.light .recipe-tag {
+  background-color: var(--neutral-200);
 }
 
 .recipe-indicators {
@@ -175,15 +179,15 @@
 }
 
 .keto-indicator {
-  background-color: var(--success-color);
+  background-color: var(--success);
 }
 
 .alkaline-indicator {
-  background-color: var(--info-color);
+  background-color: var(--info);
 }
 
 .custom-indicator {
-  background-color: var(--primary-color);
+  background-color: var(--primary-500);
 }
 
 @media (max-width: 768px) {
