@@ -16,6 +16,7 @@ const useWeightTracking = () => {
     weight, 
     height, 
     targetWeight, 
+    initialWeight,  // Utiliser le poids initial stocké
     weightHistory, 
     addWeightEntry 
   } = useUser();
@@ -40,13 +41,9 @@ const useWeightTracking = () => {
     // Calculer l'IMC
     const bmi = calculateBMI(height, weight);
     
-    // Déterminer le poids de départ (le premier enregistrement ou le poids actuel si aucun historique)
-    const startWeight = weightHistory && weightHistory.length > 0 
-      ? weightHistory[0].weight 
-      : weight;
-    
+    // Utiliser le poids initial stocké au lieu du premier poids de l'historique
     // Calculer la progression vers l'objectif
-    const progress = calculateWeightProgress(startWeight, weight, targetWeight);
+    const progress = calculateWeightProgress(initialWeight, weight, targetWeight);
     
     // Calculer le changement de poids sur les 30 derniers jours
     const change = calculateWeightChange(weightHistory, 30);
@@ -61,7 +58,7 @@ const useWeightTracking = () => {
       change,
       predictedDate
     });
-  }, [weight, height, targetWeight, weightHistory]);
+  }, [weight, height, targetWeight, initialWeight, weightHistory]);
   
   // Gérer le changement du champ de saisie du poids
   const handleWeightChange = useCallback((e) => {
@@ -130,8 +127,7 @@ const useWeightTracking = () => {
     currentWeight: weight,
     targetWeight,
     weightHistory,
-    
-    // Ajout de la taille (height) manquante dans l'objet retourné
+    initialWeight,  // Exposer le poids initial
     height
   };
 };
