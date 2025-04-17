@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useUser } from '../contexts/UserContext';
 import { Gender, ActivityLevel, DietType, WeightGoal } from '../utils/nutritionCalculator';
+import IMCVisualizer from '../components/profile/IMCVisualizer';
 
 const ProfilePage = () => {
   const user = useUser();
@@ -380,16 +381,13 @@ const ProfilePage = () => {
           <div className="pt-4 border-t border-neutral-200 dark:border-neutral-700">
             <h2 className="text-xl font-title font-semibold mb-4">Calcul de l'IMC</h2>
             
-            <div className="flex flex-col md:flex-row gap-6">
-              <div className="bg-neutral-100 dark:bg-neutral-700 p-4 rounded-lg text-center flex-1">
-                <p className="text-sm text-neutral-500 dark:text-neutral-400">IMC</p>
-                <p className="font-medium text-xl">{user.bmi}</p>
-              </div>
-              
-              <div className="bg-neutral-100 dark:bg-neutral-700 p-4 rounded-lg text-center flex-1">
-                <p className="text-sm text-neutral-500 dark:text-neutral-400">Catégorie</p>
-                <p className="font-medium text-xl">{user.bmiCategory}</p>
-              </div>
+            {/* Nouveau composant de visualisation d'IMC */}
+            <div className="bg-neutral-100 dark:bg-neutral-700 p-4 rounded-lg">
+              <IMCVisualizer 
+                bmi={user.bmi} 
+                height={user.height} 
+                weight={user.weight} 
+              />
             </div>
           </div>
         </div>
