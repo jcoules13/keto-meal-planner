@@ -5,7 +5,6 @@ import { UserProvider } from './contexts/UserContext';
 import { FoodProvider } from './contexts/FoodContext';
 import { RecipeProvider } from './contexts/RecipeContext';
 import MainLayout from './components/layout/MainLayout';
-import ThemeToggle from '../ui/ThemeToggle';
 import HomePage from './pages/HomePage';
 import ProfilePage from './pages/ProfilePage';
 import FoodsPage from './pages/FoodsPage';
@@ -28,9 +27,6 @@ function App() {
       <UserProvider>
         <FoodProvider>
           <RecipeProvider>
-            {/* Bouton flottant de changement de thème, visible sur toutes les pages */}
-            {/* <ThemeSwitcher /> */}
-            
             <Routes>
               <Route path="/" element={<MainLayout><HomePage /></MainLayout>} />
               <Route path="/meal-planner" element={<MainLayout><PlaceholderPage title="Planificateur de repas" /></MainLayout>} />
