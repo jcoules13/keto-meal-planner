@@ -19,7 +19,7 @@ const MealPlannerPage = () => {
           <h1>Planificateur de repas</h1>
           <p className="page-description">
             Générez des repas keto personnalisés en fonction de vos besoins nutritionnels
-            et des aliments disponibles dans votre réfrigérateur.
+            et des aliments disponibles dans votre frigo.
           </p>
         </div>
 
@@ -28,7 +28,7 @@ const MealPlannerPage = () => {
             className={`tab-button ${activeTab === 'fridge-selector' ? 'active' : ''}`}
             onClick={() => setActiveTab('fridge-selector')}
           >
-            1. Mon réfrigérateur
+            1. Mon frigo
           </button>
           <button
             className={`tab-button ${activeTab === 'meal-generator' ? 'active' : ''}`}
@@ -61,7 +61,7 @@ const MealPlannerPage = () => {
                   className="back-button"
                   onClick={() => setActiveTab('fridge-selector')}
                 >
-                  Retour : Mon réfrigérateur
+                  Retour : Mon frigo
                 </button>
               </div>
             </div>
