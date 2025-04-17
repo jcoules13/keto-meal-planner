@@ -32,7 +32,7 @@ const IMCVisualizer: React.FC<IMCVisualizerProps> = ({ bmi, height, weight, clas
   
   return (
     <div className={`bmi-visualizer ${theme} ${className}`}>
-      <div className="flex justify-between items-center mb-2">
+      <div className="flex flex-col items-center mb-4">
         <div className="text-4xl font-bold">{bmi.toFixed(1)}</div>
         <div className={`text-xl ${bmi < 18.5 ? 'text-blue-500' : 
                               bmi < 25 ? 'text-green-500' : 
