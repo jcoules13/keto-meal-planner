@@ -5,7 +5,7 @@ import { UserProvider } from './contexts/UserContext';
 import { FoodProvider } from './contexts/FoodContext';
 import { RecipeProvider } from './contexts/RecipeContext';
 import MainLayout from './components/layout/MainLayout';
-import ThemeSwitcher from './components/ui/ThemeSwitcher';
+import ThemeToggle from '../ui/ThemeToggle';
 import HomePage from './pages/HomePage';
 import ProfilePage from './pages/ProfilePage';
 import FoodsPage from './pages/FoodsPage';
