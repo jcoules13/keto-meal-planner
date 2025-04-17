@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useUser } from '../contexts/UserContext';
 import { useTheme } from '../contexts/ThemeContext';
-import { Gender, ActivityLevel, DietType, WeightGoal } from '../utils/nutritionCalculator';
+import { Gender, ActivityLevel, DietType, WeightGoal, KetoProfile } from '../utils/nutritionCalculator';
 import IMCVisualizer from '../components/profile/IMCVisualizer';
 import './ProfilePage.css';
 
@@ -20,7 +20,8 @@ const ProfilePage = () => {
     targetWeight: user.targetWeight,
     weightGoal: user.weightGoal,
     activityLevel: user.activityLevel,
-    dietType: user.dietType
+    dietType: user.dietType,
+    ketoProfile: user.ketoProfile // Ajout du profil Keto
   });
   
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -55,6 +56,49 @@ const ProfilePage = () => {
     'perte_poids': 'Perte de poids',
     'maintien_poids': 'Maintien du poids',
     'prise_poids': 'Prise de poids'
+  };
+  
+  // Labels pour les profils Keto
+  const ketoProfileLabels: Record<KetoProfile, string> = {
+    'standard': 'Standard (Maintien)',
+    'perte_poids': 'Perte de poids (classique)',
+    'prise_masse': 'Prise de masse musculaire',
+    'cyclique': 'Régime cétogène cyclique (CKD)',
+    'hyperproteine': 'Régime hyperprotéiné cétogène'
+  };
+  
+  // Descriptions des profils Keto
+  const ketoProfileDescriptions: Record<KetoProfile, { lipides: string, proteines: string, glucides: string, description: string }> = {
+    'standard': {
+      lipides: '75%',
+      proteines: '20%',
+      glucides: '5%',
+      description: 'Répartition standard pour le maintien et la forme'
+    },
+    'perte_poids': {
+      lipides: '70-80%',
+      proteines: '20-25%',
+      glucides: '5-10%',
+      description: 'Ratio classique pour entrer en cétose et favoriser la perte de poids'
+    },
+    'prise_masse': {
+      lipides: '65-75%',
+      proteines: '25-30%',
+      glucides: '5-10%',
+      description: 'Apport protéique plus élevé pour préserver et développer le muscle'
+    },
+    'cyclique': {
+      lipides: 'Variable',
+      proteines: 'Modérées',
+      glucides: 'Variable (périodes de 50-100g)',
+      description: 'Alternance de phases cétogènes strictes et phases de recharge glucidique'
+    },
+    'hyperproteine': {
+      lipides: '25-50%',
+      proteines: '40-65%',
+      glucides: '10%',
+      description: 'Pour perte de poids rapide ou prise de masse avec contrôle strict des glucides'
+    }
   };
   
   // Explication des facteurs d'activité et leur impact sur les calories
@@ -255,6 +299,23 @@ const ProfilePage = () => {
                   ))}
                 </select>
               </div>
+              
+              {/* Nouveau champ pour le profil Keto */}
+              <div>
+                <label htmlFor="ketoProfile" className="label">Profil Keto</label>
+                <select
+                  id="ketoProfile"
+                  name="ketoProfile"
+                  value={formData.ketoProfile}
+                  onChange={handleInputChange}
+                  className="input"
+                  required
+                >
+                  {Object.entries(ketoProfileLabels).map(([value, label]) => (
+                    <option key={value} value={value}>{label}</option>
+                  ))}
+                </select>
+              </div>
             </div>
             
             <div className="flex justify-end gap-4">
@@ -331,6 +392,12 @@ const ProfilePage = () => {
                 <p className="profile-info-label">Type de régime</p>
                 <p className="profile-info-value">{dietTypeLabels[user.dietType]}</p>
               </div>
+              
+              {/* Affichage du profil Keto */}
+              <div className="profile-info-item">
+                <p className="profile-info-label">Profil Keto</p>
+                <p className="profile-info-value">{ketoProfileLabels[user.ketoProfile]}</p>
+              </div>
             </div>
           </div>
           
@@ -346,6 +413,16 @@ const ProfilePage = () => {
               </p>
               <p className="text-sm text-neutral-500 dark:text-neutral-400">
                 <span className="font-medium">Ajustement selon l'objectif:</span> {weightGoalExplanations[user.weightGoal].adjustment} ({weightGoalExplanations[user.weightGoal].description})
+              </p>
+              
+              {/* Information sur le profil Keto */}
+              <p className="text-sm text-neutral-500 dark:text-neutral-400 mt-2">
+                <span className="font-medium">Profil Keto:</span> {ketoProfileDescriptions[user.ketoProfile].description}
+              </p>
+              <p className="text-sm text-neutral-500 dark:text-neutral-400">
+                <span className="font-medium">Répartition recommandée:</span> Lipides: {ketoProfileDescriptions[user.ketoProfile].lipides}, 
+                Protéines: {ketoProfileDescriptions[user.ketoProfile].proteines}, 
+                Glucides: {ketoProfileDescriptions[user.ketoProfile].glucides}
               </p>
             </div>
             
