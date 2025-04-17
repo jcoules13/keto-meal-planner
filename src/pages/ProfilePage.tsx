@@ -1,10 +1,13 @@
 import React, { useState } from 'react';
 import { useUser } from '../contexts/UserContext';
+import { useTheme } from '../contexts/ThemeContext';
 import { Gender, ActivityLevel, DietType, WeightGoal } from '../utils/nutritionCalculator';
 import IMCVisualizer from '../components/profile/IMCVisualizer';
+import './ProfilePage.css';
 
 const ProfilePage = () => {
   const user = useUser();
+  const { theme } = useTheme();
   const [isEditing, setIsEditing] = useState(!user.isProfileComplete);
   
   // États locaux pour le formulaire d'édition
@@ -102,17 +105,17 @@ const ProfilePage = () => {
   };
   
   return (
-    <div className="max-w-4xl mx-auto py-8 px-4">
+    <div className={`profile-page ${theme} max-w-4xl mx-auto py-8 px-4`}>
       <h1 className="text-3xl font-title font-bold mb-6">Profil Utilisateur</h1>
       
       {isEditing ? (
-        <div className="bg-white dark:bg-neutral-800 p-6 rounded-lg shadow-md">
+        <div className="profile-card">
           <h2 className="text-xl font-title font-semibold mb-4">
             {user.isProfileComplete ? 'Modifier votre profil' : 'Compléter votre profil'}
           </h2>
           
           <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="form-grid">
               <div>
                 <label htmlFor="name" className="label">Nom</label>
                 <input
@@ -271,7 +274,7 @@ const ProfilePage = () => {
           </form>
         </div>
       ) : (
-        <div className="bg-white dark:bg-neutral-800 p-6 rounded-lg shadow-md space-y-8">
+        <div className="profile-card space-y-8">
           <div>
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-xl font-title font-semibold">Informations personnelles</h2>
@@ -284,57 +287,57 @@ const ProfilePage = () => {
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <p className="text-sm text-neutral-500 dark:text-neutral-400">Nom</p>
-                <p className="font-medium text-lg">{user.name}</p>
+              <div className="profile-info-item">
+                <p className="profile-info-label">Nom</p>
+                <p className="profile-info-value">{user.name}</p>
               </div>
               
-              <div>
-                <p className="text-sm text-neutral-500 dark:text-neutral-400">Genre</p>
-                <p className="font-medium text-lg">{user.gender === 'homme' ? 'Homme' : user.gender === 'femme' ? 'Femme' : 'Autre'}</p>
+              <div className="profile-info-item">
+                <p className="profile-info-label">Genre</p>
+                <p className="profile-info-value">{user.gender === 'homme' ? 'Homme' : user.gender === 'femme' ? 'Femme' : 'Autre'}</p>
               </div>
               
-              <div>
-                <p className="text-sm text-neutral-500 dark:text-neutral-400">Âge</p>
-                <p className="font-medium text-lg">{user.age} ans</p>
+              <div className="profile-info-item">
+                <p className="profile-info-label">Âge</p>
+                <p className="profile-info-value">{user.age} ans</p>
               </div>
               
-              <div>
-                <p className="text-sm text-neutral-500 dark:text-neutral-400">Taille</p>
-                <p className="font-medium text-lg">{user.height} cm</p>
+              <div className="profile-info-item">
+                <p className="profile-info-label">Taille</p>
+                <p className="profile-info-value">{user.height} cm</p>
               </div>
               
-              <div>
-                <p className="text-sm text-neutral-500 dark:text-neutral-400">Poids actuel</p>
-                <p className="font-medium text-lg">{user.weight} kg</p>
+              <div className="profile-info-item">
+                <p className="profile-info-label">Poids actuel</p>
+                <p className="profile-info-value">{user.weight} kg</p>
               </div>
               
-              <div>
-                <p className="text-sm text-neutral-500 dark:text-neutral-400">Poids cible</p>
-                <p className="font-medium text-lg">{user.targetWeight} kg</p>
+              <div className="profile-info-item">
+                <p className="profile-info-label">Poids cible</p>
+                <p className="profile-info-value">{user.targetWeight} kg</p>
               </div>
               
-              <div>
-                <p className="text-sm text-neutral-500 dark:text-neutral-400">Objectif</p>
-                <p className="font-medium text-lg">{weightGoalLabels[user.weightGoal]}</p>
+              <div className="profile-info-item">
+                <p className="profile-info-label">Objectif</p>
+                <p className="profile-info-value">{weightGoalLabels[user.weightGoal]}</p>
               </div>
               
-              <div>
-                <p className="text-sm text-neutral-500 dark:text-neutral-400">Niveau d'activité</p>
-                <p className="font-medium text-lg">{activityLevelLabels[user.activityLevel]}</p>
+              <div className="profile-info-item">
+                <p className="profile-info-label">Niveau d'activité</p>
+                <p className="profile-info-value">{activityLevelLabels[user.activityLevel]}</p>
               </div>
               
-              <div>
-                <p className="text-sm text-neutral-500 dark:text-neutral-400">Type de régime</p>
-                <p className="font-medium text-lg">{dietTypeLabels[user.dietType]}</p>
+              <div className="profile-info-item">
+                <p className="profile-info-label">Type de régime</p>
+                <p className="profile-info-value">{dietTypeLabels[user.dietType]}</p>
               </div>
             </div>
           </div>
           
-          <div className="pt-4 border-t border-neutral-200 dark:border-neutral-700">
+          <div className="profile-section">
             <h2 className="text-xl font-title font-semibold mb-4">Besoins Caloriques Quotidiens</h2>
             
-            <div className="bg-neutral-50 dark:bg-neutral-700 p-4 rounded-lg mb-6">
+            <div className="info-box">
               <p className="mb-2">
                 Vos besoins caloriques sont calculés en fonction de votre métabolisme de base, de votre niveau d'activité et de votre objectif de poids.
               </p>
@@ -347,42 +350,42 @@ const ProfilePage = () => {
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              <div className="bg-neutral-100 dark:bg-neutral-700 p-4 rounded-lg text-center">
-                <p className="text-sm text-neutral-500 dark:text-neutral-400">Calories</p>
-                <p className="font-medium text-xl">{user.calorieTarget} kcal</p>
+              <div className="macro-stat">
+                <p className="macro-stat-label">Calories</p>
+                <p className="macro-stat-value">{user.calorieTarget} kcal</p>
               </div>
               
-              <div className="bg-neutral-100 dark:bg-neutral-700 p-4 rounded-lg text-center">
-                <p className="text-sm text-neutral-500 dark:text-neutral-400">Protéines</p>
-                <p className="font-medium text-xl">{user.macroTargets.protein} g</p>
+              <div className="macro-stat">
+                <p className="macro-stat-label">Protéines</p>
+                <p className="macro-stat-value">{user.macroTargets.protein} g</p>
                 <p className="text-xs text-neutral-500 dark:text-neutral-400">{macroPercentages.protein}% des calories</p>
               </div>
               
-              <div className="bg-neutral-100 dark:bg-neutral-700 p-4 rounded-lg text-center">
-                <p className="text-sm text-neutral-500 dark:text-neutral-400">Lipides</p>
-                <p className="font-medium text-xl">{user.macroTargets.fat} g</p>
+              <div className="macro-stat">
+                <p className="macro-stat-label">Lipides</p>
+                <p className="macro-stat-value">{user.macroTargets.fat} g</p>
                 <p className="text-xs text-neutral-500 dark:text-neutral-400">{macroPercentages.fat}% des calories</p>
               </div>
               
-              <div className="bg-neutral-100 dark:bg-neutral-700 p-4 rounded-lg text-center">
-                <p className="text-sm text-neutral-500 dark:text-neutral-400">Glucides</p>
-                <p className="font-medium text-xl">{user.macroTargets.carbs} g</p>
+              <div className="macro-stat">
+                <p className="macro-stat-label">Glucides</p>
+                <p className="macro-stat-value">{user.macroTargets.carbs} g</p>
                 <p className="text-xs text-neutral-500 dark:text-neutral-400">{macroPercentages.carbs}% des calories</p>
               </div>
             </div>
             
-            <div className="mt-4 p-3 bg-primary-50 dark:bg-primary-900/20 border border-primary-100 dark:border-primary-900/30 rounded-lg">
-              <p className="text-sm">
+            <div className="info-note">
+              <p className="info-note-text">
                 <span className="font-medium">📝 Note:</span> Les besoins caloriques peuvent varier selon de nombreux facteurs individuels. Utilisez ces valeurs comme point de départ et ajustez si nécessaire en fonction de vos résultats.
               </p>
             </div>
           </div>
           
-          <div className="pt-4 border-t border-neutral-200 dark:border-neutral-700">
+          <div className="profile-section">
             <h2 className="text-xl font-title font-semibold mb-4">Calcul de l'IMC</h2>
             
             {/* Nouveau composant de visualisation d'IMC */}
-            <div className="bg-neutral-100 dark:bg-neutral-700 p-4 rounded-lg">
+            <div className="info-box">
               <IMCVisualizer 
                 bmi={user.bmi} 
                 height={user.height} 
