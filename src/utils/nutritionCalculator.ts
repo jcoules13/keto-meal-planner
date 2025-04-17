@@ -116,8 +116,8 @@ export function calculateMacroNeeds(calories: number, dietType: DietType, ketoPr
       break;
     
     case 'prise_masse': // Prise de masse musculaire
-      fatPercentage = 0.70; // 70%
-      proteinPercentage = 0.25; // 25%
+      fatPercentage = 0.65; // 65%
+      proteinPercentage = 0.30; // 30%
       carbsPercentage = 0.05; // 5%
       break;
     
