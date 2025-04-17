@@ -58,7 +58,7 @@ const MealGenerator = () => {
   
   const generateMeals = async () => {
     if (foodCount === 0) {
-      setErrorMessage('Votre réfrigérateur est vide. Ajoutez des aliments pour générer des repas.');
+      setErrorMessage('Votre frigo est vide. Ajoutez des aliments pour générer des repas.');
       return;
     }
     
@@ -118,17 +118,17 @@ const MealGenerator = () => {
     <div className="meal-generator">
       <div className="generator-header">
         <h2>Générateur de repas</h2>
-        <p className="subheading">Créez des repas équilibrés avec les aliments de votre réfrigérateur</p>
+        <p className="subheading">Créez des repas équilibrés avec les aliments de votre frigo</p>
       </div>
       
       {foodCount === 0 ? (
         <div className="empty-fridge-message">
-          <p>Votre réfrigérateur est vide. Ajoutez d'abord des aliments pour pouvoir générer des repas.</p>
+          <p>Votre frigo est vide. Ajoutez d'abord des aliments pour pouvoir générer des repas.</p>
         </div>
       ) : (
         <>
           <div className="available-macros">
-            <h3>Nutrition disponible dans votre réfrigérateur</h3>
+            <h3>Nutrition disponible dans votre frigo</h3>
             <div className="macros-summary">
               <div className="macro-item">
                 <span className="macro-label">Calories</span>
