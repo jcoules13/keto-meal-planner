@@ -1,123 +1,56 @@
 /**
- * Utilitaires pour les plans de repas
+ * Utilitaires pour la gestion des plans de repas
+ * Permet de valider, calculer et manipuler les plans de repas
  */
 
 /**
- * Valide un plan de repas
- * @param {Object} plan - Le plan de repas à valider
- * @returns {Object} Résultat de validation {valid: boolean, error: string|null}
+ * Valide un plan de repas pour s'assurer qu'il contient toutes les propriétés requises
+ * @param {Object} mealPlan - Plan de repas à valider
+ * @returns {Object} Résultat de la validation {valid: boolean, error: string}
  */
-export function validateMealPlan(plan) {
-  // Vérifier les champs obligatoires
-  if (!plan.name || typeof plan.name !== 'string') {
-    return { valid: false, error: 'Le nom du plan est obligatoire' };
+export function validateMealPlan(mealPlan) {
+  // Vérifier les propriétés requises
+  if (!mealPlan.id) {
+    return { valid: false, error: "ID du plan manquant" };
   }
-  
-  if (!plan.startDate || !isValidDate(plan.startDate)) {
-    return { valid: false, error: 'La date de début est obligatoire et doit être valide' };
+
+  if (!mealPlan.startDate || !mealPlan.endDate) {
+    return { valid: false, error: "Dates de début ou de fin manquantes" };
   }
-  
-  if (!plan.endDate || !isValidDate(plan.endDate)) {
-    return { valid: false, error: 'La date de fin est obligatoire et doit être valide' };
+
+  // Vérifier que la date de début est avant la date de fin
+  const startDate = new Date(mealPlan.startDate);
+  const endDate = new Date(mealPlan.endDate);
+
+  if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+    return { valid: false, error: "Dates invalides" };
   }
-  
-  if (new Date(plan.startDate) > new Date(plan.endDate)) {
-    return { valid: false, error: 'La date de début doit être antérieure à la date de fin' };
+
+  if (startDate > endDate) {
+    return { 
+      valid: false, 
+      error: "La date de début doit être antérieure à la date de fin" 
+    };
   }
-  
-  if (!plan.dietType || !['keto_standard', 'keto_alcalin'].includes(plan.dietType)) {
-    return { valid: false, error: 'Le type de régime doit être keto_standard ou keto_alcalin' };
+
+  // Vérifier que le tableau days existe
+  if (!Array.isArray(mealPlan.days)) {
+    return { valid: false, error: "Le tableau des jours est manquant ou invalide" };
   }
-  
-  if (!Array.isArray(plan.days)) {
-    return { valid: false, error: 'Le plan doit contenir un tableau de jours' };
-  }
-  
-  // Vérifier chaque jour
-  for (let i = 0; i < plan.days.length; i++) {
-    const day = plan.days[i];
-    
-    if (!day.date || !isValidDate(day.date)) {
-      return { valid: false, error: `Jour ${i+1}: date invalide` };
-    }
-    
-    if (!Array.isArray(day.meals)) {
-      return { valid: false, error: `Jour ${i+1}: les repas doivent être un tableau` };
-    }
-    
-    // Vérifier chaque repas
-    for (let j = 0; j < day.meals.length; j++) {
-      const meal = day.meals[j];
-      
-      if (!meal.id) {
-        return { valid: false, error: `Jour ${i+1}, Repas ${j+1}: ID manquant` };
-      }
-      
-      if (!meal.type || typeof meal.type !== 'string') {
-        return { valid: false, error: `Jour ${i+1}, Repas ${j+1}: type de repas manquant` };
-      }
-      
-      if (!Array.isArray(meal.items) || meal.items.length === 0) {
-        return { valid: false, error: `Jour ${i+1}, Repas ${j+1}: items manquants ou vides` };
-      }
-      
-      // Vérifier chaque élément du repas
-      for (let k = 0; k < meal.items.length; k++) {
-        const item = meal.items[k];
-        
-        if (!item.type || !['recipe', 'food'].includes(item.type)) {
-          return { valid: false, error: `Jour ${i+1}, Repas ${j+1}, Item ${k+1}: type invalide` };
-        }
-        
-        if (!item.id) {
-          return { valid: false, error: `Jour ${i+1}, Repas ${j+1}, Item ${k+1}: ID manquant` };
-        }
-        
-        if (item.type === 'recipe' && (!item.servings || item.servings <= 0)) {
-          return { valid: false, error: `Jour ${i+1}, Repas ${j+1}, Item ${k+1}: nombre de portions invalide` };
-        }
-        
-        if (item.type === 'food' && (!item.quantity || item.quantity <= 0)) {
-          return { valid: false, error: `Jour ${i+1}, Repas ${j+1}, Item ${k+1}: quantité invalide` };
-        }
-      }
-    }
-  }
-  
+
+  // Validation réussie
   return { valid: true, error: null };
 }
 
 /**
- * Vérifie si une chaîne est une date valide au format YYYY-MM-DD
- * @param {string} dateString - La chaîne de date à vérifier
- * @returns {boolean} Vrai si la date est valide
- */
-function isValidDate(dateString) {
-  if (!dateString || typeof dateString !== 'string') return false;
-  
-  // Vérifier le format YYYY-MM-DD
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(dateString)) return false;
-  
-  // Vérifier que la date est valide
-  const date = new Date(dateString);
-  if (isNaN(date.getTime())) return false;
-  
-  // Vérifier que la date formatée correspond à l'entrée (pour éviter les dates comme 2023-02-31)
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
-  return `${year}-${month}-${day}` === dateString;
-}
-
-/**
  * Calcule les totaux nutritionnels pour un jour du plan
- * @param {Object} day - Le jour du plan
- * @param {Object} options - Options
- * @param {Function} options.getFoodById - Fonction pour obtenir un aliment par son ID
- * @param {Function} options.getRecipeById - Fonction pour obtenir une recette par son ID
- * @returns {Object} Totaux nutritionnels
+ * @param {Object} day - Jour du plan contenant des repas
+ * @param {Object} utils - Utilitaires {getFoodById, getRecipeById}
+ * @returns {Object} Totaux nutritionnels du jour
  */
-export function calculateDailyTotals(day, { getFoodById, getRecipeById }) {
+export function calculateDailyTotals(day, utils) {
+  const { getFoodById, getRecipeById } = utils;
+  
   // Initialiser les totaux
   const totals = {
     calories: 0,
@@ -126,213 +59,201 @@ export function calculateDailyTotals(day, { getFoodById, getRecipeById }) {
     carbs: 0,
     fiber: 0,
     netCarbs: 0,
-    macroRatios: {
-      protein: 0,
-      fat: 0,
-      carbs: 0
-    }
+    pHValue: 0 // Pour le régime alcalin
   };
   
-  // Si le jour n'a pas de repas, retourner les totaux à zéro
-  if (!day.meals || day.meals.length === 0) {
+  if (!day || !day.meals || day.meals.length === 0) {
     return totals;
   }
   
-  // Parcourir tous les repas
-  for (const meal of day.meals) {
-    // Parcourir tous les éléments du repas
-    for (const item of meal.items) {
-      if (item.type === 'recipe') {
-        // Élément de type recette
-        const recipe = getRecipeById(item.id);
-        if (!recipe) continue;
-        
-        const servings = item.servings || 1;
-        totals.calories += recipe.nutritionPerServing.calories * servings;
-        totals.protein += recipe.nutritionPerServing.protein * servings;
-        totals.fat += recipe.nutritionPerServing.fat * servings;
-        totals.carbs += recipe.nutritionPerServing.carbs * servings;
-        totals.fiber += recipe.nutritionPerServing.fiber * servings;
-        totals.netCarbs += recipe.nutritionPerServing.netCarbs * servings;
-      } else if (item.type === 'food') {
-        // Élément de type aliment
-        const food = getFoodById(item.id);
-        if (!food) continue;
-        
-        const quantity = item.quantity || 0;
-        const ratio = quantity / 100; // Les valeurs nutritionnelles sont pour 100g
-        
-        totals.calories += food.nutritionPer100g.calories * ratio;
-        totals.protein += food.nutritionPer100g.protein * ratio;
-        totals.fat += food.nutritionPer100g.fat * ratio;
-        totals.carbs += food.nutritionPer100g.carbs * ratio;
-        totals.fiber += food.nutritionPer100g.fiber * ratio;
-        totals.netCarbs += food.nutritionPer100g.netCarbs * ratio;
-      }
+  // Somme des valeurs nutritionnelles de tous les repas
+  let totalWeight = 0; // Pour calculer la moyenne pondérée du pH
+  
+  day.meals.forEach(meal => {
+    if (!meal.items || meal.items.length === 0) {
+      return;
     }
+    
+    meal.items.forEach(item => {
+      let nutritionInfo;
+      let itemWeight = 0;
+      
+      if (item.type === 'food') {
+        // Aliment individuel
+        const food = getFoodById(item.id);
+        if (!food) return;
+        
+        const ratio = item.quantity / 100; // La nutrition est pour 100g
+        nutritionInfo = {
+          calories: food.nutritionPer100g.calories * ratio,
+          protein: food.nutritionPer100g.protein * ratio,
+          fat: food.nutritionPer100g.fat * ratio,
+          carbs: food.nutritionPer100g.carbs * ratio,
+          fiber: (food.nutritionPer100g.fiber || 0) * ratio,
+          pHValue: food.pHValue
+        };
+        
+        itemWeight = item.quantity;
+      } else if (item.type === 'recipe') {
+        // Recette
+        const recipe = getRecipeById(item.id);
+        if (!recipe) return;
+        
+        nutritionInfo = {
+          calories: recipe.nutritionPerServing.calories * item.servings,
+          protein: recipe.nutritionPerServing.protein * item.servings,
+          fat: recipe.nutritionPerServing.fat * item.servings,
+          carbs: recipe.nutritionPerServing.carbs * item.servings,
+          fiber: (recipe.nutritionPerServing.fiber || 0) * item.servings,
+          pHValue: recipe.averagePHValue
+        };
+        
+        // Estimation du poids approximatif pour la pondération du pH
+        itemWeight = 250 * item.servings; // ~250g par portion (approximation)
+      }
+      
+      if (!nutritionInfo) return;
+      
+      // Ajouter aux totaux
+      totals.calories += nutritionInfo.calories;
+      totals.protein += nutritionInfo.protein;
+      totals.fat += nutritionInfo.fat;
+      totals.carbs += nutritionInfo.carbs;
+      totals.fiber += nutritionInfo.fiber;
+      
+      // Calculer les glucides nets
+      const itemNetCarbs = Math.max(0, nutritionInfo.carbs - nutritionInfo.fiber);
+      totals.netCarbs += itemNetCarbs;
+      
+      // Pour la moyenne pondérée du pH
+      totals.pHValue += nutritionInfo.pHValue * itemWeight;
+      totalWeight += itemWeight;
+    });
+  });
+  
+  // Calculer la moyenne pondérée du pH
+  if (totalWeight > 0) {
+    totals.pHValue = totals.pHValue / totalWeight;
+  } else {
+    totals.pHValue = 7.0; // Valeur neutre par défaut
   }
   
-  // Arrondir les valeurs
+  // Arrondir les valeurs pour plus de lisibilité
   totals.calories = Math.round(totals.calories);
   totals.protein = Math.round(totals.protein * 10) / 10;
   totals.fat = Math.round(totals.fat * 10) / 10;
   totals.carbs = Math.round(totals.carbs * 10) / 10;
   totals.fiber = Math.round(totals.fiber * 10) / 10;
   totals.netCarbs = Math.round(totals.netCarbs * 10) / 10;
-  
-  // Calculer les ratios de macronutriments en pourcentage des calories
-  const proteinCalories = totals.protein * 4;  // 4 kcal/g
-  const fatCalories = totals.fat * 9;          // 9 kcal/g
-  const carbsCalories = totals.netCarbs * 4;   // 4 kcal/g
-  const totalMacroCalories = proteinCalories + fatCalories + carbsCalories;
-  
-  if (totalMacroCalories > 0) {
-    totals.macroRatios = {
-      protein: Math.round((proteinCalories / totalMacroCalories) * 100),
-      fat: Math.round((fatCalories / totalMacroCalories) * 100),
-      carbs: Math.round((carbsCalories / totalMacroCalories) * 100)
-    };
-    
-    // S'assurer que les pourcentages totalisent 100%
-    const totalPercentage = totals.macroRatios.protein + totals.macroRatios.fat + totals.macroRatios.carbs;
-    if (totalPercentage !== 100) {
-      // Ajuster le ratio le plus élevé pour obtenir 100%
-      const highestMacro = Object.entries(totals.macroRatios)
-        .sort((a, b) => b[1] - a[1])[0][0];
-      
-      totals.macroRatios[highestMacro] += (100 - totalPercentage);
-    }
-  }
+  totals.pHValue = Math.round(totals.pHValue * 10) / 10;
   
   return totals;
 }
 
 /**
- * Calcule les totaux nutritionnels pour un plan complet
- * @param {Object} plan - Le plan de repas
- * @param {Object} options - Options
- * @param {Function} options.getFoodById - Fonction pour obtenir un aliment par son ID
- * @param {Function} options.getRecipeById - Fonction pour obtenir une recette par son ID
- * @returns {Object} Totaux nutritionnels moyens par jour
+ * Vérifie si un jour contient des repas
+ * @param {Object} day - Jour du plan
+ * @returns {boolean} True si le jour contient au moins un repas
  */
-export function calculatePlanTotals(plan, { getFoodById, getRecipeById }) {
-  // Si le plan n'a pas de jours, retourner des totaux à zéro
-  if (!plan.days || plan.days.length === 0) {
-    return {
-      calories: 0,
-      protein: 0,
-      fat: 0,
-      carbs: 0,
-      fiber: 0,
-      netCarbs: 0,
-      macroRatios: {
-        protein: 0,
-        fat: 0,
-        carbs: 0
-      }
-    };
-  }
-  
-  // Calculer les totaux pour chaque jour
-  const dailyTotals = plan.days.map(day => 
-    calculateDailyTotals(day, { getFoodById, getRecipeById })
-  );
-  
-  // Calculer les moyennes
-  const averageTotals = {
-    calories: 0,
-    protein: 0,
-    fat: 0,
-    carbs: 0,
-    fiber: 0,
-    netCarbs: 0,
-    macroRatios: {
-      protein: 0,
-      fat: 0,
-      carbs: 0
-    }
-  };
-  
-  // Ne pas inclure les jours vides
-  const nonEmptyDays = dailyTotals.filter(dayTotal => dayTotal.calories > 0);
-  
-  if (nonEmptyDays.length === 0) {
-    return averageTotals;
-  }
-  
-  // Calculer les totaux
-  for (const dayTotal of nonEmptyDays) {
-    averageTotals.calories += dayTotal.calories;
-    averageTotals.protein += dayTotal.protein;
-    averageTotals.fat += dayTotal.fat;
-    averageTotals.carbs += dayTotal.carbs;
-    averageTotals.fiber += dayTotal.fiber;
-    averageTotals.netCarbs += dayTotal.netCarbs;
-    
-    averageTotals.macroRatios.protein += dayTotal.macroRatios.protein;
-    averageTotals.macroRatios.fat += dayTotal.macroRatios.fat;
-    averageTotals.macroRatios.carbs += dayTotal.macroRatios.carbs;
-  }
-  
-  // Diviser par le nombre de jours non vides
-  const count = nonEmptyDays.length;
-  averageTotals.calories = Math.round(averageTotals.calories / count);
-  averageTotals.protein = Math.round((averageTotals.protein / count) * 10) / 10;
-  averageTotals.fat = Math.round((averageTotals.fat / count) * 10) / 10;
-  averageTotals.carbs = Math.round((averageTotals.carbs / count) * 10) / 10;
-  averageTotals.fiber = Math.round((averageTotals.fiber / count) * 10) / 10;
-  averageTotals.netCarbs = Math.round((averageTotals.netCarbs / count) * 10) / 10;
-  
-  averageTotals.macroRatios.protein = Math.round(averageTotals.macroRatios.protein / count);
-  averageTotals.macroRatios.fat = Math.round(averageTotals.macroRatios.fat / count);
-  averageTotals.macroRatios.carbs = Math.round(averageTotals.macroRatios.carbs / count);
-  
-  return averageTotals;
+export function hasMeals(day) {
+  return day && Array.isArray(day.meals) && day.meals.length > 0;
 }
 
 /**
- * Vérifie si un plan de repas respecte les objectifs nutritionnels
- * @param {Object} plan - Le plan de repas
- * @param {Object} userTargets - Objectifs nutritionnels de l'utilisateur
- * @param {Object} options - Options
- * @param {Function} options.getFoodById - Fonction pour obtenir un aliment par son ID
- * @param {Function} options.getRecipeById - Fonction pour obtenir une recette par son ID
- * @returns {Object} Résultats de vérification
+ * Génère un nom par défaut pour un plan hebdomadaire
+ * @param {Date} startDate - Date de début du plan
+ * @param {Date} endDate - Date de fin du plan
+ * @returns {string} Nom du plan au format "Plan du JJ/MM au JJ/MM"
  */
-export function checkPlanAgainstTargets(plan, userTargets, { getFoodById, getRecipeById }) {
-  const planTotals = calculatePlanTotals(plan, { getFoodById, getRecipeById });
+export function generatePlanName(startDate, endDate) {
+  const start = new Date(startDate);
+  const end = new Date(endDate);
   
-  // Calculer les écarts par rapport aux objectifs
-  const calorieDeviation = Math.abs((planTotals.calories - userTargets.calorieTarget) / userTargets.calorieTarget);
-  const proteinDeviation = Math.abs((planTotals.protein - userTargets.macroTargets.protein) / userTargets.macroTargets.protein);
-  const fatDeviation = Math.abs((planTotals.fat - userTargets.macroTargets.fat) / userTargets.macroTargets.fat);
-  const carbsDeviation = Math.abs((planTotals.netCarbs - userTargets.macroTargets.carbs) / userTargets.macroTargets.carbs);
+  const formatDate = (date) => {
+    return `${date.getDate()}/${date.getMonth() + 1}`;
+  };
   
-  // Vérifier si les déviations sont acceptables (±10% pour calories, ±15% pour macros)
-  const isCaloriesOk = calorieDeviation <= 0.1;
-  const isProteinOk = proteinDeviation <= 0.15;
-  const isFatOk = fatDeviation <= 0.15;
-  const isCarbsOk = carbsDeviation <= 0.15;
+  return `Plan du ${formatDate(start)} au ${formatDate(end)}`;
+}
+
+/**
+ * Crée une structure de base pour un plan de repas vide
+ * @param {string} name - Nom du plan
+ * @param {string} startDate - Date de début (format YYYY-MM-DD)
+ * @param {string} endDate - Date de fin (format YYYY-MM-DD)
+ * @param {string} dietType - Type de régime ('keto_standard' ou 'keto_alcalin')
+ * @returns {Object} Structure de plan de repas vide
+ */
+export function createEmptyPlanStructure(name, startDate, endDate, dietType = 'keto_standard') {
+  const id = `plan-${Date.now()}`;
   
-  // Vérifier les ratios keto
-  const isFatRatioOk = planTotals.macroRatios.fat >= 65; // Minimum 65% des calories en lipides
-  const isCarbRatioOk = planTotals.macroRatios.carbs <= 10; // Maximum 10% des calories en glucides
+  // Créer un tableau de jours entre startDate et endDate
+  const days = [];
+  const start = new Date(startDate);
+  const end = new Date(endDate);
+  
+  // Nombre de jours
+  const dayCount = Math.floor((end - start) / (24 * 60 * 60 * 1000)) + 1;
+  
+  for (let i = 0; i < dayCount; i++) {
+    const date = new Date(start);
+    date.setDate(date.getDate() + i);
+    
+    days.push({
+      date: date.toISOString().split('T')[0], // Format YYYY-MM-DD
+      meals: []
+    });
+  }
   
   return {
-    isCaloriesOk,
-    isProteinOk,
-    isFatOk,
-    isCarbsOk,
-    isFatRatioOk,
-    isCarbRatioOk,
-    isKetogenic: isFatRatioOk && isCarbRatioOk,
-    isWithinTargets: isCaloriesOk && isProteinOk && isFatOk && isCarbsOk,
-    deviations: {
-      calories: Math.round(calorieDeviation * 100),
-      protein: Math.round(proteinDeviation * 100),
-      fat: Math.round(fatDeviation * 100),
-      carbs: Math.round(carbsDeviation * 100)
-    },
-    planTotals
+    id,
+    name: name || generatePlanName(start, end),
+    startDate,
+    endDate,
+    dietType,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    days
+  };
+}
+
+/**
+ * Formate une date au format lisible en français
+ * @param {string} dateString - Date au format YYYY-MM-DD
+ * @returns {string} Date au format "JJ/MM/YYYY"
+ */
+export function formatDate(dateString) {
+  const parts = dateString.split('-');
+  if (parts.length !== 3) return dateString;
+  
+  return `${parts[2]}/${parts[1]}/${parts[0]}`;
+}
+
+/**
+ * Calcule les besoins caloriques en fonction d'un profil utilisateur
+ * @param {Object} userProfile - Profil utilisateur
+ * @returns {Object} Besoins caloriques et macronutritionnels
+ */
+export function calculateNutritionalNeeds(userProfile) {
+  // Implémentation basée sur le contexte UserContext
+  // Simulons un calcul simplifié ici
+  const calories = userProfile.calorieTarget || 2000;
+  
+  // Distribution typique keto
+  const fatPercentage = 0.75; // 75% des calories proviennent des lipides
+  const proteinPercentage = 0.20; // 20% des calories proviennent des protéines
+  const carbsPercentage = 0.05; // 5% des calories proviennent des glucides
+  
+  // Conversion en grammes
+  const fat = Math.round((calories * fatPercentage) / 9); // 9 kcal/g pour les lipides
+  const protein = Math.round((calories * proteinPercentage) / 4); // 4 kcal/g pour les protéines
+  const carbs = Math.round((calories * carbsPercentage) / 4); // 4 kcal/g pour les glucides
+  
+  return {
+    calories,
+    fat,
+    protein,
+    carbs,
+    netCarbs: carbs // Équivalent dans ce contexte simplifié
   };
 }
