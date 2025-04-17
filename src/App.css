@@ -1,0 +1,382 @@
+/* Style Neumorphisme Global pour Keto Meal Planner */
+
+:root {
+  /* Palette de couleurs de base pour le neumorphisme */
+  --bg-color: #e0e5ec;
+  --surface-color: #e0e5ec;
+  --primary-600: #4f9690;
+  --primary-500: #5daba4;
+  --primary-700: #418782;
+  --secondary-600: #8e6cbd;
+  --text-primary: #333;
+  --text-secondary: #666;
+  --shadow-dark: #b8bec9;
+  --shadow-light: #ffffff;
+  --danger-color: #e74c3c;
+  --success-color: #27ae60;
+  --warning-color: #f39c12;
+  
+  /* Couleurs de texte */
+  --text-title: #2d3748;
+  --text-body: #4a5568;
+  
+  /* Couleurs de bordure */
+  --border-color: #cbd5e0;
+  
+  /* Configurations des ombres neumorphiques */
+  --nm-convex: 5px 5px 10px var(--shadow-dark), -5px -5px 10px var(--shadow-light);
+  --nm-concave: inset 2px 2px 5px var(--shadow-dark), inset -2px -2px 5px var(--shadow-light);
+  --nm-flat: 2px 2px 5px var(--shadow-dark), -2px -2px 5px var(--shadow-light);
+  --nm-pressed: inset 4px 4px 8px var(--shadow-dark), inset -4px -4px 8px var(--shadow-light);
+  
+  /* Arrondis */
+  --border-radius-sm: 8px;
+  --border-radius: 12px;
+  --border-radius-lg: 20px;
+  
+  /* Ombres existantes (pour la compatibilité) */
+  --shadow-sm: var(--nm-flat);
+  --shadow-card: var(--nm-convex);
+  --shadow-lg: var(--nm-convex);
+}
+
+/* En mode sombre, inverser les couleurs */
+.dark-theme {
+  --bg-color: #2d3748;
+  --surface-color: #2d3748;
+  --shadow-dark: #252d3b;
+  --shadow-light: #364154;
+  --text-primary: #e2e8f0;
+  --text-secondary: #a0aec0;
+  --text-title: #e2e8f0;
+  --text-body: #a0aec0;
+  --border-color: #4a5568;
+}
+
+/* Style de base */
+body {
+  background-color: var(--bg-color);
+  color: var(--text-body);
+  font-family: 'Montserrat', 'Open Sans', sans-serif;
+  transition: all 0.3s ease;
+}
+
+/* Conteneur principal */
+.main-content {
+  background-color: var(--bg-color);
+  min-height: 100vh;
+  padding: 2rem 1rem;
+}
+
+/* Typographie */
+h1, h2, h3, h4, h5, h6 {
+  color: var(--text-title);
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+}
+
+/* Boutons neumorphiques globaux */
+button,
+.btn {
+  padding: 0.8rem 1.6rem;
+  border-radius: var(--border-radius);
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: none;
+  background: var(--surface-color);
+  color: var(--text-primary);
+  box-shadow: var(--nm-convex);
+}
+
+button:hover,
+.btn:hover {
+  color: var(--primary-600);
+}
+
+button:active,
+.btn:active {
+  box-shadow: var(--nm-pressed);
+  transform: scale(0.98);
+}
+
+/* Boutons par variante */
+.btn-primary {
+  background: linear-gradient(145deg, var(--primary-500), var(--primary-600));
+  color: white;
+}
+
+.btn-primary:hover {
+  background: linear-gradient(145deg, var(--primary-600), var(--primary-700));
+  color: white;
+}
+
+.btn-secondary {
+  box-shadow: var(--nm-flat);
+}
+
+/* Formulaires */
+input, select, textarea {
+  padding: 0.8rem 1.2rem;
+  border-radius: var(--border-radius);
+  border: none;
+  background: var(--bg-color);
+  color: var(--text-primary);
+  font-size: 1rem;
+  width: 100%;
+  box-shadow: var(--nm-concave);
+  transition: all 0.3s ease;
+}
+
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  box-shadow: var(--nm-pressed);
+}
+
+/* Etiquettes de formulaire */
+label {
+  display: block;
+  color: var(--text-secondary);
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+}
+
+/* Cartes neumorphiques */
+.card, .nm-card {
+  padding: 1.5rem;
+  border-radius: var(--border-radius);
+  background: var(--surface-color);
+  box-shadow: var(--nm-convex);
+  transition: transform 0.3s ease;
+}
+
+.card:hover, .nm-card:hover {
+  transform: translateY(-5px);
+}
+
+/* Boîtes actives (apparaissant enfoncées) */
+.active-box {
+  box-shadow: var(--nm-pressed);
+}
+
+/* Conteneur pour les sections */
+.section-container {
+  padding: 1.5rem;
+  border-radius: var(--border-radius);
+  background: var(--surface-color);
+  box-shadow: var(--nm-flat);
+  margin-bottom: 2rem;
+}
+
+/* Séparateurs */
+hr, .divider {
+  border: none;
+  height: 2px;
+  background: linear-gradient(90deg, 
+    transparent, 
+    var(--shadow-dark), 
+    var(--shadow-light), 
+    transparent);
+  margin: 1.5rem 0;
+}
+
+/* Badges */
+.badge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 1rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  background: var(--surface-color);
+  box-shadow: var(--nm-flat);
+}
+
+/* États d'alerte */
+.alert {
+  padding: 1rem 1.5rem;
+  border-radius: var(--border-radius);
+  background: var(--surface-color);
+  box-shadow: var(--nm-flat);
+  margin-bottom: 1.5rem;
+  position: relative;
+}
+
+.alert-success {
+  border-left: 4px solid var(--success-color);
+  color: var(--success-color);
+}
+
+.alert-warning {
+  border-left: 4px solid var(--warning-color);
+  color: var(--warning-color);
+}
+
+.alert-danger {
+  border-left: 4px solid var(--danger-color);
+  color: var(--danger-color);
+}
+
+/* Navigation */
+.nav-link {
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--border-radius);
+  color: var(--text-secondary);
+  background: var(--surface-color);
+  box-shadow: var(--nm-flat);
+  margin-right: 0.5rem;
+  transition: all 0.3s ease;
+}
+
+.nav-link:hover {
+  color: var(--primary-600);
+}
+
+.nav-link.active {
+  color: var(--primary-600);
+  box-shadow: var(--nm-pressed);
+}
+
+/* Tableaux */
+table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+thead th {
+  text-align: left;
+  padding: 1rem;
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+
+tbody td {
+  padding: 1rem;
+  background: var(--surface-color);
+  box-shadow: var(--nm-flat);
+}
+
+tbody tr {
+  border-radius: var(--border-radius);
+  transition: transform 0.3s ease;
+}
+
+tbody tr:hover {
+  transform: translateY(-2px);
+}
+
+/* Loader */
+.loader {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--bg-color);
+  box-shadow: var(--nm-convex);
+  position: relative;
+  animation: pulse 1.5s infinite;
+}
+
+.loader:after {
+  content: '';
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--primary-600);
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(0.95);
+    box-shadow: var(--nm-convex);
+  }
+  50% {
+    transform: scale(1);
+    box-shadow: var(--nm-flat);
+  }
+  100% {
+    transform: scale(0.95);
+    box-shadow: var(--nm-convex);
+  }
+}
+
+/* Adaptations de composants existants */
+.sidebar {
+  background: var(--bg-color);
+  box-shadow: var(--nm-flat);
+  border-radius: var(--border-radius);
+}
+
+.header, .app-header {
+  background: var(--bg-color);
+  box-shadow: var(--nm-flat);
+  border-radius: var(--border-radius);
+}
+
+/* Pour les modals/dialogues */
+.modal, .dialog {
+  background: var(--bg-color);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--nm-convex);
+}
+
+.modal-header, .dialog-header {
+  border-bottom: none;
+}
+
+.modal-footer, .dialog-footer {
+  border-top: none;
+}
+
+/* Personnalisation des icônes */
+.icon-container {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--surface-color);
+  box-shadow: var(--nm-convex);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Animations générales */
+.fade-in {
+  animation: fadeIn 0.5s ease;
+}
+
+.slide-in {
+  animation: slideIn 0.5s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideIn {
+  from { 
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to { 
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Adaptations pour le responsive */
+@media (max-width: 768px) {
+  .card, .nm-card {
+    padding: 1rem;
+  }
+  
+  button, .btn {
+    padding: 0.6rem 1.2rem;
+  }
+}
