@@ -6,6 +6,7 @@
 export type Gender = 'homme' | 'femme' | 'autre';
 export type ActivityLevel = 'sédentaire' | 'légèrement_actif' | 'modérément_actif' | 'très_actif' | 'extrêmement_actif';
 export type DietType = 'keto_standard' | 'keto_alcalin';
+export type WeightGoal = 'perte_poids' | 'maintien_poids' | 'prise_poids';
 
 export interface UserData {
   gender: Gender;
@@ -14,6 +15,7 @@ export interface UserData {
   height: number; // en cm
   activityLevel: ActivityLevel;
   targetWeight: number; // en kg
+  weightGoal?: WeightGoal; // objectif de poids
 }
 
 export interface NutritionalNeeds {
@@ -64,13 +66,32 @@ export function calculateCalorieNeeds(userData: UserData): number {
   // Besoins caloriques de base
   let calorieNeeds = bmr * activityFactor;
   
-  // Ajuster selon l'objectif de poids
-  if (userData.weight > userData.targetWeight) {
-    // Objectif de perte de poids (déficit maximum de 20%)
-    calorieNeeds = calorieNeeds * 0.8;
-  } else if (userData.weight < userData.targetWeight) {
-    // Objectif de prise de poids (surplus maximum de 10%)
-    calorieNeeds = calorieNeeds * 1.1;
+  // Ajuster selon l'objectif de poids explicite ou implicite
+  if (userData.weightGoal) {
+    // Utiliser l'objectif explicite
+    switch (userData.weightGoal) {
+      case 'perte_poids':
+        // Déficit de 20% pour la perte de poids
+        calorieNeeds = calorieNeeds * 0.8;
+        break;
+      case 'prise_poids':
+        // Surplus de 10% pour la prise de poids
+        calorieNeeds = calorieNeeds * 1.1;
+        break;
+      case 'maintien_poids':
+      default:
+        // Aucun ajustement pour le maintien
+        break;
+    }
+  } else {
+    // Méthode d'origine basée sur la comparaison des poids
+    if (userData.weight > userData.targetWeight) {
+      // Objectif de perte de poids (déficit maximum de 20%)
+      calorieNeeds = calorieNeeds * 0.8;
+    } else if (userData.weight < userData.targetWeight) {
+      // Objectif de prise de poids (surplus maximum de 10%)
+      calorieNeeds = calorieNeeds * 1.1;
+    }
   }
   
   // Arrondir à l'entier le plus proche
