@@ -1,5 +1,6 @@
 import React from 'react';
 import { formatDate } from '../../utils/weightUtils';
+import { useUser } from '../../contexts/UserContext';
 
 /**
  * Composant d'indicateur de progression vers l'objectif de poids
@@ -12,8 +13,11 @@ import { formatDate } from '../../utils/weightUtils';
  * @param {Object} props.change - Objet contenant les informations de changement de poids
  */
 const ProgressIndicator = ({ currentWeight, targetWeight, progress, predictedDate, change }) => {
+  // Utiliser le contexte utilisateur pour obtenir le poids initial
+  const { initialWeight, resetInitialWeight } = useUser();
+  
   // Déterminer si l'objectif est de perdre ou de prendre du poids
-  const isWeightLoss = currentWeight > targetWeight;
+  const isWeightLoss = targetWeight < initialWeight;
   
   // Si les données ne sont pas disponibles, afficher un message
   if (!currentWeight || !targetWeight) {
@@ -28,7 +32,7 @@ const ProgressIndicator = ({ currentWeight, targetWeight, progress, predictedDat
   }
   
   // Calculer la différence de poids
-  const weightDifference = Math.abs(currentWeight - targetWeight).toFixed(1);
+  const weightDifference = Math.abs(targetWeight - initialWeight).toFixed(1);
   
   // Déterminer le texte descriptif
   const goalDescription = isWeightLoss 
@@ -84,6 +88,14 @@ const ProgressIndicator = ({ currentWeight, targetWeight, progress, predictedDat
     }
   }
   
+  // Calculer la différence entre le poids actuel et le poids initial pour montrer le progrès
+  const progressInKg = isWeightLoss 
+    ? initialWeight - currentWeight 
+    : currentWeight - initialWeight;
+  const progressText = progressInKg > 0 
+    ? `${progressInKg.toFixed(1)} kg` 
+    : "0 kg";
+  
   return (
     <div className="card bg-white dark:bg-neutral-800 p-4 shadow-md rounded-lg">
       <h3 className="text-lg font-title font-semibold mb-2">Progression vers votre objectif</h3>
@@ -112,10 +124,28 @@ const ProgressIndicator = ({ currentWeight, targetWeight, progress, predictedDat
           <p className="text-neutral-600 dark:text-neutral-400">Actuel</p>
           <p className="font-medium">{currentWeight} kg</p>
         </div>
+        <div className="text-center">
+          <p className="text-neutral-600 dark:text-neutral-400">Départ</p>
+          <p className="font-medium">{initialWeight} kg</p>
+          <button
+            onClick={resetInitialWeight}
+            className="text-xs text-primary-600 mt-1 hover:underline"
+            title="Réinitialiser le poids de départ au poids actuel"
+          >
+            Réinitialiser
+          </button>
+        </div>
         <div className="text-right">
           <p className="text-neutral-600 dark:text-neutral-400">Objectif</p>
           <p className="font-medium">{targetWeight} kg</p>
         </div>
+      </div>
+      
+      {/* Progrès en kg */}
+      <div className="p-2 bg-neutral-100 dark:bg-neutral-700 rounded mb-2">
+        <p className="text-sm text-center">
+          {isWeightLoss ? 'Perdu' : 'Pris'} : <strong>{progressText}</strong> sur {weightDifference} kg
+        </p>
       </div>
       
       {/* Rythme et prédiction */}
