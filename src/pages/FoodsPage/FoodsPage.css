@@ -1,70 +1,78 @@
-/* Ajustements pour la page FoodsPage JCO */
+/* Ajustements pour la page FoodsPage */
 .foods-page {
   display: flex;
   flex-direction: column;
   width: 100%;
   height: 100%;
   padding: 1rem;
-}
-
-/* Theme clair */
-.light .foods-page {
+  /* Utiliser les variables globales de thème au lieu des styles hardcodés */
   background-color: var(--bg-primary);
   color: var(--text-primary);
 }
 
-/* Theme sombre - déjà bien configuré */
-.dark .foods-page {
-  background-color: var(--bg-primary);
+/* Suppression des sélecteurs spécifiques au thème (.light .foods-page, .dark .foods-page) */
+/* Utilisation des variables CSS globales qui s'adaptent automatiquement au thème */
+
+.category-btn {
+  background-color: var(--neutral-700);
   color: var(--text-primary);
+  border: 1px solid var(--neutral-600);
+  padding: 0.5rem 1rem;
+  border-radius: 0.25rem;
+  cursor: pointer;
+  transition: all 0.2s;
 }
 
-.light .category-btn {
-  background-color: var(--neutral-100);
-  color: var(--text-primary);
-  border: 1px solid var(--neutral-300);
-}
-
-.light .category-btn.active,
-.light .category-btn:hover {
+.category-btn.active, 
+.category-btn:hover {
   background-color: var(--primary-600);
   color: white;
   border-color: var(--primary-500);
 }
 
-.light .filter-toggle-btn {
+.filter-toggle-btn {
   background-color: var(--primary-600);
   color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 0.25rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
 }
 
-.light .filter-toggle-btn:hover {
+.filter-toggle-btn:hover {
   background-color: var(--primary-700);
 }
 
-.light .reset-filters-btn {
-  background-color: var(--neutral-300);
+.reset-filters-btn {
+  background-color: var(--neutral-600);
+  color: var(--text-primary);
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 0.25rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.reset-filters-btn:hover {
+  background-color: var(--neutral-500);
+}
+
+/* Ajustements pour les sections de filtre */
+.filter-section h3 {
   color: var(--text-primary);
 }
 
-.light .reset-filters-btn:hover {
-  background-color: var(--neutral-400);
-}
-
-/* Ajustements supplémentaires pour les sections de filtre */
-.light .filter-section h3 {
+.filter-checkbox {
   color: var(--text-primary);
 }
 
-.light .filter-checkbox {
-  color: var(--text-primary);
-}
-
-.light .season-info {
+.season-info {
   color: var(--text-secondary);
 }
 
-.light .filter-range label,
-.light .filter-range span {
+.filter-range label,
+.filter-range span {
   color: var(--text-primary);
 }
 
@@ -87,20 +95,6 @@
   align-items: center;
   gap: 1rem;
   margin-bottom: 1rem;
-}
-
-.filter-toggle-btn {
-  background-color: var(--primary-600);
-  color: white;
-  border: none;
-  padding: 0.5rem 1rem;
-  border-radius: 0.25rem;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-.filter-toggle-btn:hover {
-  background-color: var(--primary-700);
 }
 
 .foods-grid {
@@ -126,23 +120,6 @@
   margin-bottom: 1rem;
 }
 
-.category-btn {
-  background-color: var(--neutral-700);
-  color: var(--text-primary);
-  border: 1px solid var(--neutral-600);
-  padding: 0.5rem 1rem;
-  border-radius: 0.25rem;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.category-btn.active, 
-.category-btn:hover {
-  background-color: var(--primary-600);
-  color: white;
-  border-color: var(--primary-500);
-}
-
 .filter-checkbox {
   display: flex;
   align-items: center;
@@ -157,7 +134,6 @@
 
 .season-info {
   font-size: 0.875rem;
-  color: var(--text-secondary);
   margin-top: 0.5rem;
   font-style: italic;
 }
@@ -193,20 +169,6 @@
   display: flex;
   justify-content: flex-end;
   margin-top: 1rem;
-}
-
-.reset-filters-btn {
-  background-color: var(--neutral-600);
-  color: var(--text-primary);
-  border: none;
-  padding: 0.5rem 1rem;
-  border-radius: 0.25rem;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-.reset-filters-btn:hover {
-  background-color: var(--neutral-500);
 }
 
 .loading-spinner {
