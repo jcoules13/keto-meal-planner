@@ -78,12 +78,12 @@ const AppHeader: React.FC = () => {
               Profil
             </Link>
 
-            <ThemeSwitcher />
+            <ThemeToggle />
           </nav>
 
           {/* Mobile menu button */}
           <div className="flex items-center space-x-4 md:hidden">
-            <ThemeSwitcher />
+            <ThemeToggle />
             <button
               onClick={toggleMenu}
               className="text-neutral-700 dark:text-neutral-200 focus:outline-none"
