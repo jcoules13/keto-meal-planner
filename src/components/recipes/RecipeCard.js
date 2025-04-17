@@ -1,5 +1,6 @@
 import React from 'react';
 import { useRecipe } from '../../contexts/RecipeContext';
+import { useTheme } from '../../contexts/ThemeContext';
 import './RecipeCard.css';
 
 /**
@@ -10,6 +11,7 @@ import './RecipeCard.css';
  */
 const RecipeCard = ({ recipe, onClick }) => {
   const { toggleFavorite } = useRecipe();
+  const { theme } = useTheme(); // Récupération du thème actuel
   
   // Gérer le clic sur le bouton de favori
   const handleFavoriteClick = (e) => {
@@ -43,8 +45,16 @@ const RecipeCard = ({ recipe, onClick }) => {
   
   const { proteinPercent, fatPercent, carbsPercent } = formatMacros();
   
+  // Définir les couleurs des macros basées sur des variables CSS pour une meilleure cohérence
+  const fatColor = 'var(--primary-700)';
+  const proteinColor = 'var(--secondary-600)';
+  const carbsColor = 'var(--info)';
+  
+  // Ajouter la classe de thème au composant pour les styles conditionnels
+  const cardClasses = `recipe-card ${theme}`;
+  
   return (
-    <div className="recipe-card" onClick={onClick}>
+    <div className={cardClasses} onClick={onClick}>
       <div className="recipe-card-header">
         <h3 className="recipe-card-title">{recipe.name}</h3>
         <button 
@@ -75,21 +85,21 @@ const RecipeCard = ({ recipe, onClick }) => {
       
       <div className="recipe-card-macros">
         <div className="macro-bar">
-          <div className="macro-segment" style={{ width: `${fatPercent}%`, backgroundColor: 'var(--fat-color)' }}></div>
-          <div className="macro-segment" style={{ width: `${proteinPercent}%`, backgroundColor: 'var(--protein-color)' }}></div>
-          <div className="macro-segment" style={{ width: `${carbsPercent}%`, backgroundColor: 'var(--carbs-color)' }}></div>
+          <div className="macro-segment" style={{ width: `${fatPercent}%`, backgroundColor: fatColor }}></div>
+          <div className="macro-segment" style={{ width: `${proteinPercent}%`, backgroundColor: proteinColor }}></div>
+          <div className="macro-segment" style={{ width: `${carbsPercent}%`, backgroundColor: carbsColor }}></div>
         </div>
         <div className="macro-legend">
           <div className="macro-legend-item">
-            <span className="macro-color" style={{ backgroundColor: 'var(--fat-color)' }}></span>
+            <span className="macro-color" style={{ backgroundColor: fatColor }}></span>
             <span className="macro-label">Lipides {fatPercent}%</span>
           </div>
           <div className="macro-legend-item">
-            <span className="macro-color" style={{ backgroundColor: 'var(--protein-color)' }}></span>
+            <span className="macro-color" style={{ backgroundColor: proteinColor }}></span>
             <span className="macro-label">Protéines {proteinPercent}%</span>
           </div>
           <div className="macro-legend-item">
-            <span className="macro-color" style={{ backgroundColor: 'var(--carbs-color)' }}></span>
+            <span className="macro-color" style={{ backgroundColor: carbsColor }}></span>
             <span className="macro-label">Glucides {carbsPercent}%</span>
           </div>
         </div>
