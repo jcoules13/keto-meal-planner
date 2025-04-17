@@ -6,7 +6,8 @@ import {
   type Gender,
   type ActivityLevel,
   type DietType,
-  type WeightGoal
+  type WeightGoal,
+  type KetoProfile
 } from '../utils/nutritionCalculator';
 import { 
   saveToStorage, 
@@ -45,6 +46,7 @@ export interface UserState {
   targetWeight: number; // en kg
   weightGoal: WeightGoal; // objectif de poids
   dietType: DietType;
+  ketoProfile: KetoProfile; // nouveau champ pour le profil Keto
   calorieTarget: number; // calculé
   macroTargets: {
     protein: number; // en g
@@ -64,6 +66,7 @@ type UserAction =
   | { type: 'UPDATE_PROFILE'; payload: Partial<UserState> }
   | { type: 'SET_DIET_TYPE'; payload: DietType }
   | { type: 'SET_WEIGHT_GOAL'; payload: WeightGoal }
+  | { type: 'SET_KETO_PROFILE'; payload: KetoProfile } // nouvelle action
   | { type: 'ADD_WEIGHT_ENTRY'; payload: WeightEntry }
   | { type: 'UPDATE_PREFERENCES'; payload: Partial<UserPreferences> }
   | { type: 'UPDATE_FASTING'; payload: Partial<IntermittentFastingConfig> }
@@ -82,6 +85,7 @@ interface UserContextType extends UserState {
   updateProfile: (profileData: Partial<UserState>) => void;
   setDietType: (dietType: DietType) => void;
   setWeightGoal: (weightGoal: WeightGoal) => void;
+  setKetoProfile: (ketoProfile: KetoProfile) => void; // nouvelle action
   addWeightEntry: (weight: number) => void;
   updatePreferences: (preferences: Partial<UserPreferences>) => void;
   updateFasting: (fastingSettings: Partial<IntermittentFastingConfig>) => void;
@@ -104,6 +108,7 @@ const initialState: UserState = {
   targetWeight: 70, // en kg
   weightGoal: 'maintien_poids', // objectif de poids par défaut
   dietType: 'keto_standard',
+  ketoProfile: 'standard', // valeur par défaut
   calorieTarget: 2000, // calculé
   macroTargets: {
     protein: 100, // en g
@@ -157,6 +162,12 @@ function userReducer(state: UserState, action: UserAction): UserState {
       return {
         ...state,
         weightGoal: action.payload
+      };
+    
+    case 'SET_KETO_PROFILE':
+      return {
+        ...state,
+        ketoProfile: action.payload
       };
     
     case 'ADD_WEIGHT_ENTRY': {
@@ -222,7 +233,7 @@ function userReducer(state: UserState, action: UserAction): UserState {
         weightGoal: state.weightGoal
       };
       
-      const { calories, macros } = calculateNutritionalNeeds(userData, state.dietType);
+      const { calories, macros } = calculateNutritionalNeeds(userData, state.dietType, state.ketoProfile);
       
       return {
         ...state,
@@ -264,6 +275,10 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
       if (!savedUser.initialWeight) {
         savedUser.initialWeight = savedUser.weight;
       }
+      // S'assurer que ketoProfile existe (pour la compatibilité)
+      if (!savedUser.ketoProfile) {
+        savedUser.ketoProfile = 'standard';
+      }
       dispatch({ type: 'UPDATE_PROFILE', payload: savedUser });
     }
   }, []);
@@ -287,7 +302,8 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
       'height' in profileData || 
       'activityLevel' in profileData || 
       'targetWeight' in profileData ||
-      'weightGoal' in profileData
+      'weightGoal' in profileData ||
+      'ketoProfile' in profileData // Ajouter le nouveau profil Keto à la liste des déclencheurs
     ) {
       dispatch({ type: 'RECALCULATE_TARGETS' });
     }
@@ -300,6 +316,11 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
   
   const setWeightGoal = (weightGoal: WeightGoal) => {
     dispatch({ type: 'SET_WEIGHT_GOAL', payload: weightGoal });
+    dispatch({ type: 'RECALCULATE_TARGETS' });
+  };
+  
+  const setKetoProfile = (ketoProfile: KetoProfile) => {
+    dispatch({ type: 'SET_KETO_PROFILE', payload: ketoProfile });
     dispatch({ type: 'RECALCULATE_TARGETS' });
   };
   
@@ -345,6 +366,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     updateProfile,
     setDietType,
     setWeightGoal,
+    setKetoProfile, // Nouvelle action exposée
     addWeightEntry,
     updatePreferences,
     updateFasting,
