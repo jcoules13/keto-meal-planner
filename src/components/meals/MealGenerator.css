@@ -48,7 +48,7 @@
 }
 
 .macro-item {
-  background-color: var(--card-bg);
+  background-color: var(--bg-card);
   border-radius: 0.35rem;
   padding: 0.75rem;
   text-align: center;
@@ -222,7 +222,7 @@
 }
 
 .meal-card {
-  background-color: var(--card-bg);
+  background-color: var(--bg-card);
   border-radius: 0.5rem;
   box-shadow: var(--shadow-card);
   overflow: hidden;
@@ -319,7 +319,7 @@
 }
 
 .save-meal-button:hover {
-  background-color: var(--color-success-dark);
+  background-color: #0d9669; /* Version plus foncée du var(--success) */
 }
 
 /* Responsive */
