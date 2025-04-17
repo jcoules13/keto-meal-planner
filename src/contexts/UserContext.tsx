@@ -5,7 +5,8 @@ import {
   interpretBMI,
   type Gender,
   type ActivityLevel,
-  type DietType
+  type DietType,
+  type WeightGoal
 } from '../utils/nutritionCalculator';
 import { 
   saveToStorage, 
@@ -41,6 +42,7 @@ export interface UserState {
   weight: number; // en kg
   activityLevel: ActivityLevel;
   targetWeight: number; // en kg
+  weightGoal: WeightGoal; // objectif de poids
   dietType: DietType;
   calorieTarget: number; // calculé
   macroTargets: {
@@ -60,6 +62,7 @@ export interface UserState {
 type UserAction = 
   | { type: 'UPDATE_PROFILE'; payload: Partial<UserState> }
   | { type: 'SET_DIET_TYPE'; payload: DietType }
+  | { type: 'SET_WEIGHT_GOAL'; payload: WeightGoal }
   | { type: 'ADD_WEIGHT_ENTRY'; payload: WeightEntry }
   | { type: 'UPDATE_PREFERENCES'; payload: Partial<UserPreferences> }
   | { type: 'UPDATE_FASTING'; payload: Partial<IntermittentFastingConfig> }
@@ -75,6 +78,7 @@ interface UserContextType extends UserState {
   // Actions
   updateProfile: (profileData: Partial<UserState>) => void;
   setDietType: (dietType: DietType) => void;
+  setWeightGoal: (weightGoal: WeightGoal) => void;
   addWeightEntry: (weight: number) => void;
   updatePreferences: (preferences: Partial<UserPreferences>) => void;
   updateFasting: (fastingSettings: Partial<IntermittentFastingConfig>) => void;
@@ -92,6 +96,7 @@ const initialState: UserState = {
   weight: 75, // en kg
   activityLevel: 'modérément_actif',
   targetWeight: 70, // en kg
+  weightGoal: 'maintien_poids', // objectif de poids par défaut
   dietType: 'keto_standard',
   calorieTarget: 2000, // calculé
   macroTargets: {
@@ -131,6 +136,12 @@ function userReducer(state: UserState, action: UserAction): UserState {
       return {
         ...state,
         dietType: action.payload
+      };
+    
+    case 'SET_WEIGHT_GOAL':
+      return {
+        ...state,
+        weightGoal: action.payload
       };
     
     case 'ADD_WEIGHT_ENTRY': {
@@ -177,7 +188,8 @@ function userReducer(state: UserState, action: UserAction): UserState {
         weight: state.weight,
         height: state.height,
         activityLevel: state.activityLevel,
-        targetWeight: state.targetWeight
+        targetWeight: state.targetWeight,
+        weightGoal: state.weightGoal
       };
       
       const { calories, macros } = calculateNutritionalNeeds(userData, state.dietType);
@@ -240,7 +252,8 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
       'weight' in profileData || 
       'height' in profileData || 
       'activityLevel' in profileData || 
-      'targetWeight' in profileData
+      'targetWeight' in profileData ||
+      'weightGoal' in profileData
     ) {
       dispatch({ type: 'RECALCULATE_TARGETS' });
     }
@@ -248,6 +261,11 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
   
   const setDietType = (dietType: DietType) => {
     dispatch({ type: 'SET_DIET_TYPE', payload: dietType });
+    dispatch({ type: 'RECALCULATE_TARGETS' });
+  };
+  
+  const setWeightGoal = (weightGoal: WeightGoal) => {
+    dispatch({ type: 'SET_WEIGHT_GOAL', payload: weightGoal });
     dispatch({ type: 'RECALCULATE_TARGETS' });
   };
   
@@ -283,6 +301,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     bmiCategory,
     updateProfile,
     setDietType,
+    setWeightGoal,
     addWeightEntry,
     updatePreferences,
     updateFasting,
