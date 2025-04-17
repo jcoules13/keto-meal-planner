@@ -311,7 +311,7 @@
 
   /* Bouton avec contour */
   .btn-outline {
-    @apply border border-primary-600 text-primary-600 dark:border-primary-500 dark:text-primary-500 hover:bg-primary-50 dark:hover:bg-primary-950/20 font-medium py-2 px-4 rounded-md transition-colors duration-150;
+    @apply border border-primary-600 text-primary-600 dark:border-primary-500 dark:text-primary-500 hover:bg-primary-50 dark:hover:bg-primary-900 font-medium py-2 px-4 rounded-md transition-colors duration-150;
   }
 
   /* Étiquette de formulaire */
