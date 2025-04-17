@@ -3,6 +3,8 @@
   padding: 1.5rem;
   max-width: 1200px;
   margin: 0 auto;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
 }
 
 .recipes-header {
@@ -19,7 +21,7 @@
   font-weight: 600;
 }
 
-/* Bouton de création de recette - support du thème */
+/* Bouton de création de recette */
 .new-recipe-button {
   background-color: var(--primary-600);
   color: white;
@@ -31,29 +33,18 @@
   transition: background-color 0.2s;
 }
 
-.light .new-recipe-button:hover {
+.new-recipe-button:hover {
   background-color: var(--primary-700);
 }
 
-.dark .new-recipe-button:hover {
-  background-color: var(--primary-500);
-}
-
-/* Barre d'outils avec prise en charge du thème */
+/* Barre d'outils */
 .recipes-toolbar {
   background-color: var(--bg-secondary);
   padding: 1.25rem;
   border-radius: 0.5rem;
   margin-bottom: 1.5rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-}
-
-.light .recipes-toolbar {
-  border: 1px solid var(--neutral-200);
-}
-
-.dark .recipes-toolbar {
-  border: 1px solid var(--neutral-700);
+  box-shadow: var(--shadow-card);
+  border: 1px solid var(--border-card);
 }
 
 .search-container {
@@ -138,7 +129,7 @@
   height: 1rem;
 }
 
-/* Bouton de réinitialisation des filtres - support du thème */
+/* Bouton de réinitialisation des filtres */
 .reset-filters-button {
   background: none;
   border: 1px solid var(--border-color);
@@ -150,14 +141,13 @@
   transition: background-color 0.2s, color 0.2s;
 }
 
-.light .reset-filters-button:hover {
+.reset-filters-button:hover {
   background-color: var(--neutral-200);
   color: var(--text-primary);
 }
 
 .dark .reset-filters-button:hover {
   background-color: var(--neutral-700);
-  color: var(--text-primary);
 }
 
 .recipes-stats {
@@ -173,23 +163,14 @@
   gap: 1.5rem;
 }
 
-/* Conteneurs pour les formulaires et détails de recettes - support du thème */
+/* Conteneurs pour les formulaires et détails de recettes */
 .recipe-form-wrapper,
 .recipe-detail-wrapper {
   background-color: var(--bg-secondary);
   border-radius: 0.75rem;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: var(--shadow-card);
   overflow: hidden;
-}
-
-.light .recipe-form-wrapper,
-.light .recipe-detail-wrapper {
-  border: 1px solid var(--neutral-200);
-}
-
-.dark .recipe-form-wrapper,
-.dark .recipe-detail-wrapper {
-  border: 1px solid var(--neutral-700);
+  border: 1px solid var(--border-card);
 }
 
 /* Message quand il n'y a pas de recettes */
@@ -265,12 +246,8 @@
   transition: background-color 0.2s;
 }
 
-.light .retry-button:hover {
-  background-color: #d32f2f; /* Rouge plus foncé */
-}
-
-.dark .retry-button:hover {
-  background-color: #f44336; /* Rouge plus clair */
+.retry-button:hover {
+  opacity: 0.9;
 }
 
 /* Adaptations responsive */
