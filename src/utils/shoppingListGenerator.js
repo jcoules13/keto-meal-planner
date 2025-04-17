@@ -1,275 +1,187 @@
 /**
- * Utilitaire pour générer une liste de courses à partir d'un plan de repas
+ * Générateur de liste de courses basé sur un plan de repas
+ * Cette fonctionnalité permet de convertir un plan de repas
+ * en liste de courses organisée par catégories.
  */
 
 /**
  * Génère une liste de courses à partir d'un plan de repas
- * @param {Object} plan - Le plan de repas
- * @param {Object} options - Options de génération
- * @param {Array} options.foods - Liste complète des aliments
- * @param {Function} options.getFoodById - Fonction pour obtenir un aliment par son ID
- * @param {Array} options.recipes - Liste complète des recettes
- * @param {Function} options.getRecipeById - Fonction pour obtenir une recette par son ID
- * @returns {Object} La liste de courses générée
+ * @param {Object} mealPlan - Plan de repas complet
+ * @param {Object} dependencies - Dépendances {foods, getFoodById, recipes, getRecipeById}
+ * @returns {Object} Liste de courses organisée par catégories
  */
-export function generateShoppingList(plan, { foods, getFoodById, recipes, getRecipeById }) {
-  // Initialiser la liste des aliments nécessaires
-  const requiredFoods = {};
+export function generateShoppingList(mealPlan, dependencies) {
+  const { getFoodById, getRecipeById } = dependencies;
   
-  // Parcourir tous les jours du plan
-  for (const day of plan.days) {
-    // Parcourir tous les repas de la journée
-    for (const meal of day.meals) {
-      // Parcourir tous les éléments du repas (recettes ou aliments individuels)
-      for (const item of meal.items) {
-        if (item.type === 'recipe') {
-          // C'est une recette, extraire tous ses ingrédients
-          const recipe = getRecipeById(item.id);
-          if (!recipe) {
-            console.warn(`Recette non trouvée: ${item.id}`);
-            continue;
-          }
-          
-          // Calculer le facteur de portion
-          const portionFactor = item.servings || 1;
-          
-          // Ajouter chaque ingrédient
-          for (const ingredient of recipe.ingredients) {
-            const foodId = ingredient.foodId;
-            const quantity = ingredient.quantity * portionFactor;
-            
-            if (requiredFoods[foodId]) {
-              requiredFoods[foodId].quantity += quantity;
-            } else {
-              requiredFoods[foodId] = {
-                id: foodId,
-                quantity
-              };
-            }
-          }
-        } else if (item.type === 'food') {
-          // C'est un aliment individuel
-          const foodId = item.id;
-          const quantity = item.quantity || 0;
-          
-          if (requiredFoods[foodId]) {
-            requiredFoods[foodId].quantity += quantity;
-          } else {
-            requiredFoods[foodId] = {
-              id: foodId,
-              quantity
-            };
-          }
+  // Structure de base pour la liste de courses
+  const shoppingList = {
+    planId: mealPlan.id,
+    planName: mealPlan.name,
+    startDate: mealPlan.startDate,
+    endDate: mealPlan.endDate,
+    generatedAt: new Date().toISOString(),
+    categories: {}
+  };
+  
+  // Dictionnaire pour suivre les aliments déjà ajoutés
+  const addedFoods = {};
+  
+  // Parcourir tous les jours et repas du plan
+  mealPlan.days.forEach(day => {
+    if (!day.meals || day.meals.length === 0) return;
+    
+    day.meals.forEach(meal => {
+      if (!meal.items || meal.items.length === 0) return;
+      
+      meal.items.forEach(item => {
+        if (item.type === 'food') {
+          // Aliment individuel
+          processFood(item.id, item.quantity, getFoodById, addedFoods);
+        } else if (item.type === 'recipe') {
+          // Recette: extraire tous les ingrédients
+          processRecipe(item.id, item.servings, getRecipeById, getFoodById, addedFoods);
         }
-      }
-    }
-  }
+      });
+    });
+  });
   
   // Organiser les aliments par catégorie
-  const categorizedItems = {};
-  
-  // Parcourir tous les aliments nécessaires
-  for (const [foodId, entry] of Object.entries(requiredFoods)) {
+  for (const foodId in addedFoods) {
+    const foodItem = addedFoods[foodId];
     const food = getFoodById(foodId);
-    if (!food) {
-      console.warn(`Aliment non trouvé: ${foodId}`);
-      continue;
+    
+    if (!food) continue;
+    
+    const category = food.category || 'Autres';
+    
+    if (!shoppingList.categories[category]) {
+      shoppingList.categories[category] = [];
     }
     
-    // Convertir la quantité en unité appropriée
-    const { quantity, unit } = convertToAppropriateUnit(food, entry.quantity);
+    // Convertir en unités pratiques si possible
+    let quantity = foodItem.quantity;
+    let unit = 'g';
     
-    // Créer l'élément de liste de courses
-    const shoppingItem = {
-      id: food.id,
+    if (food.commonUnitWeight && food.unitName) {
+      const unitsCount = quantity / food.commonUnitWeight;
+      // Si le nombre d'unités est assez grand, utiliser cette unité
+      if (unitsCount >= 0.75) {
+        quantity = Math.round(unitsCount * 10) / 10; // Arrondir à 1 décimale
+        unit = food.unitName;
+      }
+    }
+    
+    shoppingList.categories[category].push({
+      id: foodId,
       name: food.name,
-      quantity: Math.round(quantity * 10) / 10, // Arrondi à 1 décimale
-      unit,
+      quantity: quantity,
+      unit: unit,
       checked: false
+    });
+  }
+  
+  // Trier chaque catégorie par nom
+  for (const category in shoppingList.categories) {
+    shoppingList.categories[category].sort((a, b) => a.name.localeCompare(b.name));
+  }
+  
+  return shoppingList;
+}
+
+/**
+ * Traite un aliment individuel pour l'ajouter à la liste
+ * @param {string} foodId - ID de l'aliment
+ * @param {number} quantity - Quantité en grammes
+ * @param {Function} getFoodById - Fonction pour obtenir un aliment par ID
+ * @param {Object} addedFoods - Dictionnaire des aliments déjà ajoutés
+ */
+function processFood(foodId, quantity, getFoodById, addedFoods) {
+  const food = getFoodById(foodId);
+  if (!food) return;
+  
+  // Arrondir à 5g près
+  const roundedQuantity = Math.ceil(quantity / 5) * 5;
+  
+  if (addedFoods[foodId]) {
+    addedFoods[foodId].quantity += roundedQuantity;
+  } else {
+    addedFoods[foodId] = {
+      quantity: roundedQuantity
     };
-    
-    // Ajouter à la catégorie appropriée
-    const category = food.category || 'autres';
-    if (!categorizedItems[category]) {
-      categorizedItems[category] = [];
-    }
-    
-    categorizedItems[category].push(shoppingItem);
   }
-  
-  // Trier les éléments par nom dans chaque catégorie
-  for (const category in categorizedItems) {
-    categorizedItems[category].sort((a, b) => a.name.localeCompare(b.name));
-  }
-  
-  return {
-    categories: categorizedItems
-  };
 }
 
 /**
- * Convertit une quantité en unité la plus appropriée pour un aliment
- * @param {Object} food - L'aliment
- * @param {number} quantity - La quantité en grammes
- * @returns {Object} Quantité convertie et unité
+ * Traite une recette pour extraire tous ses ingrédients
+ * @param {string} recipeId - ID de la recette
+ * @param {number} servings - Nombre de portions
+ * @param {Function} getRecipeById - Fonction pour obtenir une recette par ID
+ * @param {Function} getFoodById - Fonction pour obtenir un aliment par ID
+ * @param {Object} addedFoods - Dictionnaire des aliments déjà ajoutés
  */
-function convertToAppropriateUnit(food, quantity) {
-  // Si l'aliment a une unité commune définie
-  if (food.commonUnitWeight && food.commonUnitWeight > 0 && food.unitName) {
-    // Calculer le nombre d'unités
-    const units = quantity / food.commonUnitWeight;
-    
-    // Si le nombre d'unités est raisonnable (> 0.75), utiliser cette unité
-    if (units >= 0.75) {
-      return {
-        quantity: units,
-        unit: food.unitName
-      };
-    }
-  }
+function processRecipe(recipeId, servings, getRecipeById, getFoodById, addedFoods) {
+  const recipe = getRecipeById(recipeId);
+  if (!recipe || !recipe.ingredients) return;
   
-  // Par défaut, retourner en grammes
-  return {
-    quantity,
-    unit: 'g'
-  };
+  recipe.ingredients.forEach(ingredient => {
+    const foodId = ingredient.foodId;
+    const ingredientQuantity = ingredient.quantity * servings;
+    
+    processFood(foodId, ingredientQuantity, getFoodById, addedFoods);
+  });
 }
 
 /**
- * Estime le coût total d'une liste de courses (si les prix sont disponibles)
- * @param {Object} shoppingList - La liste de courses
- * @param {Array} foods - Liste complète des aliments
- * @returns {number} Le coût total estimé
+ * Calcule le pourcentage d'items cochés dans une liste de courses
+ * @param {Object} shoppingList - Liste de courses
+ * @returns {number} Pourcentage d'items cochés (0-100)
  */
-export function estimateShoppingListCost(shoppingList, foods) {
-  let totalCost = 0;
+export function calculateShoppingProgress(shoppingList) {
+  if (!shoppingList || !shoppingList.categories) return 0;
   
-  // Parcourir toutes les catégories
+  let totalItems = 0;
+  let checkedItems = 0;
+  
+  Object.values(shoppingList.categories).forEach(category => {
+    totalItems += category.length;
+    checkedItems += category.filter(item => item.checked).length;
+  });
+  
+  return totalItems === 0 ? 0 : Math.round((checkedItems / totalItems) * 100);
+}
+
+/**
+ * Formate une liste de courses pour l'impression
+ * @param {Object} shoppingList - Liste de courses
+ * @returns {string} Version formatée de la liste pour impression
+ */
+export function formatShoppingListForPrint(shoppingList) {
+  if (!shoppingList || !shoppingList.categories) return '';
+  
+  let formattedList = `LISTE DE COURSES - ${shoppingList.planName}\n`;
+  formattedList += `Du ${formatDate(shoppingList.startDate)} au ${formatDate(shoppingList.endDate)}\n\n`;
+  
   for (const category in shoppingList.categories) {
-    // Parcourir tous les éléments de la catégorie
-    for (const item of shoppingList.categories[category]) {
-      // Trouver l'aliment correspondant
-      const food = foods.find(f => f.id === item.id);
-      if (!food || !food.price) continue;
-      
-      // Calculer le coût de cet élément
-      // Note: Cette fonctionnalité n'est pas implémentée dans la base de données actuelle,
-      // mais pourrait être ajoutée dans une version future
-      const cost = (item.quantity / food.commonUnitWeight) * food.price;
-      totalCost += cost;
-    }
+    formattedList += `=== ${category.toUpperCase()} ===\n`;
+    
+    shoppingList.categories[category].forEach(item => {
+      formattedList += `□ ${item.name} (${item.quantity} ${item.unit})\n`;
+    });
+    
+    formattedList += '\n';
   }
   
-  return totalCost;
+  return formattedList;
 }
 
 /**
- * Optimise une liste de courses en regroupant les aliments similaires
- * @param {Object} shoppingList - La liste de courses
- * @returns {Object} La liste optimisée
+ * Formate une date au format lisible
+ * @param {string} dateString - Date au format YYYY-MM-DD
+ * @returns {string} Date au format JJ/MM/YYYY
  */
-export function optimizeShoppingList(shoppingList) {
-  // Copie profonde de la liste de courses
-  const optimizedList = JSON.parse(JSON.stringify(shoppingList));
+function formatDate(dateString) {
+  const parts = dateString.split('-');
+  if (parts.length !== 3) return dateString;
   
-  // Fonctionnalité à implémenter dans une version future:
-  // - Regrouper les aliments similaires (ex: différents types de tomates)
-  // - Remplacer des ingrédients isolés par des packs (ex: 1 carotte + 1 oignon + 1 poireau = 1 pack légumes à soupe)
-  // - Trier les éléments par emplacement dans le magasin
-  
-  return optimizedList;
-}
-
-/**
- * Génère un format texte simple pour la liste de courses (pour le partage ou l'impression)
- * @param {Object} shoppingList - La liste de courses
- * @returns {string} La liste au format texte
- */
-export function shoppingListToText(shoppingList) {
-  let text = "LISTE DE COURSES\n\n";
-  
-  // Parcourir toutes les catégories
-  for (const category in shoppingList.categories) {
-    if (shoppingList.categories[category].length === 0) continue;
-    
-    // Ajouter le nom de la catégorie
-    text += `${formatCategoryName(category).toUpperCase()}:\n`;
-    
-    // Ajouter chaque élément
-    for (const item of shoppingList.categories[category]) {
-      text += `- ${item.quantity} ${item.unit} ${item.name}\n`;
-    }
-    
-    text += "\n";
-  }
-  
-  return text;
-}
-
-/**
- * Formate le nom d'une catégorie pour l'affichage
- * @param {string} category - Le nom de la catégorie
- * @returns {string} Le nom formaté
- */
-function formatCategoryName(category) {
-  const categoryMap = {
-    'viande': 'Viandes',
-    'poisson': 'Poissons et fruits de mer',
-    'œufs': 'Œufs',
-    'produits_laitiers': 'Produits laitiers',
-    'légumes': 'Légumes',
-    'fruits': 'Fruits',
-    'noix_graines': 'Noix et graines',
-    'matières_grasses': 'Matières grasses',
-    'autres': 'Autres'
-  };
-  
-  return categoryMap[category] || category.charAt(0).toUpperCase() + category.slice(1);
-}
-
-/**
- * Calcule les proportions du régime keto dans la liste de courses
- * @param {Object} shoppingList - La liste de courses
- * @param {Array} foods - Liste complète des aliments
- * @returns {Object} Proportions de macronutriments
- */
-export function analyzeShoppingListMacros(shoppingList, foods) {
-  // Initialiser les totaux
-  let totalCalories = 0;
-  let totalProtein = 0;
-  let totalFat = 0;
-  let totalCarbs = 0;
-  
-  // Parcourir tous les éléments de la liste
-  for (const category in shoppingList.categories) {
-    for (const item of shoppingList.categories[category]) {
-      const food = foods.find(f => f.id === item.id);
-      if (!food) continue;
-      
-      // Calculer la part proportionnelle à la quantité
-      const ratio = item.unit === 'g' 
-        ? item.quantity / 100  // Déjà en grammes
-        : (item.quantity * (food.commonUnitWeight || 100)) / 100; // Convertir unités en grammes
-      
-      // Accumuler les valeurs nutritionnelles
-      totalCalories += food.nutritionPer100g.calories * ratio;
-      totalProtein += food.nutritionPer100g.protein * ratio;
-      totalFat += food.nutritionPer100g.fat * ratio;
-      totalCarbs += food.nutritionPer100g.netCarbs * ratio;
-    }
-  }
-  
-  // Calculer le total des calories par macronutriment
-  const proteinCalories = totalProtein * 4;  // 4 kcal/g
-  const fatCalories = totalFat * 9;          // 9 kcal/g
-  const carbsCalories = totalCarbs * 4;      // 4 kcal/g
-  
-  // Calculer les pourcentages
-  const totalMacroCalories = proteinCalories + fatCalories + carbsCalories;
-  
-  return {
-    protein: Math.round((proteinCalories / totalMacroCalories) * 100) || 0,
-    fat: Math.round((fatCalories / totalMacroCalories) * 100) || 0,
-    carbs: Math.round((carbsCalories / totalMacroCalories) * 100) || 0
-  };
+  return `${parts[2]}/${parts[1]}/${parts[0]}`;
 }
