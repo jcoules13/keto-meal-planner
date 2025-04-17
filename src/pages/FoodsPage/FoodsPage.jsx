@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useFood } from '../../contexts/FoodContext';
 import { useUser } from '../../contexts/UserContext';
+import { useTheme } from '../../contexts/ThemeContext'; // Ajout de l'import pour useTheme
 // Correction des imports pour utiliser les chemins corrects vers les composants
 import FoodCard from '../../components/foods/FoodCard';
 import FoodDetail from '../../components/foods/FoodDetail';
@@ -13,6 +14,7 @@ import './FoodsPage.css';
 const FoodsPage = () => {
   const { foods, categories, filters, setFilter, resetFilters, loading, error } = useFood();
   const { preferences, dietType } = useUser();
+  const { theme } = useTheme(); // Récupération du thème actuel
   
   const [selectedFood, setSelectedFood] = useState(null);
   const [showFilterPanel, setShowFilterPanel] = useState(false);
@@ -149,9 +151,13 @@ const FoodsPage = () => {
     );
   };
   
+  // Ajout d'une classe dynamique basée sur le thème actuel pour s'assurer que
+  // l'élément racine hérite correctement du thème
+  const pageClass = `foods-page ${theme}`;
+  
   return (
     <PageLayout title="Base de données alimentaire">
-      <div className="foods-page">
+      <div className={pageClass}>
         <div className="foods-header">
           <h1>Base de données alimentaire</h1>
           <p>Explorez notre sélection d'aliments compatibles avec le régime keto.</p>
