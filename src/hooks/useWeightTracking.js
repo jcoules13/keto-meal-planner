@@ -129,7 +129,10 @@ const useWeightTracking = () => {
     // Données brutes
     currentWeight: weight,
     targetWeight,
-    weightHistory
+    weightHistory,
+    
+    // Ajout de la taille (height) manquante dans l'objet retourné
+    height
   };
 };
 
