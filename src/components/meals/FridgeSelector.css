@@ -1,0 +1,528 @@
+/* Styles pour le composant FridgeSelector */
+
+.fridge-selector {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  max-width: 100%;
+}
+
+.fridge-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.fridge-header h2 {
+  font-size: 1.5rem;
+  margin: 0;
+  color: var(--color-heading);
+}
+
+.clear-fridge-button {
+  background-color: var(--color-danger);
+  color: white;
+  border: none;
+  border-radius: 0.35rem;
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.clear-fridge-button:hover {
+  background-color: var(--color-danger-dark);
+}
+
+/* Barre de recherche */
+.search-container {
+  margin-bottom: 1.5rem;
+}
+
+.search-bar {
+  display: flex;
+  align-items: center;
+  background-color: var(--color-input-bg);
+  border: 1px solid var(--color-border);
+  border-radius: 0.35rem;
+  padding: 0.5rem 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.search-icon {
+  color: var(--color-text-secondary);
+  margin-right: 0.75rem;
+}
+
+.search-input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  color: var(--color-text);
+  font-size: 1rem;
+  outline: none;
+  width: 100%;
+}
+
+.search-input::placeholder {
+  color: var(--color-text-secondary);
+}
+
+/* Filtres par catégorie */
+.category-filter {
+  margin-top: 0.75rem;
+}
+
+.filter-label {
+  font-size: 0.9rem;
+  color: var(--color-text-secondary);
+  margin-right: 0.75rem;
+}
+
+.category-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.category-button {
+  background-color: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: 0.25rem;
+  padding: 0.35rem 0.75rem;
+  font-size: 0.85rem;
+  color: var(--color-text);
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.category-button:hover {
+  background-color: var(--color-hover-bg);
+}
+
+.category-button.active {
+  background-color: var(--color-primary-light);
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
+/* Résultats de recherche */
+.search-results {
+  background-color: var(--color-bg-secondary);
+  border-radius: 0.5rem;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.search-results h3 {
+  font-size: 1.1rem;
+  margin-top: 0;
+  margin-bottom: 1rem;
+  color: var(--color-heading);
+}
+
+.food-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  max-height: 300px;
+  overflow-y: auto;
+  padding-right: 0.5rem;
+}
+
+.food-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem;
+  background-color: var(--color-card-bg);
+  border-radius: 0.35rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: transform 0.15s ease;
+}
+
+.food-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+}
+
+.food-info {
+  flex: 1;
+}
+
+.food-info h4 {
+  margin: 0;
+  font-size: 1rem;
+  color: var(--color-heading);
+}
+
+.food-category {
+  display: inline-block;
+  font-size: 0.8rem;
+  color: var(--color-text-secondary);
+  background-color: var(--color-bg-tertiary);
+  border-radius: 0.2rem;
+  padding: 0.1rem 0.5rem;
+  margin-top: 0.25rem;
+}
+
+.food-macros {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+  font-size: 0.8rem;
+  color: var(--color-text-secondary);
+}
+
+.add-food-button {
+  background-color: var(--color-success-light);
+  color: var(--color-success);
+  border: 1px solid var(--color-success);
+  border-radius: 0.25rem;
+  padding: 0.35rem 0.75rem;
+  font-size: 0.85rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  transition: all 0.3s;
+}
+
+.add-food-button:hover {
+  background-color: var(--color-success);
+  color: white;
+}
+
+.in-fridge-badge {
+  font-size: 0.85rem;
+  padding: 0.35rem 0.75rem;
+  background-color: var(--color-success-light);
+  color: var(--color-success);
+  border-radius: 0.25rem;
+  font-weight: 600;
+}
+
+/* Contenu du frigo */
+.fridge-content {
+  background-color: var(--color-bg-secondary);
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+}
+
+.fridge-content h3 {
+  font-size: 1.2rem;
+  margin-top: 0;
+  margin-bottom: 1.25rem;
+  color: var(--color-heading);
+  display: flex;
+  align-items: center;
+}
+
+.food-count {
+  font-size: 1rem;
+  color: var(--color-text-secondary);
+  margin-left: 0.5rem;
+}
+
+.empty-fridge {
+  text-align: center;
+  padding: 2rem 0;
+  color: var(--color-text-secondary);
+}
+
+.selected-foods {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.category-group {
+  margin-bottom: 1rem;
+}
+
+.category-title {
+  font-size: 1rem;
+  color: var(--color-heading);
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.35rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.category-foods {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.selected-food-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem;
+  background-color: var(--color-card-bg);
+  border-radius: 0.35rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.selected-food-info {
+  flex: 1;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.selected-food-info h5 {
+  margin: 0;
+  font-size: 1rem;
+  color: var(--color-heading);
+}
+
+.food-quantity {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.95rem;
+  color: var(--color-text);
+}
+
+.quantity-button {
+  background-color: var(--color-bg-tertiary);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+  border-radius: 0.25rem;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.quantity-button:hover {
+  background-color: var(--color-hover-bg);
+}
+
+.remove-food-button {
+  background-color: transparent;
+  color: var(--color-danger);
+  border: none;
+  font-size: 0.9rem;
+  padding: 0.4rem;
+  cursor: pointer;
+  opacity: 0.8;
+  transition: opacity 0.2s;
+}
+
+.remove-food-button:hover {
+  opacity: 1;
+}
+
+/* Récapitulatif des macros */
+.macros-summary {
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--color-border);
+}
+
+.macros-summary h4 {
+  font-size: 1.1rem;
+  margin-top: 0;
+  margin-bottom: 1rem;
+  color: var(--color-heading);
+}
+
+.macros-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 1rem;
+}
+
+.macro-item {
+  background-color: var(--color-card-bg);
+  border-radius: 0.35rem;
+  padding: 0.75rem;
+  text-align: center;
+}
+
+.macro-label {
+  display: block;
+  font-size: 0.85rem;
+  color: var(--color-text-secondary);
+  margin-bottom: 0.35rem;
+}
+
+.macro-value {
+  display: block;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.macro-value.protein {
+  color: var(--color-macro-protein);
+}
+
+.macro-value.fat {
+  color: var(--color-macro-fat);
+}
+
+.macro-value.carbs {
+  color: var(--color-macro-carbs);
+}
+
+/* Modal d'ajout d'aliment */
+.add-food-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background-color: var(--color-bg);
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  width: 90%;
+  max-width: 500px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.modal-content h3 {
+  margin-top: 0;
+  margin-bottom: 1rem;
+  font-size: 1.3rem;
+  color: var(--color-heading);
+}
+
+.modal-food-info {
+  margin-bottom: 1.5rem;
+}
+
+.modal-food-info h4 {
+  margin: 0;
+  font-size: 1.1rem;
+  color: var(--color-heading);
+}
+
+.quantity-input-container {
+  margin-bottom: 1.5rem;
+}
+
+.quantity-input-container label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-size: 0.95rem;
+  color: var(--color-text);
+}
+
+.quantity-input {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid var(--color-border);
+  border-radius: 0.35rem;
+  background-color: var(--color-input-bg);
+  color: var(--color-text);
+  font-size: 1rem;
+}
+
+.nutrition-preview {
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  background-color: var(--color-bg-secondary);
+  border-radius: 0.35rem;
+}
+
+.nutrition-preview p {
+  margin-top: 0;
+  margin-bottom: 0.75rem;
+  font-size: 0.95rem;
+  color: var(--color-text);
+}
+
+.preview-macros {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  font-size: 0.9rem;
+  color: var(--color-text-secondary);
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+}
+
+.cancel-button {
+  background-color: transparent;
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+  border-radius: 0.35rem;
+  padding: 0.75rem 1rem;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.cancel-button:hover {
+  background-color: var(--color-hover-bg);
+}
+
+.confirm-button {
+  background-color: var(--color-primary);
+  color: white;
+  border: none;
+  border-radius: 0.35rem;
+  padding: 0.75rem 1.5rem;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.confirm-button:hover {
+  background-color: var(--color-primary-dark);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .fridge-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+  
+  .macros-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .selected-food-info {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  
+  .modal-content {
+    width: 95%;
+    padding: 1rem;
+  }
+  
+  .modal-actions {
+    flex-direction: column;
+  }
+  
+  .cancel-button, .confirm-button {
+    width: 100%;
+  }
+}
