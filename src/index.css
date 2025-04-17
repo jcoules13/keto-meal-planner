@@ -63,6 +63,7 @@
     --error-rgb: 239, 68, 68;
     --success-rgb: 16, 185, 129;
     --neutral-500-rgb: 108, 117, 125;
+    --primary-500-rgb: 34, 197, 94;
 
     /* Couleurs spécifiques au thème clair */
     --background: #ffffff;
@@ -73,10 +74,16 @@
     --text-tertiary: #6c757d;
     --border-color: #dee2e6;
     
-    /* Variables pour les cartes d'aliments */
+    /* Variables pour les cartes et sections */
     --bg-primary: #ffffff;
+    --bg-secondary: #f8f9fa;
     --bg-card: #f8f9fa;
     --border-card: #dee2e6;
+
+    /* Couleurs pour les macronutriments */
+    --fat-color: #e9b949;
+    --protein-color: #d95e5e;
+    --carbs-color: #6eb3d4;
 
     /* Ombres */
     --shadow-card: 0 4px 6px rgba(0, 0, 0, 0.05);
@@ -126,10 +133,16 @@
     --text-tertiary: #9ca3af;
     --border-color: #374151;
     
-    /* Variables pour les cartes d'aliments */
+    /* Variables pour les cartes et sections */
     --bg-primary: #121212;
+    --bg-secondary: #1e1e1e;
     --bg-card: #1e1e1e;
     --border-card: #374151;
+
+    /* Couleurs pour les macronutriments (ajustées pour le mode sombre) */
+    --fat-color: #ffd166;
+    --protein-color: #ef476f;
+    --carbs-color: #118ab2;
 
     /* Ombres ajustées pour le mode sombre */
     --shadow-card: 0 4px 6px rgba(0, 0, 0, 0.3);
@@ -147,10 +160,16 @@
     --secondary-500: #e78ea9;
     --border-color: #d1fae5;
     
-    /* Variables pour les cartes d'aliments */
+    /* Variables pour les cartes et sections */
     --bg-primary: #f0f9e8;
+    --bg-secondary: #ffffff;
     --bg-card: #ffffff;
     --border-card: #d1fae5;
+
+    /* Couleurs pour les macronutriments (adaptées au thème) */
+    --fat-color: #65b741;
+    --protein-color: #e78ea9;
+    --carbs-color: #60a5fa;
   }
 
   /* Thème été */
@@ -163,10 +182,16 @@
     --secondary-500: #fb923c;
     --border-color: #e5e7eb;
     
-    /* Variables pour les cartes d'aliments */
+    /* Variables pour les cartes et sections */
     --bg-primary: #f9fafb;
+    --bg-secondary: #ffffff;
     --bg-card: #ffffff;
     --border-card: #e5e7eb;
+
+    /* Couleurs pour les macronutriments (adaptées au thème) */
+    --fat-color: #fb923c;
+    --protein-color: #f43f5e;
+    --carbs-color: #2dd4bf;
   }
 
   /* Thème automne */
@@ -179,10 +204,16 @@
     --secondary-500: #b45309;
     --border-color: #fef3c7;
     
-    /* Variables pour les cartes d'aliments */
+    /* Variables pour les cartes et sections */
     --bg-primary: #f8f5f0;
+    --bg-secondary: #ffffff;
     --bg-card: #ffffff;
     --border-card: #fef3c7;
+
+    /* Couleurs pour les macronutriments (adaptées au thème) */
+    --fat-color: #d97706;
+    --protein-color: #b45309;
+    --carbs-color: #5b21b6;
   }
 
   /* Thème hiver (base sombre) */
@@ -197,10 +228,16 @@
     --secondary-500: #a5b4fc;
     --border-color: #334155;
     
-    /* Variables pour les cartes d'aliments */
+    /* Variables pour les cartes et sections */
     --bg-primary: #0f172a;
+    --bg-secondary: #1e293b;
     --bg-card: #1e293b;
     --border-card: #334155;
+
+    /* Couleurs pour les macronutriments (adaptées au thème) */
+    --fat-color: #38bdf8;
+    --protein-color: #a5b4fc;
+    --carbs-color: #2dd4bf;
   }
 
   /* Thème Halloween (base sombre) */
@@ -215,10 +252,16 @@
     --secondary-500: #7e22ce;
     --border-color: #3f3f46;
     
-    /* Variables pour les cartes d'aliments */
+    /* Variables pour les cartes et sections */
     --bg-primary: #18181b;
+    --bg-secondary: #27272a;
     --bg-card: #27272a;
     --border-card: #3f3f46;
+
+    /* Couleurs pour les macronutriments (adaptées au thème) */
+    --fat-color: #f97316;
+    --protein-color: #7e22ce;
+    --carbs-color: #14b8a6;
   }
 
   /* Thème Noël */
@@ -231,10 +274,16 @@
     --secondary-500: #16a34a;
     --border-color: #fee2e2;
     
-    /* Variables pour les cartes d'aliments */
+    /* Variables pour les cartes et sections */
     --bg-primary: #fff1f2;
+    --bg-secondary: #ffffff;
     --bg-card: #ffffff;
     --border-card: #fee2e2;
+
+    /* Couleurs pour les macronutriments (adaptées au thème) */
+    --fat-color: #dc2626;
+    --protein-color: #16a34a;
+    --carbs-color: #0ea5e9;
   }
 }
 
