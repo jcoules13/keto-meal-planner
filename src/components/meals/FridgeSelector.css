@@ -17,11 +17,11 @@
 .fridge-header h2 {
   font-size: 1.5rem;
   margin: 0;
-  color: var(--color-heading);
+  color: var(--text-primary);
 }
 
 .clear-fridge-button {
-  background-color: var(--color-danger);
+  background-color: var(--error);
   color: white;
   border: none;
   border-radius: 0.35rem;
@@ -32,7 +32,7 @@
 }
 
 .clear-fridge-button:hover {
-  background-color: var(--color-danger-dark);
+  background-color: #be123c; /* Version plus foncée du var(--error) */
 }
 
 /* Barre de recherche */
@@ -43,15 +43,15 @@
 .search-bar {
   display: flex;
   align-items: center;
-  background-color: var(--color-input-bg);
-  border: 1px solid var(--color-border);
+  background-color: var(--input-bg);
+  border: 1px solid var(--border-color);
   border-radius: 0.35rem;
   padding: 0.5rem 1rem;
   margin-bottom: 0.75rem;
 }
 
 .search-icon {
-  color: var(--color-text-secondary);
+  color: var(--text-secondary);
   margin-right: 0.75rem;
 }
 
@@ -59,14 +59,14 @@
   flex: 1;
   border: none;
   background: transparent;
-  color: var(--color-text);
+  color: var(--text-primary);
   font-size: 1rem;
   outline: none;
   width: 100%;
 }
 
 .search-input::placeholder {
-  color: var(--color-text-secondary);
+  color: var(--text-secondary);
 }
 
 /* Filtres par catégorie */
@@ -76,7 +76,7 @@
 
 .filter-label {
   font-size: 0.9rem;
-  color: var(--color-text-secondary);
+  color: var(--text-secondary);
   margin-right: 0.75rem;
 }
 
@@ -88,30 +88,30 @@
 }
 
 .category-button {
-  background-color: var(--color-bg-secondary);
-  border: 1px solid var(--color-border);
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
   border-radius: 0.25rem;
   padding: 0.35rem 0.75rem;
   font-size: 0.85rem;
-  color: var(--color-text);
+  color: var(--text-primary);
   cursor: pointer;
   transition: all 0.3s;
 }
 
 .category-button:hover {
-  background-color: var(--color-hover-bg);
+  background-color: var(--neutral-200);
 }
 
 .category-button.active {
-  background-color: var(--color-primary-light);
-  border-color: var(--color-primary);
-  color: var(--color-primary);
+  background-color: rgba(var(--primary-500-rgb), 0.15);
+  border-color: var(--primary-500);
+  color: var(--primary-600);
   font-weight: 600;
 }
 
 /* Résultats de recherche */
 .search-results {
-  background-color: var(--color-bg-secondary);
+  background-color: var(--bg-secondary);
   border-radius: 0.5rem;
   padding: 1rem;
   margin-bottom: 1.5rem;
@@ -121,7 +121,7 @@
   font-size: 1.1rem;
   margin-top: 0;
   margin-bottom: 1rem;
-  color: var(--color-heading);
+  color: var(--text-primary);
 }
 
 .food-list {
@@ -138,9 +138,9 @@
   justify-content: space-between;
   align-items: center;
   padding: 0.75rem;
-  background-color: var(--color-card-bg);
+  background-color: var(--bg-card);
   border-radius: 0.35rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-card);
   transition: transform 0.15s ease;
 }
 
@@ -156,14 +156,14 @@
 .food-info h4 {
   margin: 0;
   font-size: 1rem;
-  color: var(--color-heading);
+  color: var(--text-primary);
 }
 
 .food-category {
   display: inline-block;
   font-size: 0.8rem;
-  color: var(--color-text-secondary);
-  background-color: var(--color-bg-tertiary);
+  color: var(--text-secondary);
+  background-color: var(--bg-secondary);
   border-radius: 0.2rem;
   padding: 0.1rem 0.5rem;
   margin-top: 0.25rem;
@@ -175,13 +175,13 @@
   gap: 0.75rem;
   margin-top: 0.5rem;
   font-size: 0.8rem;
-  color: var(--color-text-secondary);
+  color: var(--text-secondary);
 }
 
 .add-food-button {
-  background-color: var(--color-success-light);
-  color: var(--color-success);
-  border: 1px solid var(--color-success);
+  background-color: rgba(var(--success-rgb), 0.1);
+  color: var(--success);
+  border: 1px solid var(--success);
   border-radius: 0.25rem;
   padding: 0.35rem 0.75rem;
   font-size: 0.85rem;
@@ -193,22 +193,22 @@
 }
 
 .add-food-button:hover {
-  background-color: var(--color-success);
+  background-color: var(--success);
   color: white;
 }
 
 .in-fridge-badge {
   font-size: 0.85rem;
   padding: 0.35rem 0.75rem;
-  background-color: var(--color-success-light);
-  color: var(--color-success);
+  background-color: rgba(var(--success-rgb), 0.1);
+  color: var(--success);
   border-radius: 0.25rem;
   font-weight: 600;
 }
 
 /* Contenu du frigo */
 .fridge-content {
-  background-color: var(--color-bg-secondary);
+  background-color: var(--bg-secondary);
   border-radius: 0.5rem;
   padding: 1.5rem;
 }
@@ -217,21 +217,21 @@
   font-size: 1.2rem;
   margin-top: 0;
   margin-bottom: 1.25rem;
-  color: var(--color-heading);
+  color: var(--text-primary);
   display: flex;
   align-items: center;
 }
 
 .food-count {
   font-size: 1rem;
-  color: var(--color-text-secondary);
+  color: var(--text-secondary);
   margin-left: 0.5rem;
 }
 
 .empty-fridge {
   text-align: center;
   padding: 2rem 0;
-  color: var(--color-text-secondary);
+  color: var(--text-secondary);
 }
 
 .selected-foods {
@@ -246,10 +246,10 @@
 
 .category-title {
   font-size: 1rem;
-  color: var(--color-heading);
+  color: var(--text-primary);
   margin-bottom: 0.75rem;
   padding-bottom: 0.35rem;
-  border-bottom: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--border-color);
 }
 
 .category-foods {
@@ -263,9 +263,9 @@
   justify-content: space-between;
   align-items: center;
   padding: 0.75rem;
-  background-color: var(--color-card-bg);
+  background-color: var(--bg-card);
   border-radius: 0.35rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-card);
 }
 
 .selected-food-info {
@@ -278,7 +278,7 @@
 .selected-food-info h5 {
   margin: 0;
   font-size: 1rem;
-  color: var(--color-heading);
+  color: var(--text-primary);
 }
 
 .food-quantity {
@@ -286,13 +286,13 @@
   align-items: center;
   gap: 0.5rem;
   font-size: 0.95rem;
-  color: var(--color-text);
+  color: var(--text-primary);
 }
 
 .quantity-button {
-  background-color: var(--color-bg-tertiary);
-  color: var(--color-text);
-  border: 1px solid var(--color-border);
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
   border-radius: 0.25rem;
   width: 24px;
   height: 24px;
@@ -305,12 +305,12 @@
 }
 
 .quantity-button:hover {
-  background-color: var(--color-hover-bg);
+  background-color: var(--neutral-200);
 }
 
 .remove-food-button {
   background-color: transparent;
-  color: var(--color-danger);
+  color: var(--error);
   border: none;
   font-size: 0.9rem;
   padding: 0.4rem;
@@ -327,14 +327,14 @@
 .macros-summary {
   margin-top: 2rem;
   padding-top: 1.5rem;
-  border-top: 1px solid var(--color-border);
+  border-top: 1px solid var(--border-color);
 }
 
 .macros-summary h4 {
   font-size: 1.1rem;
   margin-top: 0;
   margin-bottom: 1rem;
-  color: var(--color-heading);
+  color: var(--text-primary);
 }
 
 .macros-grid {
@@ -344,7 +344,7 @@
 }
 
 .macro-item {
-  background-color: var(--color-card-bg);
+  background-color: var(--bg-card);
   border-radius: 0.35rem;
   padding: 0.75rem;
   text-align: center;
@@ -353,7 +353,7 @@
 .macro-label {
   display: block;
   font-size: 0.85rem;
-  color: var(--color-text-secondary);
+  color: var(--text-secondary);
   margin-bottom: 0.35rem;
 }
 
@@ -361,19 +361,19 @@
   display: block;
   font-size: 1.2rem;
   font-weight: 600;
-  color: var(--color-text);
+  color: var(--text-primary);
 }
 
 .macro-value.protein {
-  color: var(--color-macro-protein);
+  color: var(--protein-color);
 }
 
 .macro-value.fat {
-  color: var(--color-macro-fat);
+  color: var(--fat-color);
 }
 
 .macro-value.carbs {
-  color: var(--color-macro-carbs);
+  color: var(--carbs-color);
 }
 
 /* Modal d'ajout d'aliment */
@@ -391,19 +391,19 @@
 }
 
 .modal-content {
-  background-color: var(--color-bg);
+  background-color: var(--bg-primary);
   border-radius: 0.5rem;
   padding: 1.5rem;
   width: 90%;
   max-width: 500px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: var(--shadow-dropdown);
 }
 
 .modal-content h3 {
   margin-top: 0;
   margin-bottom: 1rem;
   font-size: 1.3rem;
-  color: var(--color-heading);
+  color: var(--text-primary);
 }
 
 .modal-food-info {
@@ -413,7 +413,7 @@
 .modal-food-info h4 {
   margin: 0;
   font-size: 1.1rem;
-  color: var(--color-heading);
+  color: var(--text-primary);
 }
 
 .quantity-input-container {
@@ -424,23 +424,23 @@
   display: block;
   margin-bottom: 0.5rem;
   font-size: 0.95rem;
-  color: var(--color-text);
+  color: var(--text-primary);
 }
 
 .quantity-input {
   width: 100%;
   padding: 0.75rem;
-  border: 1px solid var(--color-border);
+  border: 1px solid var(--border-color);
   border-radius: 0.35rem;
-  background-color: var(--color-input-bg);
-  color: var(--color-text);
+  background-color: var(--input-bg);
+  color: var(--text-primary);
   font-size: 1rem;
 }
 
 .nutrition-preview {
   margin-bottom: 1.5rem;
   padding: 1rem;
-  background-color: var(--color-bg-secondary);
+  background-color: var(--bg-secondary);
   border-radius: 0.35rem;
 }
 
@@ -448,7 +448,7 @@
   margin-top: 0;
   margin-bottom: 0.75rem;
   font-size: 0.95rem;
-  color: var(--color-text);
+  color: var(--text-primary);
 }
 
 .preview-macros {
@@ -456,7 +456,7 @@
   flex-wrap: wrap;
   gap: 1rem;
   font-size: 0.9rem;
-  color: var(--color-text-secondary);
+  color: var(--text-secondary);
 }
 
 .modal-actions {
@@ -467,8 +467,8 @@
 
 .cancel-button {
   background-color: transparent;
-  color: var(--color-text);
-  border: 1px solid var(--color-border);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
   border-radius: 0.35rem;
   padding: 0.75rem 1rem;
   font-size: 0.95rem;
@@ -477,11 +477,11 @@
 }
 
 .cancel-button:hover {
-  background-color: var(--color-hover-bg);
+  background-color: var(--neutral-100);
 }
 
 .confirm-button {
-  background-color: var(--color-primary);
+  background-color: var(--primary-600);
   color: white;
   border: none;
   border-radius: 0.35rem;
@@ -492,7 +492,7 @@
 }
 
 .confirm-button:hover {
-  background-color: var(--color-primary-dark);
+  background-color: var(--primary-700);
 }
 
 /* Responsive */
