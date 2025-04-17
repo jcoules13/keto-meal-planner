@@ -1,5 +1,5 @@
 /**
- * Algorithme de génération de repas basé sur les aliments disponibles dans le réfrigérateur
+ * Algorithme de génération de repas basé sur les aliments disponibles dans le frigo
  * 
  * Cet algorithme prend en compte:
  * - Les aliments disponibles et leurs quantités
@@ -468,7 +468,7 @@ function generateMealName() {
   
   const mealType = mealTypes[Math.floor(Math.random() * mealTypes.length)];
   
-  return `${mealType} keto du réfrigérateur`;
+  return `${mealType} keto du frigo`;
 }
 
 /**
