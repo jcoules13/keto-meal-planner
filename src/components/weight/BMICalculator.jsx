@@ -1,5 +1,6 @@
 import React from 'react';
 import { getBMICategory } from '../../utils/weightUtils';
+import IMCVisualizer from '../profile/IMCVisualizer';
 
 /**
  * Composant d'affichage de l'IMC avec interprétation
@@ -27,48 +28,15 @@ const BMICalculator = ({ bmi, weight, height }) => {
   
   return (
     <div className="card bg-white dark:bg-neutral-800 p-4 shadow-md rounded-lg">
-      <h3 className="text-lg font-title font-semibold mb-2">Indice de Masse Corporelle</h3>
+      <h3 className="text-lg font-title font-semibold mb-3">Indice de Masse Corporelle</h3>
       
-      <div className="flex items-center justify-between mb-3">
-        <div>
-          <p className="text-xl font-bold">{bmi.toFixed(1)}</p>
-          <p className="text-sm text-neutral-600 dark:text-neutral-400">
-            {height} cm, {weight} kg
-          </p>
-        </div>
-        <div 
-          className="px-3 py-1 rounded-full text-white text-sm font-medium"
-          style={{ backgroundColor: bmiInfo.color }}
-        >
-          {bmiInfo.description}
-        </div>
-      </div>
-      
-      {/* Barre de visualisation d'IMC */}
-      <div className="relative h-8 bg-neutral-200 dark:bg-neutral-700 rounded-full overflow-hidden mb-2">
-        {/* Zones de classification */}
-        <div className="absolute top-0 left-0 h-full w-1/6 bg-red-500 opacity-70"></div>
-        <div className="absolute top-0 left-1/6 h-full w-1/12 bg-amber-500 opacity-70"></div>
-        <div className="absolute top-0 left-1/4 h-full w-1/3 bg-green-500 opacity-70"></div>
-        <div className="absolute top-0 left-7/12 h-full w-1/6 bg-amber-500 opacity-70"></div>
-        <div className="absolute top-0 left-3/4 h-full w-1/4 bg-red-500 opacity-70"></div>
-        
-        {/* Marqueur d'IMC */}
-        <div 
-          className="absolute top-0 h-full w-1 bg-white dark:bg-neutral-200"
-          style={{ 
-            left: `${Math.min(Math.max((bmi / 40) * 100, 0), 100)}%`,
-            transform: 'translateX(-50%)'
-          }}
-        ></div>
-        
-        {/* Étiquettes */}
-        <div className="absolute bottom-0 left-0 text-[10px] text-white">15</div>
-        <div className="absolute bottom-0 left-1/4 text-[10px] text-white">18.5</div>
-        <div className="absolute bottom-0 left-7/12 text-[10px] text-white">25</div>
-        <div className="absolute bottom-0 left-3/4 text-[10px] text-white">30</div>
-        <div className="absolute bottom-0 right-0 text-[10px] text-white">40</div>
-      </div>
+      {/* Nouveau composant de visualisation d'IMC */}
+      <IMCVisualizer 
+        bmi={bmi} 
+        height={height} 
+        weight={weight} 
+        className="mb-3"
+      />
       
       <div className="mt-3">
         <p className="text-sm text-neutral-600 dark:text-neutral-400">
