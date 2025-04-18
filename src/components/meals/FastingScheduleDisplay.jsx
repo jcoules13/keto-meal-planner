@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
 import { FaClock, FaUtensils } from 'react-icons/fa';
+import './MealPlanOptions.css';
 
 /**
  * Composant pour visualiser le calendrier du jeûne intermittent
