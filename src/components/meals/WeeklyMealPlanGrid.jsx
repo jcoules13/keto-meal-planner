@@ -7,24 +7,12 @@ import './WeeklyMealPlanDisplay.css';
 
 /**
  * Composant d'affichage en grille du plan de repas hebdomadaire
- * Permet de visualiser tous les jours de la semaine en même temps
+ * Permet de visualiser tous les jours de la semaine simultanément
  */
-const WeeklyMealPlanGrid = ({ onViewDay }) => {
+const WeeklyMealPlanGrid = () => {
   const { currentPlan, getDayNutritionTotals } = useMealPlan();
   const { getFoodById } = useFood();
   const { getRecipeById } = useRecipe();
-  
-  // Formater la date
-  const formatDate = (dateString) => {
-    const options = { day: 'numeric', month: 'short' };
-    return new Date(dateString).toLocaleDateString('fr-FR', options);
-  };
-  
-  // Formater le jour de la semaine
-  const formatDayName = (dateString) => {
-    const options = { weekday: 'long' };
-    return new Date(dateString).toLocaleDateString('fr-FR', options);
-  };
   
   // Si aucun plan n'est actif, afficher un message
   if (!currentPlan) {
@@ -44,27 +32,43 @@ const WeeklyMealPlanGrid = ({ onViewDay }) => {
     );
   }
   
+  // Formatage des dates
+  const formatDate = (dateString) => {
+    if (!dateString) return '';
+    return new Date(dateString).toLocaleDateString('fr-FR', { day: 'numeric', month: 'numeric' });
+  };
+  
+  // Obtenir le jour de la semaine
+  const getDayOfWeek = (dateString) => {
+    if (!dateString) return '';
+    return new Date(dateString).toLocaleDateString('fr-FR', { weekday: 'long' });
+  };
+
   return (
     <div className="weekly-meal-plan">
-      <div className="plan-info">
+      <h2 className="text-xl font-bold text-text-primary mb-4">Vue d'ensemble de la semaine</h2>
+      
+      {/* Informations sur le plan */}
+      <div className="plan-info mb-4">
         <h3 className="font-medium">{currentPlan.name}</h3>
         <p className="text-text-secondary text-sm">
           {currentPlan.startDate && currentPlan.endDate 
-            ? `Du ${new Date(currentPlan.startDate).toLocaleDateString('fr-FR')} au ${new Date(currentPlan.endDate).toLocaleDateString('fr-FR')}` 
-            : 'Dates non définies'
-          }
+            ? `Du ${formatDate(currentPlan.startDate)} au ${formatDate(currentPlan.endDate)}` 
+            : 'Dates non définies'}
         </p>
       </div>
       
+      {/* Grille des jours de la semaine */}
       <div className="week-grid-view">
-        {currentPlan.days.map((day, index) => {
-          const dayNutrition = getDayNutritionTotals(currentPlan.id, index);
+        {currentPlan.days.map((day, dayIndex) => {
+          // Obtenir les données nutritionnelles du jour
+          const dayNutrition = getDayNutritionTotals(currentPlan.id, dayIndex);
           
           return (
-            <div key={day.date} className="day-card">
+            <div key={dayIndex} className="day-card">
               <div className="day-card-header">
                 <div className="day-card-title">
-                  <span>{formatDayName(day.date)}</span>
+                  <span>{getDayOfWeek(day.date)}</span>
                   <span className="day-card-date">{formatDate(day.date)}</span>
                 </div>
               </div>
@@ -72,8 +76,8 @@ const WeeklyMealPlanGrid = ({ onViewDay }) => {
               <div className="day-card-content">
                 {day.meals && day.meals.length > 0 ? (
                   <div className="day-meal-list">
-                    {day.meals.map((meal) => (
-                      <div key={meal.id} className="day-meal-item">
+                    {day.meals.map((meal, mealIndex) => (
+                      <div key={mealIndex} className="day-meal-item">
                         <MealItem 
                           meal={meal} 
                           getFoodById={getFoodById}
@@ -81,41 +85,32 @@ const WeeklyMealPlanGrid = ({ onViewDay }) => {
                         />
                       </div>
                     ))}
-                    
-                    {/* Résumé des macros du jour */}
-                    {dayNutrition && (
-                      <div className="day-nutrition-summary">
-                        <h4 className="text-sm font-medium mb-2">Total du jour</h4>
-                        <div className="nutrition-grid">
-                          <div className="nutrition-item">
-                            <span className="nutrition-label">Calories</span>
-                            <span className="nutrition-value">{dayNutrition.calories || 0} kcal</span>
-                          </div>
-                          <div className="nutrition-item">
-                            <span className="nutrition-label">Lipides</span>
-                            <span className="nutrition-value">{dayNutrition.fat || 0}g</span>
-                          </div>
-                          <div className="nutrition-item">
-                            <span className="nutrition-label">Protéines</span>
-                            <span className="nutrition-value">{dayNutrition.protein || 0}g</span>
-                          </div>
-                          <div className="nutrition-item">
-                            <span className="nutrition-label">Glucides</span>
-                            <span className="nutrition-value">{dayNutrition.netCarbs || 0}g</span>
-                          </div>
-                        </div>
-                      </div>
-                    )}
                   </div>
                 ) : (
-                  <div className="day-meals-empty">
-                    <p>Aucun repas prévu</p>
-                    <button 
-                      className="add-meal-button"
-                      onClick={() => onViewDay(index)}
-                    >
-                      Ajouter des repas
-                    </button>
+                  <p className="empty-items">Aucun repas pour cette journée.</p>
+                )}
+                
+                {/* Résumé nutritionnel du jour */}
+                {dayNutrition && (
+                  <div className="day-nutrition-summary mt-3">
+                    <div className="nutrition-grid">
+                      <div className="nutrition-item">
+                        <span className="nutrition-label">Calories</span>
+                        <span className="nutrition-value">{dayNutrition.calories} kcal</span>
+                      </div>
+                      <div className="nutrition-item">
+                        <span className="nutrition-label">Lipides</span>
+                        <span className="nutrition-value">{dayNutrition.fat}g</span>
+                      </div>
+                      <div className="nutrition-item">
+                        <span className="nutrition-label">Protéines</span>
+                        <span className="nutrition-value">{dayNutrition.protein}g</span>
+                      </div>
+                      <div className="nutrition-item">
+                        <span className="nutrition-label">Glucides nets</span>
+                        <span className="nutrition-value">{dayNutrition.netCarbs}g</span>
+                      </div>
+                    </div>
                   </div>
                 )}
               </div>
