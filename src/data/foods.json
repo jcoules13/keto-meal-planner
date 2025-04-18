@@ -2528,35 +2528,6 @@
     "unitName": "portion"
   },
   {
-    "id": "cervelle",
-    "name": "Cervelle d'agneau",
-    "category": "viande",
-    "subCategory": "abats",
-    "nutritionPer100g": {
-      "calories": 125,
-      "protein": 10.3,
-      "fat": 9.6,
-      "carbs": 0,
-      "fiber": 0,
-      "netCarbs": 0,
-      "sodium": 130,
-      "potassium": 260,
-      "magnesium": 12,
-      "calcium": 14
-    },
-    "pHValue": 6.1,
-    "isKeto": true,
-    "isAlkaline": false,
-    "seasons": [
-      "printemps",
-      "été",
-      "automne",
-      "hiver"
-    ],
-    "commonUnitWeight": 100,
-    "unitName": "portion"
-  },
-  {
     "id": "langue-boeuf",
     "name": "Langue de bœuf",
     "category": "viande",
