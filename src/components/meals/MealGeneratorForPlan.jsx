@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useUser } from '../../contexts/UserContext';
 import { useMealPlan } from '../../contexts/MealPlanContext';
+import { useFood } from '../../contexts/FoodContext';
+import { useRecipe } from '../../contexts/RecipeContext';
 import './MealGenerator.css';
 
 /**
@@ -9,8 +11,10 @@ import './MealGenerator.css';
  * Il crée des repas basés sur les besoins nutritionnels et les préférences
  */
 const MealGeneratorForPlan = () => {
-  const { calorieTarget, macroTargets, dietType } = useUser();
+  const { calorieTarget, macroTargets, dietType, preferences } = useUser();
   const { currentPlan, addMealToCurrentPlan } = useMealPlan();
+  const { foods, getFoodById } = useFood();
+  const { recipes } = useRecipe();
   
   const [selectedDay, setSelectedDay] = useState(0);
   const [mealType, setMealType] = useState('déjeuner');
@@ -73,12 +77,8 @@ const MealGeneratorForPlan = () => {
           carbs: mealType === 'déjeuner' ? macroTargets.carbs * 0.4 : macroTargets.carbs * 0.3
         };
         
-        // Pour ce composant simplifié, nous allons créer un repas générique
-        // Dans une application réelle, vous appelleriez un algorithme de génération
-        // ou une API pour obtenir des suggestions de repas
-        
         // Générer un repas approprié selon le type de régime
-        const meal = generateSampleMeal(mealType, mealCalorieTarget, mealMacros, dietType);
+        const meal = generateRealMeal(mealType, mealCalorieTarget, mealMacros, dietType, selectedDay);
         
         setGeneratedMeal(meal);
         setIsGenerating(false);
@@ -90,80 +90,284 @@ const MealGeneratorForPlan = () => {
     }
   };
   
-  // Fonction pour générer un repas d'exemple (à remplacer par un vrai algorithme)
-  const generateSampleMeal = (type, calories, macros, dietType) => {
-    // Noms de repas keto standard
-    const ketoStandardMeals = {
-      déjeuner: [
-        'Salade César au poulet', 
-        'Omelette aux légumes et fromage', 
-        'Burger keto sans pain',
-        'Wrap de laitue au thon'
-      ],
-      dîner: [
-        'Saumon grillé et légumes', 
-        'Poêlée de bœuf et brocoli', 
-        'Poulet rôti et courgettes',
-        'Steak et champignons sautés'
-      ]
-    };
+  /**
+   * Génère un repas réel basé sur les données d'aliments et de recettes
+   * @param {string} type - Type de repas (déjeuner, dîner)
+   * @param {number} calories - Calories cibles pour le repas
+   * @param {Object} macros - Objectifs de macronutriments
+   * @param {string} dietType - Type de régime (keto_standard ou keto_alcalin)
+   * @param {number} dayIndex - Index du jour dans la semaine (0-6)
+   * @returns {Object} Objet repas généré
+   */
+  const generateRealMeal = (type, calories, macros, dietType, dayIndex) => {
+    // Historique des repas déjà générés pour cette semaine (pour éviter les doublons)
+    const existingMealsInPlan = currentPlan && currentPlan.days 
+      ? currentPlan.days.flatMap(day => day.meals.map(meal => meal.name))
+      : [];
     
-    // Noms de repas keto alcalin
-    const ketoAlkalineMeals = {
-      déjeuner: [
-        'Bowl avocat et légumes verts', 
-        'Salade méditerranéenne à l\'huile d\'olive', 
-        'Velouté d\'épinards et graines',
-        'Sauté de tofu et légumes verts'
-      ],
-      dîner: [
-        'Darne de poisson blanc et asperges', 
-        'Poulet aux herbes et légumes alcalins', 
-        'Bouillon miso et légumes',
-        'Aubergine farcie aux noix'
-      ]
-    };
+    // Liste d'aliments déjà utilisés récemment (pour éviter les répétitions)
+    const recentlyUsedFoodIds = [];
     
-    // Choisir un repas selon le type de régime
-    const meals = dietType === 'keto_standard' ? ketoStandardMeals : ketoAlkalineMeals;
-    const mealNames = meals[type];
-    const randomIndex = Math.floor(Math.random() * mealNames.length);
-    const mealName = mealNames[randomIndex];
+    // Sélection du mode de génération: recette ou combinaison d'aliments individuels
+    // On privilégie les recettes pour les repas principaux (70% du temps)
+    const useRecipe = (Math.random() < 0.7);
     
-    // Créer un objet repas avec des valeurs nutritionnelles légèrement aléatoires
-    // autour des cibles
-    const variation = 0.1; // 10% de variation
-    const protein = macros.protein * (1 + (Math.random() * variation * 2 - variation));
-    const fat = macros.fat * (1 + (Math.random() * variation * 2 - variation));
-    const carbs = macros.carbs * (1 + (Math.random() * variation * 2 - variation));
+    // Si on utilise une recette
+    if (useRecipe) {
+      // Filtrer les recettes appropriées selon le type de régime
+      let filteredRecipes = recipes.filter(recipe => {
+        // Vérifier les contraintes keto
+        if (dietType === 'keto_alcalin' && !recipe.isAlkaline) {
+          return false;
+        }
+        
+        // Vérifier si la recette n'a pas déjà été utilisée cette semaine
+        if (existingMealsInPlan.includes(recipe.name)) {
+          return false;
+        }
+        
+        // Vérifier si les valeurs nutritionnelles sont dans les limites appropriées
+        const calorieMargin = 0.2; // 20% de marge
+        if (recipe.nutritionPerServing.calories < calories * (1 - calorieMargin) || 
+            recipe.nutritionPerServing.calories > calories * (1 + calorieMargin)) {
+          return false;
+        }
+        
+        // Vérifier que la recette correspond au type de repas
+        return recipe.tags.includes(type === 'déjeuner' ? 'déjeuner' : 'dîner');
+      });
+      
+      // Si l'option preferLowCarbs est activée, privilégier les recettes faibles en glucides
+      if (generationOptions.preferLowCarbs) {
+        filteredRecipes.sort((a, b) => a.nutritionPerServing.netCarbs - b.nutritionPerServing.netCarbs);
+      }
+      
+      // Si l'option maximizeProtein est activée, privilégier les recettes riches en protéines
+      if (generationOptions.maximizeProtein) {
+        filteredRecipes.sort((a, b) => b.nutritionPerServing.protein - a.nutritionPerServing.protein);
+      }
+      
+      // Prendre les 5 meilleures recettes et en choisir une au hasard pour plus de variété
+      const topRecipes = filteredRecipes.slice(0, Math.min(5, filteredRecipes.length));
+      
+      if (topRecipes.length > 0) {
+        const selectedRecipe = topRecipes[Math.floor(Math.random() * topRecipes.length)];
+        
+        // Ajuster les portions pour respecter les objectifs caloriques
+        const factor = calories / selectedRecipe.nutritionPerServing.calories;
+        const portions = Math.round(factor * 10) / 10; // Arrondir à 1 décimale
+        
+        // Construire les "items" du repas à partir des ingrédients de la recette
+        const items = selectedRecipe.ingredients.map(ingredient => {
+          const food = foods.find(f => f.id === ingredient.foodId);
+          return {
+            name: food ? food.name : ingredient.foodId, // Utiliser le nom de l'aliment s'il existe
+            quantity: Math.round(ingredient.quantity * portions),
+            unit: ingredient.unit
+          };
+        });
+        
+        // Créer l'objet repas avec les valeurs nutritionnelles ajustées
+        return {
+          name: selectedRecipe.name,
+          type: type,
+          totalNutrition: {
+            calories: Math.round(selectedRecipe.nutritionPerServing.calories * portions),
+            protein: Math.round(selectedRecipe.nutritionPerServing.protein * portions * 10) / 10,
+            fat: Math.round(selectedRecipe.nutritionPerServing.fat * portions * 10) / 10,
+            netCarbs: Math.round(selectedRecipe.nutritionPerServing.netCarbs * portions * 10) / 10
+          },
+          items: items,
+          recipeId: selectedRecipe.id, // Pour référence
+          isRecipe: true
+        };
+      }
+    }
     
+    // Si on n'a pas trouvé de recette appropriée ou si on a choisi de ne pas utiliser de recette,
+    // générer un repas à partir d'aliments individuels
+    
+    // Filtrer les aliments selon le type de régime et les préférences
+    let filteredFoods = foods.filter(food => {
+      // Vérifier les contraintes keto
+      if (!food.isKeto) {
+        return false;
+      }
+      
+      // Pour le régime alcalin, sélectionner uniquement les aliments alcalins
+      if (dietType === 'keto_alcalin' && !food.isAlkaline) {
+        return false;
+      }
+      
+      // Exclure les aliments récemment utilisés
+      if (recentlyUsedFoodIds.includes(food.id)) {
+        return false;
+      }
+      
+      // Exclure les aliments préférentiellement exclus par l'utilisateur
+      if (preferences && preferences.excludedFoods && preferences.excludedFoods.includes(food.id)) {
+        return false;
+      }
+      
+      return true;
+    });
+    
+    // Diviser les aliments par catégorie
+    const proteinFoods = filteredFoods.filter(food => 
+      food.category === 'viande' || 
+      food.category === 'poisson' || 
+      food.category === 'œufs' || 
+      (food.category === 'produits_laitiers' && food.nutritionPer100g.protein > 15)
+    );
+    
+    const fatFoods = filteredFoods.filter(food => 
+      food.category === 'matières_grasses' || 
+      (food.category === 'noix_graines')
+    );
+    
+    const vegetableFoods = filteredFoods.filter(food => 
+      food.category === 'légumes' && 
+      food.nutritionPer100g.netCarbs < 10
+    );
+    
+    // Sélectionner une protéine
+    const proteinFood = proteinFoods[Math.floor(Math.random() * proteinFoods.length)];
+    
+    // Sélectionner 1-2 légumes
+    const vegetableCount = Math.floor(Math.random() * 2) + 1;
+    const selectedVegetables = [];
+    
+    for (let i = 0; i < vegetableCount && i < vegetableFoods.length; i++) {
+      // Éviter de sélectionner le même légume deux fois
+      let availableVegetables = vegetableFoods.filter(veg => 
+        !selectedVegetables.some(selected => selected.id === veg.id)
+      );
+      
+      if (availableVegetables.length === 0) break;
+      
+      selectedVegetables.push(
+        availableVegetables[Math.floor(Math.random() * availableVegetables.length)]
+      );
+    }
+    
+    // Sélectionner 1-2 sources de graisses
+    const fatCount = Math.floor(Math.random() * 2) + 1;
+    const selectedFats = [];
+    
+    for (let i = 0; i < fatCount && i < fatFoods.length; i++) {
+      // Éviter de sélectionner la même source de graisse deux fois
+      let availableFats = fatFoods.filter(fat => 
+        !selectedFats.some(selected => selected.id === fat.id)
+      );
+      
+      if (availableFats.length === 0) break;
+      
+      selectedFats.push(
+        availableFats[Math.floor(Math.random() * availableFats.length)]
+      );
+    }
+    
+    // Calculer les proportions pour atteindre les objectifs caloriques et de macros
+    
+    // Distribution typique pour un repas keto
+    // Protéine: 25-30% des calories
+    // Légumes: 10-15% des calories
+    // Matières grasses: 55-65% des calories
+    
+    const caloriesProtein = calories * 0.28; // 28% des calories
+    const caloriesVegetables = calories * 0.12; // 12% des calories
+    const caloriesFat = calories * 0.60; // 60% des calories
+    
+    // Calculer les quantités pour chaque aliment
+    const items = [];
+    
+    // Ajouter la protéine
+    if (proteinFood) {
+      const quantity = Math.round(
+        (caloriesProtein / (proteinFood.nutritionPer100g.calories / 100))
+      );
+      
+      items.push({
+        name: proteinFood.name,
+        quantity: quantity,
+        unit: 'g'
+      });
+    }
+    
+    // Ajouter les légumes
+    selectedVegetables.forEach(vegetable => {
+      const caloriesPerVegetable = caloriesVegetables / selectedVegetables.length;
+      let quantity = Math.round(
+        (caloriesPerVegetable / (vegetable.nutritionPer100g.calories / 100))
+      );
+      
+      // Minimum 100g de légumes
+      quantity = Math.max(quantity, 100);
+      
+      items.push({
+        name: vegetable.name,
+        quantity: quantity,
+        unit: 'g'
+      });
+    });
+    
+    // Ajouter les matières grasses
+    selectedFats.forEach(fat => {
+      const caloriesPerFat = caloriesFat / selectedFats.length;
+      const quantity = Math.round(
+        (caloriesPerFat / (fat.nutritionPer100g.calories / 100))
+      );
+      
+      items.push({
+        name: fat.name,
+        quantity: quantity,
+        unit: 'g'
+      });
+    });
+    
+    // Calculer les valeurs nutritionnelles totales
+    let totalCalories = 0;
+    let totalProtein = 0;
+    let totalFat = 0;
+    let totalNetCarbs = 0;
+    
+    items.forEach(item => {
+      const food = foods.find(f => f.name === item.name);
+      if (food) {
+        const ratio = item.quantity / 100;
+        totalCalories += food.nutritionPer100g.calories * ratio;
+        totalProtein += food.nutritionPer100g.protein * ratio;
+        totalFat += food.nutritionPer100g.fat * ratio;
+        totalNetCarbs += (food.nutritionPer100g.carbs - (food.nutritionPer100g.fiber || 0)) * ratio;
+      }
+    });
+    
+    // Créer le nom du repas
+    let mealName = "";
+    if (proteinFood) {
+      if (selectedVegetables.length > 0) {
+        mealName = `${proteinFood.name} avec ${selectedVegetables.map(v => v.name).join(' et ')}`;
+      } else {
+        mealName = `${proteinFood.name} à la ${selectedFats[0]?.name || 'maison'}`;
+      }
+    } else if (selectedVegetables.length > 0) {
+      mealName = `Salade de ${selectedVegetables.map(v => v.name).join(' et ')}`;
+    } else {
+      mealName = `Plat keto ${type === 'déjeuner' ? 'du midi' : 'du soir'}`;
+    }
+    
+    // Créer l'objet repas final
     return {
       name: mealName,
       type: type,
       totalNutrition: {
-        calories: Math.round(calories),
-        protein: Math.round(protein * 10) / 10,
-        fat: Math.round(fat * 10) / 10,
-        netCarbs: Math.round(carbs * 10) / 10
+        calories: Math.round(totalCalories),
+        protein: Math.round(totalProtein * 10) / 10,
+        fat: Math.round(totalFat * 10) / 10,
+        netCarbs: Math.round(totalNetCarbs * 10) / 10
       },
-      // Ces ingrédients seraient normalement générés par l'algorithme
-      items: [
-        {
-          name: 'Ingrédient principal',
-          quantity: Math.round(calories / 5),
-          unit: 'g'
-        },
-        {
-          name: 'Légumes',
-          quantity: Math.round(calories / 10),
-          unit: 'g'
-        },
-        {
-          name: 'Matière grasse',
-          quantity: Math.round(calories / 30),
-          unit: 'g'
-        }
-      ]
+      items: items,
+      isRecipe: false
     };
   };
   
@@ -349,6 +553,9 @@ const MealGeneratorForPlan = () => {
                     </li>
                   ))}
                 </ul>
+                {generatedMeal.isRecipe && (
+                  <p className="recipe-note">Ce repas est basé sur une recette complète de notre base de données.</p>
+                )}
                 <p className="ingredients-note">Note: Ces ingrédients sont donnés à titre indicatif.</p>
               </div>
               
