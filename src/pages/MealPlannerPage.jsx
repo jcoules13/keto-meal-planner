@@ -5,6 +5,7 @@ import { useMealPlan } from '../contexts/MealPlanContext';
 import { useUser } from '../contexts/UserContext';
 import { FridgeProvider } from '../contexts/FridgeContext';
 import FridgeSelector from '../components/meals/FridgeSelector';
+// Utiliser l'import de MealGenerator ci-dessous
 import MealGenerator from '../components/meals/MealGenerator';
 import MealPlanOptions from '../components/meals/MealPlanOptions';
 import FastingScheduleDisplay from '../components/meals/FastingScheduleDisplay';
@@ -26,6 +27,8 @@ const MealPlannerPage = () => {
   const [showMealGenerator, setShowMealGenerator] = useState(false);
   
   // Contextes
+  // Récupérer les paramètres et retirer mealFrequency pour éviter l'avertissement 
+  // puisqu'il n'est pas utilisé dans le composant
   const { dietType, ketoProfile, calorieTarget, macroTargets, intermittentFasting } = useUser();
   const { createEmptyPlan, currentPlan } = useMealPlan();
   
@@ -249,6 +252,7 @@ const MealPlannerPage = () => {
                 <p className="text-text-secondary mb-6">
                   Générez des repas pour votre plan en utilisant les aliments disponibles.
                 </p>
+                {/* Utilisation du composant MealGenerator ici */}
                 <MealGenerator />
               </div>
             )}
