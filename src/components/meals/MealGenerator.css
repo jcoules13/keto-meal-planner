@@ -1,131 +1,83 @@
-/* Styles pour le composant MealGenerator */
+/* Styles pour le générateur de repas */
+.meal-generator, .weekly-meal-generator {
+  background-color: var(--bg-primary);
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+}
 
-.meal-generator {
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
-  max-width: 100%;
+.generator-header {
+  margin-bottom: 20px;
+  text-align: center;
 }
 
 .generator-header h2 {
   font-size: 1.5rem;
-  margin: 0 0 0.5rem 0;
+  font-weight: 600;
   color: var(--text-primary);
+  margin-bottom: 8px;
 }
 
-.subheading {
+.generator-header .subheading {
   color: var(--text-secondary);
-  margin: 0;
   font-size: 0.95rem;
 }
 
-.empty-fridge-message {
-  padding: 2rem;
+.empty-plan-message {
   text-align: center;
-  background-color: var(--bg-secondary);
-  border-radius: 0.5rem;
+  padding: 30px;
   color: var(--text-secondary);
+  border: 1px dashed var(--border-color);
+  border-radius: 8px;
+  margin: 20px 0;
 }
 
-/* Styles pour le sommaire des macronutriments */
-.available-macros {
-  background-color: var(--bg-secondary);
-  border-radius: 0.5rem;
-  padding: 1.5rem;
-}
-
-.available-macros h3 {
-  font-size: 1.1rem;
-  margin-top: 0;
-  margin-bottom: 1rem;
-  color: var(--text-primary);
-}
-
-.macros-summary {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-  gap: 1rem;
-}
-
-.macro-item {
-  background-color: var(--bg-card);
-  border-radius: 0.35rem;
-  padding: 0.75rem;
-  text-align: center;
-}
-
-.macro-label {
-  display: block;
-  font-size: 0.85rem;
-  color: var(--text-secondary);
-  margin-bottom: 0.35rem;
-}
-
-.macro-value {
-  display: block;
-  font-size: 1.2rem;
-  font-weight: 600;
-  color: var(--text-primary);
-}
-
-.macro-value.protein {
-  color: var(--protein-color);
-}
-
-.macro-value.fat {
-  color: var(--fat-color);
-}
-
-.macro-value.carbs {
-  color: var(--carbs-color);
-}
-
-/* Styles pour les options de génération */
 .generator-options {
-  background-color: var(--bg-secondary);
-  border-radius: 0.5rem;
-  padding: 1.5rem;
+  margin-bottom: 20px;
 }
 
 .generator-options h3 {
   font-size: 1.1rem;
-  margin-top: 0;
-  margin-bottom: 1rem;
+  margin-bottom: 15px;
   color: var(--text-primary);
+  font-weight: 500;
 }
 
 .option-row {
-  margin-bottom: 1.25rem;
   display: flex;
   align-items: center;
+  margin-bottom: 15px;
 }
 
 .option-row label {
-  margin-right: 1rem;
-  font-size: 0.95rem;
+  flex: 0 0 100px;
   color: var(--text-primary);
 }
 
-.meal-count-select {
-  background-color: var(--input-bg);
+.option-row select, .option-row input[type="text"] {
+  flex: 1;
+  padding: 8px 12px;
   border: 1px solid var(--border-color);
-  border-radius: 0.35rem;
-  padding: 0.5rem;
+  border-radius: 4px;
+  background-color: var(--bg-secondary);
   color: var(--text-primary);
-  font-size: 0.95rem;
-  cursor: pointer;
-  min-width: 120px;
+}
+
+.option-row select:focus, .option-row input[type="text"]:focus {
+  outline: none;
+  border-color: var(--primary-color);
 }
 
 .options-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 1rem;
-  margin-bottom: 1.5rem;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 12px;
+  margin-bottom: 20px;
 }
 
 .option-item {
-  margin-bottom: 0.75rem;
+  padding: 8px;
 }
 
 .checkbox-label {
@@ -135,208 +87,289 @@
 }
 
 .checkbox-label input[type="checkbox"] {
-  margin-right: 0.5rem;
+  margin-right: 8px;
+  width: 16px;
+  height: 16px;
 }
 
 .checkbox-text {
-  font-size: 0.95rem;
   color: var(--text-primary);
+  font-size: 0.9rem;
 }
 
-.generate-button {
-  background-color: var(--primary-600);
+.generate-button, .weekly-generate-button {
+  display: block;
+  width: 100%;
+  padding: 12px;
+  background-color: var(--primary-color);
   color: white;
   border: none;
-  border-radius: 0.35rem;
-  padding: 0.75rem 1.5rem;
-  font-size: 1rem;
-  font-weight: 600;
+  border-radius: 4px;
+  font-weight: 500;
   cursor: pointer;
-  transition: background-color 0.3s;
   display: flex;
-  align-items: center;
   justify-content: center;
+  align-items: center;
+  gap: 8px;
+  transition: background-color 0.2s;
 }
 
-.generate-button:hover:not(:disabled) {
-  background-color: var(--primary-700);
+.generate-button:hover, .weekly-generate-button:hover {
+  background-color: var(--primary-color-dark);
 }
 
-.generate-button:disabled {
-  opacity: 0.7;
+.generate-button:disabled, .weekly-generate-button:disabled {
+  background-color: var(--border-color);
   cursor: not-allowed;
 }
 
-.loading-spinner {
-  display: inline-block;
-  width: 20px;
-  height: 20px;
-  margin-right: 0.75rem;
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  border-radius: 50%;
-  border-top-color: white;
+.error-message, .success-message {
+  padding: 12px;
+  border-radius: 4px;
+  margin: 15px 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.error-message {
+  background-color: rgba(220, 53, 69, 0.1);
+  color: #dc3545;
+  border: 1px solid rgba(220, 53, 69, 0.2);
+}
+
+.success-message {
+  background-color: rgba(40, 167, 69, 0.1);
+  color: #28a745;
+  border: 1px solid rgba(40, 167, 69, 0.2);
+}
+
+.message-icon, .spinner-icon {
+  font-size: 1.1rem;
+}
+
+.spinner-icon {
   animation: spin 1s linear infinite;
 }
 
 @keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 
-/* Messages de succès et d'erreur */
-.error-message, .success-message {
-  padding: 0.75rem 1rem;
-  border-radius: 0.35rem;
-  margin-bottom: 1rem;
-  font-size: 0.95rem;
-}
-
-.error-message {
-  background-color: rgba(var(--error-rgb), 0.1);
-  color: var(--error);
-  border-left: 3px solid var(--error);
-}
-
-.success-message {
-  background-color: rgba(var(--success-rgb), 0.1);
-  color: var(--success);
-  border-left: 3px solid var(--success);
-}
-
-/* Styles pour les repas générés */
 .generated-meals {
-  margin-top: 1rem;
+  margin-top: 20px;
+  border-top: 1px solid var(--border-color);
+  padding-top: 20px;
 }
 
 .generated-meals h3 {
-  font-size: 1.2rem;
-  margin-bottom: 1rem;
+  font-size: 1.1rem;
+  margin-bottom: 15px;
   color: var(--text-primary);
+  font-weight: 500;
 }
 
 .meals-list {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 1.5rem;
+  gap: 15px;
 }
 
 .meal-card {
-  background-color: var(--bg-card);
-  border-radius: 0.5rem;
-  box-shadow: var(--shadow-card);
+  background-color: var(--bg-secondary);
+  border-radius: 6px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   overflow: hidden;
-  transition: transform 0.2s, box-shadow 0.2s;
-}
-
-.meal-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
 }
 
 .meal-header {
-  background-color: var(--primary-600);
-  color: white;
-  padding: 1rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  padding: 12px 15px;
+  background-color: var(--bg-accent);
+  cursor: pointer;
 }
 
-.meal-header h4 {
+.meal-title {
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--text-primary);
   margin: 0;
-  font-size: 1.1rem;
-  font-weight: 600;
 }
 
 .meal-calorie {
   font-size: 0.9rem;
-  font-weight: 400;
-  background-color: rgba(255, 255, 255, 0.2);
-  padding: 0.25rem 0.5rem;
-  border-radius: 0.25rem;
+  color: var(--text-secondary);
+  font-weight: 500;
 }
 
 .meal-macros {
   display: flex;
-  justify-content: space-between;
-  padding: 0.75rem 1rem;
-  background-color: rgba(var(--primary-500-rgb), 0.05);
-  border-bottom: 1px solid var(--border-color);
+  justify-content: space-around;
+  padding: 10px;
+  background-color: var(--bg-secondary-darker);
+  font-size: 0.85rem;
 }
 
 .macro {
-  text-align: center;
-  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
-.meal-macros .macro-label {
+.macro-label {
   font-size: 0.75rem;
-  margin-bottom: 0.2rem;
+  color: var(--text-secondary);
+  margin-bottom: 3px;
 }
 
-.meal-macros .macro-value {
-  font-size: 1rem;
+.macro-value {
+  font-weight: 500;
+}
+
+.macro-value.protein {
+  color: #e74c3c; /* Rouge pour les protéines */
+}
+
+.macro-value.fat {
+  color: #f39c12; /* Jaune pour les lipides */
+}
+
+.macro-value.carbs {
+  color: #3498db; /* Bleu pour les glucides */
 }
 
 .meal-ingredients {
-  padding: 1rem;
+  padding: 15px;
 }
 
 .meal-ingredients h5 {
-  margin: 0 0 0.5rem 0;
-  font-size: 0.95rem;
+  font-size: 0.9rem;
+  margin: 0 0 10px 0;
   color: var(--text-primary);
 }
 
 .meal-ingredients ul {
-  margin: 0;
-  padding: 0 0 0 1.2rem;
-  font-size: 0.9rem;
-  color: var(--text-secondary);
+  list-style: none;
+  padding: 0;
+  margin: 0 0 15px 0;
 }
 
 .meal-ingredients li {
-  margin-bottom: 0.35rem;
+  padding: 5px 0;
+  border-bottom: 1px solid var(--border-color-lighter);
+  font-size: 0.9rem;
+  color: var(--text-primary);
+}
+
+.recipe-note, .ingredients-note {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  font-style: italic;
+  margin: 5px 0;
 }
 
 .meal-actions {
-  padding: 1rem;
+  padding: 10px 15px 15px;
   display: flex;
   justify-content: flex-end;
-  border-top: 1px solid var(--border-color);
 }
 
 .save-meal-button {
-  background-color: var(--success);
+  padding: 8px 15px;
+  background-color: var(--primary-color);
   color: white;
   border: none;
-  padding: 0.5rem 1rem;
-  border-radius: 0.25rem;
-  font-size: 0.9rem;
+  border-radius: 4px;
   cursor: pointer;
-  transition: background-color 0.3s;
+  font-size: 0.9rem;
 }
 
 .save-meal-button:hover {
-  background-color: #0d9669; /* Version plus foncée du var(--success) */
+  background-color: var(--primary-color-dark);
 }
 
-/* Responsive */
-@media (max-width: 768px) {
-  .meals-list {
-    grid-template-columns: 1fr;
-  }
-  
-  .macros-summary {
-    grid-template-columns: 1fr 1fr;
-  }
-  
-  .options-grid {
-    grid-template-columns: 1fr;
-  }
-  
-  .meal-macros {
-    padding: 0.5rem;
-  }
+.details-toggle {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 0;
+  font-size: 1rem;
+}
+
+.meal-details {
+  padding: 0 15px 15px;
+  border-top: 1px solid var(--border-color-lighter);
+}
+
+.meal-macros-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.macro-pill {
+  font-size: 0.75rem;
+  padding: 2px 6px;
+  border-radius: 12px;
+  font-weight: 500;
+}
+
+.macro-pill.calories {
+  background-color: rgba(52, 152, 219, 0.1);
+  color: #3498db;
+}
+
+.macro-pill.protein {
+  background-color: rgba(231, 76, 60, 0.1);
+  color: #e74c3c;
+}
+
+.macro-pill.fat {
+  background-color: rgba(243, 156, 18, 0.1);
+  color: #f39c12;
+}
+
+.macro-pill.carbs {
+  background-color: rgba(46, 204, 113, 0.1);
+  color: #2ecc71;
+}
+
+.progress-bar-container {
+  width: 100%;
+  height: 10px;
+  background-color: var(--bg-secondary);
+  border-radius: 5px;
+  margin-top: 15px;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background-color: var(--primary-color);
+  border-radius: 5px;
+  transition: width 0.3s ease;
+}
+
+.stats-message {
+  font-size: 0.85rem;
+  margin-top: 5px;
+  margin-bottom: 0;
+  font-style: italic;
+}
+
+.weekly-generate-button {
+  font-size: 1.1rem;
+  padding: 14px;
+  background-color: var(--primary-color);
+}
+
+/* Styles spécifiques pour le générateur hebdomadaire */
+.weekly-meal-generator .generator-options {
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 20px;
+  background-color: var(--bg-secondary);
 }
