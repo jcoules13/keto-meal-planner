@@ -1,4 +1,9 @@
-/**
+{
+  `path`: `src/utils/mealGeneratorAlgorithm.js`,
+  `repo`: `keto-meal-planner`,
+  `owner`: `jcoules13`,
+  `branch`: `main`,
+  `content`: `/**
  * Algorithme de génération de repas basé sur les aliments disponibles dans le frigo
  * 
  * Cet algorithme prend en compte:
@@ -517,4 +522,6 @@ export function generateMealsFromFridge(availableFoods, nutritionNeeds, options)
   
   // Générer les repas en tenant compte des contraintes
   return findFoodCombinations(validFoods, needs, mergedOptions);
+}`,
+  `message`: `Correction complète du fichier mealGeneratorAlgorithm.js`
 }
