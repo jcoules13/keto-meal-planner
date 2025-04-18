@@ -1,0 +1,339 @@
+/* Styles pour l'affichage du plan de repas hebdomadaire */
+
+/* Conteneur principal */
+.weekly-meal-plan {
+  background-color: var(--bg-primary);
+  border-radius: 0.5rem;
+  border: 1px solid var(--border-color);
+  padding: 1.5rem;
+  margin-top: 2rem;
+  margin-bottom: 2rem;
+  box-shadow: var(--shadow-card);
+}
+
+/* Message quand il n'y a pas de plan */
+.weekly-meal-plan-empty {
+  text-align: center;
+  padding: 2rem;
+  color: var(--text-secondary);
+  background-color: var(--bg-secondary);
+  border-radius: 0.5rem;
+  border: 1px dashed var(--border-color);
+  margin-top: 2rem;
+  margin-bottom: 2rem;
+}
+
+/* Navigateur de jours */
+.day-navigator {
+  margin-bottom: 1.5rem;
+  overflow-x: auto;
+}
+
+.days-tabs {
+  display: flex;
+  border-bottom: 1px solid var(--border-color);
+  min-width: min-content;
+}
+
+.day-tab {
+  padding: 0.75rem 1rem;
+  background: none;
+  border: none;
+  font-weight: 500;
+  color: var(--text-secondary);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 100px;
+}
+
+.day-tab:hover {
+  color: var(--primary-600);
+}
+
+.day-tab.active {
+  color: var(--primary-600);
+  border-bottom-color: var(--primary-600);
+  font-weight: 600;
+}
+
+.day-name {
+  text-transform: capitalize;
+  margin-bottom: 0.25rem;
+}
+
+.day-date {
+  font-size: 0.75rem;
+  opacity: 0.8;
+}
+
+/* Liste des repas du jour */
+.day-meals {
+  animation: fadeIn 0.3s ease;
+}
+
+.day-meals-empty {
+  text-align: center;
+  padding: 2rem;
+  color: var(--text-secondary);
+  background-color: var(--bg-secondary);
+  border-radius: 0.5rem;
+  margin-top: 1rem;
+}
+
+/* Résumé nutritionnel du jour */
+.day-nutrition-summary {
+  background-color: var(--bg-secondary);
+  border-radius: 0.5rem;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+  border: 1px solid var(--border-color);
+}
+
+.nutrition-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem;
+}
+
+@media (min-width: 640px) {
+  .nutrition-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.nutrition-item {
+  display: flex;
+  flex-direction: column;
+}
+
+.nutrition-label {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  margin-bottom: 0.25rem;
+}
+
+.nutrition-value {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+/* Liste des repas */
+.meals-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* Élément repas */
+.meal-item {
+  background-color: var(--bg-secondary);
+  border-radius: 0.5rem;
+  border: 1px solid var(--border-color);
+  overflow: hidden;
+}
+
+.meal-header {
+  display: flex;
+  align-items: center;
+  padding: 1rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  justify-content: space-between;
+}
+
+.meal-header:hover {
+  background-color: rgba(var(--primary-500-rgb), 0.05);
+}
+
+.meal-title-time {
+  display: flex;
+  flex-direction: column;
+}
+
+.meal-title {
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 0.25rem;
+}
+
+.meal-time {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
+.meal-macros-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  flex: 1;
+  justify-content: flex-end;
+  margin: 0 1rem;
+}
+
+@media (max-width: 768px) {
+  .meal-header {
+    flex-wrap: wrap;
+  }
+  
+  .meal-macros-summary {
+    order: 3;
+    margin-top: 0.5rem;
+    width: 100%;
+    justify-content: flex-start;
+  }
+}
+
+.macro-pill {
+  font-size: 0.75rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 1rem;
+  font-weight: 500;
+}
+
+.macro-pill.calories {
+  background-color: rgba(var(--primary-500-rgb), 0.1);
+  color: var(--primary-600);
+}
+
+.macro-pill.fat {
+  background-color: rgba(var(--warning-rgb), 0.1);
+  color: var(--warning);
+}
+
+.macro-pill.protein {
+  background-color: rgba(var(--error-rgb), 0.1);
+  color: var(--error);
+}
+
+.macro-pill.carbs {
+  background-color: rgba(var(--info-rgb), 0.1);
+  color: var(--info);
+}
+
+.details-toggle {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0.25rem;
+  transition: color 0.2s;
+}
+
+.details-toggle:hover {
+  color: var(--primary-600);
+}
+
+/* Détails du repas */
+.meal-details {
+  padding: 1rem;
+  border-top: 1px solid var(--border-color);
+  background-color: var(--bg-primary);
+}
+
+.meal-items-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.meal-detail-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem;
+  border-radius: 0.25rem;
+  background-color: var(--bg-secondary);
+}
+
+.item-icon-name {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 1;
+}
+
+.item-icon {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+}
+
+.item-icon.recipe {
+  color: var(--primary-600);
+}
+
+.item-icon.food {
+  color: var(--success);
+}
+
+.item-name {
+  font-weight: 500;
+}
+
+.item-quantity {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  margin-left: 0.5rem;
+}
+
+.item-nutrition {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.item-calories {
+  font-size: 0.75rem;
+  color: var(--primary-600);
+  font-weight: 500;
+}
+
+.item-macros {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.item-macros .macro {
+  font-size: 0.7rem;
+  padding: 0.125rem 0.25rem;
+  border-radius: 0.25rem;
+  font-weight: 500;
+}
+
+.item-macros .macro.fat {
+  background-color: rgba(var(--warning-rgb), 0.1);
+  color: var(--warning);
+}
+
+.item-macros .macro.protein {
+  background-color: rgba(var(--error-rgb), 0.1);
+  color: var(--error);
+}
+
+.item-macros .macro.carbs {
+  background-color: rgba(var(--info-rgb), 0.1);
+  color: var(--info);
+}
+
+.empty-items {
+  text-align: center;
+  padding: 1rem 0;
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+/* Animation de fondu */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
