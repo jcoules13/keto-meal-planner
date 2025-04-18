@@ -501,6 +501,55 @@ export function MealPlanProvider({ children }) {
     }
   };
   
+  /**
+   * Ajoute un repas au plan actuellement sélectionné
+   * @param {Object} meal - Le repas à ajouter (structure complète du repas)
+   * @param {number} dayIndex - Index du jour dans le plan (0-6 pour une semaine)
+   * @param {string} mealType - Type de repas (déjeuner, dîner, etc.)
+   * @returns {string|null} ID du repas ajouté ou null en cas d'erreur
+   */
+  const addMealToCurrentPlan = (meal, dayIndex, mealType = 'repas') => {
+    try {
+      // Vérifier qu'un plan est sélectionné
+      if (!state.currentPlanId) {
+        throw new Error('Aucun plan n\'est sélectionné. Veuillez d\'abord créer ou sélectionner un plan.');
+      }
+      
+      const currentPlan = state.mealPlans.find(plan => plan.id === state.currentPlanId);
+      if (!currentPlan) {
+        throw new Error('Le plan sélectionné n\'existe plus.');
+      }
+      
+      // Vérifier que l'index du jour est valide
+      if (dayIndex < 0 || dayIndex >= currentPlan.days.length) {
+        throw new Error(`L'index du jour ${dayIndex} est hors limites pour ce plan.`);
+      }
+      
+      // Préparer le repas avec des informations additionnelles
+      const preparedMeal = {
+        ...meal,
+        id: meal.id || `meal-${Date.now()}-${Math.round(Math.random() * 1000)}`,
+        type: mealType,
+        addedAt: new Date().toISOString()
+      };
+      
+      // Si le repas n'a pas de nom, lui en attribuer un par défaut
+      if (!preparedMeal.name) {
+        preparedMeal.name = `${mealType.charAt(0).toUpperCase() + mealType.slice(1)} du ${
+          new Date(currentPlan.days[dayIndex].date).toLocaleDateString('fr-FR')
+        }`;
+      }
+      
+      // Utiliser la fonction addMeal existante pour ajouter le repas
+      return addMeal(state.currentPlanId, dayIndex, preparedMeal);
+      
+    } catch (error) {
+      console.error('Erreur lors de l\'ajout du repas au plan courant:', error);
+      dispatch({ type: actions.SET_ERROR, payload: error.message });
+      return null;
+    }
+  };
+  
   // Générer une liste de courses à partir d'un plan
   const generateShoppingListFromPlan = async (planId) => {
     try {
@@ -652,6 +701,7 @@ export function MealPlanProvider({ children }) {
     addMeal,
     updateMeal,
     deleteMeal,
+    addMealToCurrentPlan, // Nouvelle fonction ajoutée
     generateShoppingListFromPlan,
     updateShoppingItem,
     clearShoppingList,
