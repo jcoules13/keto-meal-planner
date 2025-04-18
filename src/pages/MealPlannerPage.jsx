@@ -8,6 +8,7 @@ import FridgeSelector from '../components/meals/FridgeSelector';
 import MealGenerator from '../components/meals/MealGenerator';
 import MealPlanOptions from '../components/meals/MealPlanOptions';
 import FastingScheduleDisplay from '../components/meals/FastingScheduleDisplay';
+import WeeklyMealPlanDisplay from '../components/meals/WeeklyMealPlanDisplay';
 import './MealPlannerPage.css';
 
 /**
@@ -229,12 +230,17 @@ const MealPlannerPage = () => {
             
             {/* Message de plan créé si nécessaire */}
             {planCreated && (
-              <div className="bg-success bg-opacity-10 border-l-4 border-success text-success p-4 rounded">
+              <div className="bg-success bg-opacity-10 border-l-4 border-success text-success p-4 rounded mb-8">
                 <p>
                   Votre plan "{planName}" a été créé avec succès. 
                   Vous pouvez maintenant ajouter des repas.
                 </p>
               </div>
+            )}
+            
+            {/* Nouvel affichage du plan de repas hebdomadaire */}
+            {currentPlan && (
+              <WeeklyMealPlanDisplay />
             )}
           </div>
         )}
