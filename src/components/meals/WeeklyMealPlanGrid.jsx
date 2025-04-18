@@ -7,12 +7,24 @@ import './WeeklyMealPlanDisplay.css';
 
 /**
  * Composant d'affichage en grille du plan de repas hebdomadaire
- * Permet de visualiser tous les jours de la semaine et leurs repas en un coup d'œil
+ * Permet de visualiser tous les jours de la semaine en même temps
  */
-const WeeklyMealPlanGrid = () => {
+const WeeklyMealPlanGrid = ({ onViewDay }) => {
   const { currentPlan, getDayNutritionTotals } = useMealPlan();
   const { getFoodById } = useFood();
   const { getRecipeById } = useRecipe();
+  
+  // Formater la date
+  const formatDate = (dateString) => {
+    const options = { day: 'numeric', month: 'short' };
+    return new Date(dateString).toLocaleDateString('fr-FR', options);
+  };
+  
+  // Formater le jour de la semaine
+  const formatDayName = (dateString) => {
+    const options = { weekday: 'long' };
+    return new Date(dateString).toLocaleDateString('fr-FR', options);
+  };
   
   // Si aucun plan n'est actif, afficher un message
   if (!currentPlan) {
@@ -32,18 +44,6 @@ const WeeklyMealPlanGrid = () => {
     );
   }
   
-  // Formater la date pour l'affichage
-  const formatDate = (dateString) => {
-    const options = { day: 'numeric', month: 'numeric' };
-    return new Date(dateString).toLocaleDateString('fr-FR', options);
-  };
-  
-  // Obtenir le jour de la semaine
-  const getDayOfWeek = (dateString) => {
-    const options = { weekday: 'long' };
-    return new Date(dateString).toLocaleDateString('fr-FR', options);
-  };
-  
   return (
     <div className="weekly-meal-plan">
       <div className="plan-info">
@@ -51,52 +51,29 @@ const WeeklyMealPlanGrid = () => {
         <p className="text-text-secondary text-sm">
           {currentPlan.startDate && currentPlan.endDate 
             ? `Du ${new Date(currentPlan.startDate).toLocaleDateString('fr-FR')} au ${new Date(currentPlan.endDate).toLocaleDateString('fr-FR')}` 
-            : 'Dates non définies'}
+            : 'Dates non définies'
+          }
         </p>
       </div>
       
       <div className="week-grid-view">
         {currentPlan.days.map((day, index) => {
           const dayNutrition = getDayNutritionTotals(currentPlan.id, index);
-          const hasMeals = day.meals && day.meals.length > 0;
           
           return (
-            <div key={index} className="day-card">
+            <div key={day.date} className="day-card">
               <div className="day-card-header">
                 <div className="day-card-title">
-                  <span>{getDayOfWeek(day.date)}</span>
+                  <span>{formatDayName(day.date)}</span>
                   <span className="day-card-date">{formatDate(day.date)}</span>
                 </div>
               </div>
               
               <div className="day-card-content">
-                {dayNutrition && (
-                  <div className="day-nutrition-summary">
-                    <div className="nutrition-grid">
-                      <div className="nutrition-item">
-                        <span className="nutrition-label">Calories</span>
-                        <span className="nutrition-value">{dayNutrition.calories} kcal</span>
-                      </div>
-                      <div className="nutrition-item">
-                        <span className="nutrition-label">Lipides</span>
-                        <span className="nutrition-value">{dayNutrition.fat}g</span>
-                      </div>
-                      <div className="nutrition-item">
-                        <span className="nutrition-label">Protéines</span>
-                        <span className="nutrition-value">{dayNutrition.protein}g</span>
-                      </div>
-                      <div className="nutrition-item">
-                        <span className="nutrition-label">Glucides nets</span>
-                        <span className="nutrition-value">{dayNutrition.netCarbs}g</span>
-                      </div>
-                    </div>
-                  </div>
-                )}
-                
-                {hasMeals ? (
+                {day.meals && day.meals.length > 0 ? (
                   <div className="day-meal-list">
-                    {day.meals.map((meal, mealIndex) => (
-                      <div key={mealIndex} className="day-meal-item">
+                    {day.meals.map((meal) => (
+                      <div key={meal.id} className="day-meal-item">
                         <MealItem 
                           meal={meal} 
                           getFoodById={getFoodById}
@@ -104,10 +81,41 @@ const WeeklyMealPlanGrid = () => {
                         />
                       </div>
                     ))}
+                    
+                    {/* Résumé des macros du jour */}
+                    {dayNutrition && (
+                      <div className="day-nutrition-summary">
+                        <h4 className="text-sm font-medium mb-2">Total du jour</h4>
+                        <div className="nutrition-grid">
+                          <div className="nutrition-item">
+                            <span className="nutrition-label">Calories</span>
+                            <span className="nutrition-value">{dayNutrition.calories || 0} kcal</span>
+                          </div>
+                          <div className="nutrition-item">
+                            <span className="nutrition-label">Lipides</span>
+                            <span className="nutrition-value">{dayNutrition.fat || 0}g</span>
+                          </div>
+                          <div className="nutrition-item">
+                            <span className="nutrition-label">Protéines</span>
+                            <span className="nutrition-value">{dayNutrition.protein || 0}g</span>
+                          </div>
+                          <div className="nutrition-item">
+                            <span className="nutrition-label">Glucides</span>
+                            <span className="nutrition-value">{dayNutrition.netCarbs || 0}g</span>
+                          </div>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 ) : (
                   <div className="day-meals-empty">
-                    <p>Aucun repas prévu pour cette journée.</p>
+                    <p>Aucun repas prévu</p>
+                    <button 
+                      className="add-meal-button"
+                      onClick={() => onViewDay(index)}
+                    >
+                      Ajouter des repas
+                    </button>
                   </div>
                 )}
               </div>
