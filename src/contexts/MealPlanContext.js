@@ -252,7 +252,7 @@ export function useMealPlan() {
 // Provider
 export function MealPlanProvider({ children }) {
   const [state, dispatch] = useReducer(mealPlanReducer, initialState);
-  const { calorieTarget, macroTargets, mealFrequency, dietType } = useUser();
+  const { calorieTarget, macroTargets, mealFrequency, dietType, intermittentFasting } = useUser();
   const { foods, getFoodById } = useFood();
   const { recipes, getRecipeById } = useRecipe();
   
@@ -568,7 +568,7 @@ export function MealPlanProvider({ children }) {
   };
   
   // Créer un nouveau plan de repas vide pour une période donnée
-  const createEmptyPlan = (name, startDate, endDate, dietType = 'keto_standard') => {
+  const createEmptyPlan = (name, startDate, endDate, dietType = 'keto_standard', advancedOptions = null) => {
     const start = new Date(startDate);
     const end = new Date(endDate);
     
@@ -595,13 +595,27 @@ export function MealPlanProvider({ children }) {
       };
     });
     
-    return createMealPlan({
+    // Créer le plan avec les paramètres de base
+    const planBase = {
       name,
-      startDate: startDate,
-      endDate: endDate,
+      startDate,
+      endDate,
       dietType,
       days
-    });
+    };
+    
+    // Ajouter les options avancées si fournies
+    const planData = advancedOptions ? {
+      ...planBase,
+      advancedOptions: {
+        mealFrequency: advancedOptions.mealFrequency || mealFrequency,
+        mealTypes: advancedOptions.mealTypes,
+        intermittentFasting: advancedOptions.intermittentFasting,
+        calorieDistribution: advancedOptions.calorieDistribution
+      }
+    } : planBase;
+    
+    return createMealPlan(planData);
   };
   
   // Vérifier si un jour a des repas
