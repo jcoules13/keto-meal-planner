@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { FaClock, FaUtensils, FaBalanceScale } from 'react-icons/fa';
 import { useUser } from '../../contexts/UserContext';
+import './MealPlanOptions.css';
 
 /**
  * Composant pour configurer les options avancées d'un plan de repas
@@ -97,7 +98,7 @@ const MealPlanOptions = ({ onOptionsChange }) => {
   
   // Gestionnaire pour les changements de nombre de repas
   const handleNumMealsChange = (e) => {
-    const count = parseInt(e.target.value);
+    const count = parseInt(e.target.value, 10);
     setNumMeals(count);
     
     // Ajuster automatiquement les types de repas
