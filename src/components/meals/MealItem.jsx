@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FaChevronDown, FaChevronUp, FaUtensils, FaAppleAlt } from 'react-icons/fa';
 import './WeeklyMealPlanDisplay.css';
 
 /**
  * Composant affichant un repas individuel avec ses détails
- * Permet d'afficher/masquer les détails
+ * Version améliorée avec affichage direct des macros et ingredients
  */
 const MealItem = ({ meal, getFoodById, getRecipeById }) => {
   // État pour l'affichage des détails
@@ -29,60 +29,95 @@ const MealItem = ({ meal, getFoodById, getRecipeById }) => {
     
     return meal.items.map(item => {
       if (item.type === 'recipe') {
-        const recipe = getRecipeById(item.id);
-        if (!recipe) return { name: 'Recette inconnue', isUnknown: true };
+        const recipe = getRecipeById ? getRecipeById(item.id) : null;
+        if (!recipe) return { name: item.name || 'Recette inconnue', isUnknown: true };
         
         return {
           name: recipe.name,
-          quantity: `${item.servings} portion${item.servings > 1 ? 's' : ''}`,
-          calories: item.calories || (recipe.nutritionPerServing?.calories * item.servings),
+          quantity: `${item.servings || 1} portion${item.servings > 1 ? 's' : ''}`,
+          calories: item.calories || (recipe.nutritionPerServing?.calories * (item.servings || 1)),
           macros: item.macros || {
-            fat: recipe.nutritionPerServing?.fat * item.servings,
-            protein: recipe.nutritionPerServing?.protein * item.servings,
-            carbs: recipe.nutritionPerServing?.netCarbs * item.servings
+            fat: recipe.nutritionPerServing?.fat * (item.servings || 1),
+            protein: recipe.nutritionPerServing?.protein * (item.servings || 1),
+            carbs: recipe.nutritionPerServing?.netCarbs * (item.servings || 1)
           },
           isRecipe: true
         };
-      } else { // type === 'food'
-        const food = getFoodById(item.id);
-        if (!food) return { name: 'Aliment inconnu', isUnknown: true };
+      } else { // type === 'food' ou non spécifié
+        const food = getFoodById ? getFoodById(item.id) : null;
+        if (!food) return { name: item.name || 'Aliment inconnu', isUnknown: true };
+        
+        const ratio = item.quantity ? item.quantity / 100 : 1;
         
         return {
-          name: food.name,
-          quantity: `${item.quantity}${item.unit || 'g'}`,
-          calories: item.calories,
-          macros: item.macros,
+          name: item.name || food.name,
+          quantity: `${item.quantity || 100}${item.unit || 'g'}`,
+          calories: item.calories || (food.nutritionPer100g?.calories * ratio),
+          macros: item.macros || {
+            fat: (food.nutritionPer100g?.fat || 0) * ratio,
+            protein: (food.nutritionPer100g?.protein || 0) * ratio,
+            carbs: (food.nutritionPer100g?.netCarbs || 0) * ratio
+          },
           isFood: true
         };
       }
     });
   };
   
+  // Calculer les totaux si non fournis
+  const calculateTotals = (items) => {
+    if (meal.totaux) return meal.totaux;
+    
+    let totalCalories = 0;
+    let totalProtein = 0;
+    let totalFat = 0;
+    let totalNetCarbs = 0;
+    
+    items.forEach(item => {
+      totalCalories += item.calories || 0;
+      totalProtein += item.macros?.protein || 0;
+      totalFat += item.macros?.fat || 0;
+      totalNetCarbs += item.macros?.carbs || 0;
+    });
+    
+    return {
+      calories: Math.round(totalCalories),
+      macros: {
+        protein: Math.round(totalProtein * 10) / 10,
+        fat: Math.round(totalFat * 10) / 10,
+        netCarbs: Math.round(totalNetCarbs * 10) / 10
+      }
+    };
+  };
+  
   const mealItems = getMealItemDetails();
+  const totals = calculateTotals(mealItems);
+  
+  // Extraire quelques ingrédients pour l'aperçu (3 max)
+  const previewIngredients = mealItems.slice(0, 3).map(item => item.name).join(', ');
+  const hasMoreIngredients = mealItems.length > 3;
   
   return (
     <div className="meal-item">
       <div className="meal-header" onClick={toggleDetails}>
-        <div className="meal-title-time">
+        <div className="meal-title-info">
           <h3 className="meal-title">{meal.name || 'Repas'}</h3>
-          {meal.time && <span className="meal-time">{formatTime(meal.time)}</span>}
+          <div className="meal-preview">
+            {previewIngredients}
+            {hasMoreIngredients && <span className="more-ingredients">+{mealItems.length - 3} autres</span>}
+          </div>
         </div>
         
-        {/* Macros résumées */}
+        {/* Macros résumées toujours visibles */}
         <div className="meal-macros-summary">
-          {meal.totaux && (
-            <>
-              <span className="macro-pill calories">{meal.totaux.calories || '--'} kcal</span>
-              <span className="macro-pill fat">{meal.totaux.macros?.fat || '--'}g lipides</span>
-              <span className="macro-pill protein">{meal.totaux.macros?.protein || '--'}g protéines</span>
-              <span className="macro-pill carbs">{meal.totaux.macros?.netCarbs || '--'}g glucides nets</span>
-            </>
-          )}
+          <span className="macro-pill calories">{totals.calories || '--'} kcal</span>
+          <span className="macro-pill fat">{totals.macros?.fat || '--'}g L</span>
+          <span className="macro-pill protein">{totals.macros?.protein || '--'}g P</span>
+          <span className="macro-pill carbs">{totals.macros?.netCarbs || '--'}g G</span>
+          <button className="details-toggle">
+            {showDetails ? <FaChevronUp /> : <FaChevronDown />}
+          </button>
         </div>
-        
-        <button className="details-toggle">
-          {showDetails ? <FaChevronUp /> : <FaChevronDown />}
-        </button>
       </div>
       
       {/* Détails du repas */}
@@ -98,12 +133,12 @@ const MealItem = ({ meal, getFoodById, getRecipeById }) => {
                     <span className="item-quantity">{item.quantity}</span>
                   </div>
                   <div className="item-nutrition">
-                    <span className="item-calories">{item.calories || '--'} kcal</span>
+                    <span className="item-calories">{item.calories ? Math.round(item.calories) : '--'} kcal</span>
                     {item.macros && (
                       <div className="item-macros">
-                        <span className="macro fat">{item.macros.fat || '--'}g L</span>
-                        <span className="macro protein">{item.macros.protein || '--'}g P</span>
-                        <span className="macro carbs">{item.macros.carbs || '--'}g G</span>
+                        <span className="macro fat">{item.macros.fat ? Math.round(item.macros.fat * 10) / 10 : '--'}g L</span>
+                        <span className="macro protein">{item.macros.protein ? Math.round(item.macros.protein * 10) / 10 : '--'}g P</span>
+                        <span className="macro carbs">{item.macros.carbs ? Math.round(item.macros.carbs * 10) / 10 : '--'}g G</span>
                       </div>
                     )}
                   </div>
