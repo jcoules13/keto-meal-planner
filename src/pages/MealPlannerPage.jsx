@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet';
-import { FaUtensils, FaCalendarAlt } from 'react-icons/fa';
+import { FaUtensils, FaCalendarAlt, FaCog } from 'react-icons/fa';
 import { useMealPlan } from '../contexts/MealPlanContext';
 import { useUser } from '../contexts/UserContext';
 import { FridgeProvider } from '../contexts/FridgeContext';
 import FridgeSelector from '../components/meals/FridgeSelector';
 import MealGenerator from '../components/meals/MealGenerator';
+import MealPlanOptions from '../components/meals/MealPlanOptions';
+import FastingScheduleDisplay from '../components/meals/FastingScheduleDisplay';
 import './MealPlannerPage.css';
 
 /**
@@ -18,9 +20,11 @@ const MealPlannerPage = () => {
   const [activeTab, setActiveTab] = useState('weekly'); // 'weekly' ou 'fridge'
   const [planCreated, setPlanCreated] = useState(false);
   const [planName, setPlanName] = useState('');
+  const [showAdvancedOptions, setShowAdvancedOptions] = useState(false);
+  const [planOptions, setPlanOptions] = useState(null);
   
   // Contextes
-  const { dietType, ketoProfile, calorieTarget, macroTargets } = useUser();
+  const { dietType, ketoProfile, calorieTarget, macroTargets, mealFrequency, intermittentFasting } = useUser();
   const { createEmptyPlan, currentPlan } = useMealPlan();
   
   // Réinitialiser le message de succès après un certain temps
@@ -59,12 +63,13 @@ const MealPlannerPage = () => {
     const displayEndDate = `${endOfWeek.getDate()}/${endOfWeek.getMonth() + 1}`;
     const displayName = `Plan du ${displayStartDate} au ${displayEndDate}`;
     
-    // Créer le plan
+    // Créer le plan avec les options avancées si disponibles
     const planId = createEmptyPlan(
       displayName,
       startDateStr,
       endDateStr,
-      dietType
+      dietType,
+      planOptions // Passer les options avancées au plan
     );
     
     if (planId) {
@@ -73,18 +78,21 @@ const MealPlannerPage = () => {
     }
   };
   
-  // Génération d'un plan personnalisé (à implémenter ultérieurement)
+  // Génération d'un plan personnalisé avec les options avancées
   const handleGeneratePlan = () => {
-    // Pour l'instant, créer un plan vide par défaut
     handleCreateEmptyPlan();
-    
-    // Ici, vous pourriez implémenter une logique de génération de plan plus avancée
-    console.log("Génération de plan personnalisé - fonctionnalité à implémenter");
+    console.log("Génération de plan personnalisé avec options:", planOptions);
   };
   
   // Changement d'onglet
   const handleTabChange = (tab) => {
     setActiveTab(tab);
+  };
+  
+  // Gestionnaire pour les changements d'options avancées
+  const handleOptionsChange = (options) => {
+    setPlanOptions(options);
+    console.log("Options mises à jour:", options);
   };
   
   return (
@@ -143,7 +151,7 @@ const MealPlannerPage = () => {
                 <div className="card bg-bg-secondary p-4">
                   <h3 className="font-medium text-lg text-text-primary mb-2">Régime</h3>
                   <p className="text-primary-600 font-medium">{dietType === 'keto_standard' ? 'Keto Standard' : 'Keto Alcalin'}</p>
-                  <p className="text-text-secondary">Profil: {ketoProfile || 'prise_masse'}</p>
+                  <p className="text-text-secondary">Profil: {ketoProfile || 'standard'}</p>
                 </div>
                 
                 <div className="card bg-bg-secondary p-4">
@@ -162,6 +170,28 @@ const MealPlannerPage = () => {
               </div>
             </div>
             
+            {/* Affichage du calendrier de jeûne intermittent si activé */}
+            {intermittentFasting.enabled && (
+              <FastingScheduleDisplay fastingConfig={intermittentFasting} />
+            )}
+            
+            {/* Section d'options avancées */}
+            <div className="mb-6">
+              <button
+                className="flex items-center text-primary-500 hover:text-primary-700 transition-colors duration-200 mb-4"
+                onClick={() => setShowAdvancedOptions(!showAdvancedOptions)}
+              >
+                <FaCog className="mr-2" />
+                <span className="font-medium">
+                  {showAdvancedOptions ? 'Masquer les options avancées' : 'Afficher les options avancées'}
+                </span>
+              </button>
+              
+              {showAdvancedOptions && (
+                <MealPlanOptions onOptionsChange={handleOptionsChange} />
+              )}
+            </div>
+            
             <div className="grid md:grid-cols-2 gap-8 mb-8">
               <div className="card hover:shadow-lg transition-shadow duration-300">
                 <div className="flex justify-center mb-4 text-primary-500 text-3xl">
@@ -169,7 +199,8 @@ const MealPlannerPage = () => {
                 </div>
                 <h3 className="text-lg font-bold text-text-primary mb-4 text-center">Générer un plan personnalisé</h3>
                 <p className="text-text-secondary mb-6 text-center">
-                  Créez un plan de repas complet pour la semaine en fonction de vos besoins nutritionnels.
+                  Créez un plan de repas complet pour la semaine en fonction de vos besoins nutritionnels
+                  {showAdvancedOptions && ' et de vos préférences avancées'}.
                 </p>
                 <button 
                   className="btn-primary w-full mt-auto"
