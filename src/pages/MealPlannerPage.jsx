@@ -88,96 +88,107 @@ const MealPlannerPage = () => {
   };
   
   return (
-    <div className="meal-planner-page">
+    <div className="max-w-7xl mx-auto p-4 md:p-8">
       <Helmet>
         <title>Planificateur de repas | Keto Meal Planner</title>
       </Helmet>
       
-      <div className="page-header">
-        <h1>Planificateur de repas</h1>
-        <p className="page-description">
+      <div className="text-center mb-8">
+        <h1 className="text-3xl font-bold text-text-primary mb-2 font-heading">Planificateur de repas</h1>
+        <p className="text-text-secondary max-w-2xl mx-auto">
           Générez des plans de repas adaptés à vos besoins nutritionnels et préférences alimentaires.
         </p>
       </div>
       
       {/* Navigation par onglets */}
-      <div className="tabs-container">
-        <div className="tabs">
+      <div className="border-b border-border-color mb-8">
+        <div className="flex flex-wrap -mb-px">
           <button 
-            className={`tab ${activeTab === 'weekly' ? 'active' : ''}`}
+            className={`mr-4 py-4 px-1 border-b-2 font-medium text-sm flex items-center ${
+              activeTab === 'weekly' 
+                ? 'border-primary-500 text-primary-500' 
+                : 'border-transparent text-text-secondary hover:text-primary-600 hover:border-primary-300'
+            }`}
             onClick={() => handleTabChange('weekly')}
           >
-            <FaCalendarAlt />
+            <FaCalendarAlt className="mr-2" />
             <span>Planification hebdomadaire</span>
           </button>
           <button 
-            className={`tab ${activeTab === 'fridge' ? 'active' : ''}`}
+            className={`mr-4 py-4 px-1 border-b-2 font-medium text-sm flex items-center ${
+              activeTab === 'fridge' 
+                ? 'border-primary-500 text-primary-500' 
+                : 'border-transparent text-text-secondary hover:text-primary-600 hover:border-primary-300'
+            }`}
             onClick={() => handleTabChange('fridge')}
           >
-            <FaUtensils />
+            <FaUtensils className="mr-2" />
             <span>Quoi dans mon frigo ?</span>
           </button>
         </div>
       </div>
       
       {/* Contenu de l'onglet actif */}
-      <div className="tab-content">
+      <div className="mt-6">
         {activeTab === 'weekly' && (
-          <div className="weekly-planner">
-            <div className="planner-intro">
-              <h2>Planification hebdomadaire</h2>
-              <p>
+          <div className="animate-fadeIn">
+            <div className="card mb-8">
+              <h2 className="text-xl font-bold text-text-primary mb-4">Planification hebdomadaire</h2>
+              <p className="text-text-secondary mb-6">
                 Créez un plan de repas complet pour la semaine en fonction de vos besoins caloriques 
                 et vos objectifs nutritionnels.
               </p>
-              <div className="nutrition-summary">
-                <div className="nutrition-goal">
-                  <h3>Régime</h3>
-                  <p className="diet-type">{dietType === 'keto_standard' ? 'Keto Standard' : 'Keto Alcalin'}</p>
-                  <p className="keto-profile">Profil: {ketoProfile || 'prise_masse'}</p>
+              
+              <div className="grid md:grid-cols-3 gap-6 mt-8">
+                <div className="card bg-bg-secondary p-4">
+                  <h3 className="font-medium text-lg text-text-primary mb-2">Régime</h3>
+                  <p className="text-primary-600 font-medium">{dietType === 'keto_standard' ? 'Keto Standard' : 'Keto Alcalin'}</p>
+                  <p className="text-text-secondary">Profil: {ketoProfile || 'prise_masse'}</p>
                 </div>
-                <div className="nutrition-goal">
-                  <h3>Calories</h3>
-                  <p className="target">{calorieTarget} kcal/jour</p>
+                
+                <div className="card bg-bg-secondary p-4">
+                  <h3 className="font-medium text-lg text-text-primary mb-2">Calories</h3>
+                  <p className="text-primary-600 font-medium">{calorieTarget} kcal/jour</p>
                 </div>
-                <div className="nutrition-goal">
-                  <h3>Macros quotidiennes</h3>
-                  <div className="macro-targets">
-                    <span className="macro fat">Lipides: {macroTargets.fat}g</span>
-                    <span className="macro protein">Protéines: {macroTargets.protein}g</span>
-                    <span className="macro carbs">Glucides: {macroTargets.carbs}g</span>
+                
+                <div className="card bg-bg-secondary p-4">
+                  <h3 className="font-medium text-lg text-text-primary mb-2">Macros quotidiennes</h3>
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    <span className="badge bg-amber-100 text-amber-800">Lipides: {macroTargets.fat}g</span>
+                    <span className="badge bg-red-100 text-red-800">Protéines: {macroTargets.protein}g</span>
+                    <span className="badge bg-blue-100 text-blue-800">Glucides: {macroTargets.carbs}g</span>
                   </div>
                 </div>
               </div>
             </div>
             
-            <div className="action-container">
-              <div className="action-card">
-                <div className="action-icon">
+            <div className="grid md:grid-cols-2 gap-8 mb-8">
+              <div className="card hover:shadow-lg transition-shadow duration-300">
+                <div className="flex justify-center mb-4 text-primary-500 text-3xl">
                   <FaUtensils />
                 </div>
-                <h3>Générer un plan personnalisé</h3>
-                <p>
+                <h3 className="text-lg font-bold text-text-primary mb-4 text-center">Générer un plan personnalisé</h3>
+                <p className="text-text-secondary mb-6 text-center">
                   Créez un plan de repas complet pour la semaine en fonction de vos besoins nutritionnels.
                 </p>
                 <button 
-                  className="primary-button"
+                  className="btn-primary w-full mt-auto"
                   onClick={handleGeneratePlan}
                 >
                   Générer mon plan
                 </button>
               </div>
               
-              <div className="action-card">
-                <div className="action-icon">
+              <div className="card hover:shadow-lg transition-shadow duration-300">
+                <div className="flex justify-center mb-4 text-primary-500 text-3xl">
                   <FaCalendarAlt />
                 </div>
-                <h3>Créer un plan vide</h3>
-                <p>
+                <h3 className="text-lg font-bold text-text-primary mb-4 text-center">Créer un plan vide</h3>
+                <p className="text-text-secondary mb-6 text-center">
                   Commencez avec un plan vide et ajoutez vos propres repas manuellement.
                 </p>
                 <button 
-                  className="secondary-button"
+                  className="btn-outline w-full mt-auto"
                   onClick={handleCreateEmptyPlan}
                 >
                   Créer un plan vide
@@ -187,7 +198,7 @@ const MealPlannerPage = () => {
             
             {/* Message de plan créé si nécessaire */}
             {planCreated && (
-              <div className="success-message">
+              <div className="bg-success bg-opacity-10 border-l-4 border-success text-success p-4 rounded">
                 <p>
                   Votre plan "{planName}" a été créé avec succès. 
                   Vous pouvez maintenant ajouter des repas.
@@ -199,26 +210,28 @@ const MealPlannerPage = () => {
         
         {activeTab === 'fridge' && (
           <FridgeProvider>
-            <div className="fridge-planner">
-              <div className="tab-navigation">
-                <button
-                  className="tab-button active"
-                >
-                  1. Mon frigo
-                </button>
-                <button
-                  className="tab-button"
-                >
-                  2. Générer des repas
-                </button>
-              </div>
-              
-              <div className="tab-content">
-                <div className="tab-panel">
-                  <FridgeSelector />
-                  <div className="navigation-actions">
+            <div className="animate-fadeIn">
+              <div className="mb-8">
+                <div className="border-b border-border-color mb-6">
+                  <div className="flex">
                     <button
-                      className="next-step-button"
+                      className="py-3 px-6 border-b-2 border-primary-500 text-primary-500 font-medium"
+                    >
+                      1. Mon frigo
+                    </button>
+                    <button
+                      className="py-3 px-6 border-b-2 border-transparent text-text-secondary"
+                    >
+                      2. Générer des repas
+                    </button>
+                  </div>
+                </div>
+                
+                <div>
+                  <FridgeSelector />
+                  <div className="flex justify-end mt-6">
+                    <button
+                      className="btn-primary"
                     >
                       Étape suivante : Générer des repas
                     </button>
