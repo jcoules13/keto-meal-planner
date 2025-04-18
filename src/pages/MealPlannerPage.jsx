@@ -5,8 +5,9 @@ import { useMealPlan } from '../contexts/MealPlanContext';
 import { useUser } from '../contexts/UserContext';
 import { FridgeProvider } from '../contexts/FridgeContext';
 import FridgeSelector from '../components/meals/FridgeSelector';
-// Utiliser l'import de MealGenerator ci-dessous
-import MealGenerator from '../components/meals/MealGenerator';
+// Remplacer l'ancien import par les nouveaux composants spécifiques
+import MealGeneratorForPlan from '../components/meals/MealGeneratorForPlan';
+import MealGeneratorFromFridge from '../components/meals/MealGeneratorFromFridge';
 import MealPlanOptions from '../components/meals/MealPlanOptions';
 import FastingScheduleDisplay from '../components/meals/FastingScheduleDisplay';
 import WeeklyMealPlanDisplay from '../components/meals/WeeklyMealPlanDisplay';
@@ -25,6 +26,7 @@ const MealPlannerPage = () => {
   const [showAdvancedOptions, setShowAdvancedOptions] = useState(false);
   const [planOptions, setPlanOptions] = useState(null);
   const [showMealGenerator, setShowMealGenerator] = useState(false);
+  const [fridgeStep, setFridgeStep] = useState(1); // 1: Sélection frigo, 2: Génération repas
   
   // Contextes
   // Récupérer les paramètres et retirer mealFrequency pour éviter l'avertissement 
@@ -95,12 +97,21 @@ const MealPlannerPage = () => {
   // Changement d'onglet
   const handleTabChange = (tab) => {
     setActiveTab(tab);
+    // Réinitialiser l'étape de l'onglet frigo quand on change d'onglet
+    if (tab === 'fridge') {
+      setFridgeStep(1);
+    }
   };
   
   // Gestionnaire pour les changements d'options avancées
   const handleOptionsChange = (options) => {
     setPlanOptions(options);
     console.log("Options mises à jour:", options);
+  };
+  
+  // Passer à l'étape de génération des repas dans l'onglet frigo
+  const goToFridgeMealGeneration = () => {
+    setFridgeStep(2);
   };
   
   return (
@@ -250,10 +261,10 @@ const MealPlannerPage = () => {
               <div className="meal-generator-container mb-8">
                 <h2 className="text-xl font-bold text-text-primary mb-4">Génération de repas</h2>
                 <p className="text-text-secondary mb-6">
-                  Générez des repas pour votre plan en utilisant les aliments disponibles.
+                  Générez des repas pour votre plan en utilisant l'assistant de génération.
                 </p>
-                {/* Utilisation du composant MealGenerator ici */}
-                <MealGenerator />
+                {/* Utiliser le nouveau composant qui ne dépend pas de FridgeContext */}
+                <MealGeneratorForPlan />
               </div>
             )}
             
@@ -271,28 +282,46 @@ const MealPlannerPage = () => {
                 <div className="border-b border-border-color mb-6">
                   <div className="flex">
                     <button
-                      className="py-3 px-6 border-b-2 border-primary-500 text-primary-500 font-medium"
+                      className={`py-3 px-6 border-b-2 ${
+                        fridgeStep === 1 
+                          ? 'border-primary-500 text-primary-500 font-medium' 
+                          : 'border-transparent text-text-secondary'
+                      }`}
+                      onClick={() => setFridgeStep(1)}
                     >
                       1. Mon frigo
                     </button>
                     <button
-                      className="py-3 px-6 border-b-2 border-transparent text-text-secondary"
+                      className={`py-3 px-6 border-b-2 ${
+                        fridgeStep === 2 
+                          ? 'border-primary-500 text-primary-500 font-medium' 
+                          : 'border-transparent text-text-secondary'
+                      }`}
+                      onClick={() => fridgeStep === 1 ? null : setFridgeStep(2)}
                     >
                       2. Générer des repas
                     </button>
                   </div>
                 </div>
                 
-                <div>
-                  <FridgeSelector />
-                  <div className="flex justify-end mt-6">
-                    <button
-                      className="btn-primary"
-                    >
-                      Étape suivante : Générer des repas
-                    </button>
+                {fridgeStep === 1 ? (
+                  <div>
+                    <FridgeSelector />
+                    <div className="flex justify-end mt-6">
+                      <button
+                        className="btn-primary"
+                        onClick={goToFridgeMealGeneration}
+                      >
+                        Étape suivante : Générer des repas
+                      </button>
+                    </div>
                   </div>
-                </div>
+                ) : (
+                  <div>
+                    {/* Utiliser le nouveau composant spécifique pour le frigo */}
+                    <MealGeneratorFromFridge />
+                  </div>
+                )}
               </div>
             </div>
           </FridgeProvider>
