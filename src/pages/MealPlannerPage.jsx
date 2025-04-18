@@ -23,9 +23,10 @@ const MealPlannerPage = () => {
   const [planName, setPlanName] = useState('');
   const [showAdvancedOptions, setShowAdvancedOptions] = useState(false);
   const [planOptions, setPlanOptions] = useState(null);
+  const [showMealGenerator, setShowMealGenerator] = useState(false);
   
   // Contextes
-  const { dietType, ketoProfile, calorieTarget, macroTargets, mealFrequency, intermittentFasting } = useUser();
+  const { dietType, ketoProfile, calorieTarget, macroTargets, intermittentFasting } = useUser();
   const { createEmptyPlan, currentPlan } = useMealPlan();
   
   // Réinitialiser le message de succès après un certain temps
@@ -76,12 +77,15 @@ const MealPlannerPage = () => {
     if (planId) {
       setPlanCreated(true);
       setPlanName(displayName);
+      setShowMealGenerator(false); // Masquer le générateur puisque le plan est vide
     }
   };
   
   // Génération d'un plan personnalisé avec les options avancées
   const handleGeneratePlan = () => {
     handleCreateEmptyPlan();
+    // Afficher le générateur de repas après la création du plan
+    setShowMealGenerator(true);
     console.log("Génération de plan personnalisé avec options:", planOptions);
   };
   
@@ -235,6 +239,17 @@ const MealPlannerPage = () => {
                   Votre plan "{planName}" a été créé avec succès. 
                   Vous pouvez maintenant ajouter des repas.
                 </p>
+              </div>
+            )}
+            
+            {/* Affichage du générateur de repas après création d'un plan */}
+            {showMealGenerator && currentPlan && (
+              <div className="meal-generator-container mb-8">
+                <h2 className="text-xl font-bold text-text-primary mb-4">Génération de repas</h2>
+                <p className="text-text-secondary mb-6">
+                  Générez des repas pour votre plan en utilisant les aliments disponibles.
+                </p>
+                <MealGenerator />
               </div>
             )}
             
