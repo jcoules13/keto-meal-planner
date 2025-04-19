@@ -3,12 +3,14 @@ import { useUser } from '../../contexts/UserContext';
 import { useMealPlan } from '../../contexts/MealPlanContext';
 import { useFood } from '../../contexts/FoodContext';
 import { useRecipe } from '../../contexts/RecipeContext';
+import { FaSpinner, FaCheck, FaExclamationTriangle } from 'react-icons/fa';
 import './MealGenerator.css';
 
 /**
  * Générateur de repas pour le plan hebdomadaire 
  * Ce composant ne dépend pas du FridgeProvider
  * Il crée des repas basés sur les besoins nutritionnels et les préférences
+ * Version améliorée avec meilleure récupération des données
  */
 const MealGeneratorForPlan = () => {
   const { calorieTarget, macroTargets, dietType, preferences } = useUser();
@@ -92,6 +94,7 @@ const MealGeneratorForPlan = () => {
   
   /**
    * Génère un repas réel basé sur les données d'aliments et de recettes
+   * Version améliorée avec meilleure récupération des aliments
    * @param {string} type - Type de repas (déjeuner, dîner)
    * @param {number} calories - Calories cibles pour le repas
    * @param {Object} macros - Objectifs de macronutriments
@@ -110,7 +113,7 @@ const MealGeneratorForPlan = () => {
     
     // Sélection du mode de génération: recette ou combinaison d'aliments individuels
     // On privilégie les recettes pour les repas principaux (70% du temps)
-    const useRecipe = (Math.random() < 0.7);
+    const useRecipe = (Math.random() < 0.7) && recipes.length > 0;
     
     // Si on utilise une recette
     if (useRecipe) {
@@ -128,23 +131,32 @@ const MealGeneratorForPlan = () => {
         
         // Vérifier si les valeurs nutritionnelles sont dans les limites appropriées
         const calorieMargin = 0.2; // 20% de marge
-        if (recipe.nutritionPerServing.calories < calories * (1 - calorieMargin) || 
-            recipe.nutritionPerServing.calories > calories * (1 + calorieMargin)) {
+        if (recipe.nutritionPerServing && (
+            recipe.nutritionPerServing.calories < calories * (1 - calorieMargin) || 
+            recipe.nutritionPerServing.calories > calories * (1 + calorieMargin))) {
           return false;
         }
         
         // Vérifier que la recette correspond au type de repas
-        return recipe.tags.includes(type === 'déjeuner' ? 'déjeuner' : 'dîner');
+        return recipe.tags && recipe.tags.includes(type === 'déjeuner' ? 'déjeuner' : 'dîner');
       });
       
       // Si l'option preferLowCarbs est activée, privilégier les recettes faibles en glucides
       if (generationOptions.preferLowCarbs) {
-        filteredRecipes.sort((a, b) => a.nutritionPerServing.netCarbs - b.nutritionPerServing.netCarbs);
+        filteredRecipes.sort((a, b) => {
+          const aCarbs = a.nutritionPerServing?.netCarbs || 0;
+          const bCarbs = b.nutritionPerServing?.netCarbs || 0;
+          return aCarbs - bCarbs;
+        });
       }
       
       // Si l'option maximizeProtein est activée, privilégier les recettes riches en protéines
       if (generationOptions.maximizeProtein) {
-        filteredRecipes.sort((a, b) => b.nutritionPerServing.protein - a.nutritionPerServing.protein);
+        filteredRecipes.sort((a, b) => {
+          const aProtein = b.nutritionPerServing?.protein || 0;
+          const bProtein = a.nutritionPerServing?.protein || 0;
+          return aProtein - bProtein;
+        });
       }
       
       // Prendre les 5 meilleures recettes et en choisir une au hasard pour plus de variété
@@ -154,32 +166,39 @@ const MealGeneratorForPlan = () => {
         const selectedRecipe = topRecipes[Math.floor(Math.random() * topRecipes.length)];
         
         // Ajuster les portions pour respecter les objectifs caloriques
-        const factor = calories / selectedRecipe.nutritionPerServing.calories;
+        let factor = 1;
+        if (selectedRecipe.nutritionPerServing && selectedRecipe.nutritionPerServing.calories) {
+          factor = calories / selectedRecipe.nutritionPerServing.calories;
+        }
         const portions = Math.round(factor * 10) / 10; // Arrondir à 1 décimale
         
         // Construire les "items" du repas à partir des ingrédients de la recette
-        const items = selectedRecipe.ingredients.map(ingredient => {
+        const items = selectedRecipe.ingredients?.map(ingredient => {
           const food = foods.find(f => f.id === ingredient.foodId);
           return {
+            id: ingredient.foodId, // Important pour la récupération ultérieure
+            type: 'food',
             name: food ? food.name : ingredient.foodId, // Utiliser le nom de l'aliment s'il existe
             quantity: Math.round(ingredient.quantity * portions),
             unit: ingredient.unit
           };
-        });
+        }) || [];
         
         // Créer l'objet repas avec les valeurs nutritionnelles ajustées
         return {
           name: selectedRecipe.name,
           type: type,
-          totalNutrition: {
-            calories: Math.round(selectedRecipe.nutritionPerServing.calories * portions),
-            protein: Math.round(selectedRecipe.nutritionPerServing.protein * portions * 10) / 10,
-            fat: Math.round(selectedRecipe.nutritionPerServing.fat * portions * 10) / 10,
-            netCarbs: Math.round(selectedRecipe.nutritionPerServing.netCarbs * portions * 10) / 10
-          },
-          items: items,
           recipeId: selectedRecipe.id, // Pour référence
-          isRecipe: true
+          isRecipe: true,
+          totaux: {
+            calories: Math.round(selectedRecipe.nutritionPerServing?.calories * portions || 0),
+            macros: {
+              protein: Math.round(selectedRecipe.nutritionPerServing?.protein * portions * 10) / 10 || 0,
+              fat: Math.round(selectedRecipe.nutritionPerServing?.fat * portions * 10) / 10 || 0,
+              netCarbs: Math.round(selectedRecipe.nutritionPerServing?.netCarbs * portions * 10) / 10 || 0
+            }
+          },
+          items: items
         };
       }
     }
@@ -217,18 +236,23 @@ const MealGeneratorForPlan = () => {
       food.category === 'viande' || 
       food.category === 'poisson' || 
       food.category === 'œufs' || 
-      (food.category === 'produits_laitiers' && food.nutritionPer100g.protein > 15)
+      (food.category === 'produits_laitiers' && food.nutritionPer100g?.protein > 15)
     );
     
     const fatFoods = filteredFoods.filter(food => 
       food.category === 'matières_grasses' || 
-      (food.category === 'noix_graines')
+      food.category === 'noix_graines'
     );
     
     const vegetableFoods = filteredFoods.filter(food => 
       food.category === 'légumes' && 
-      food.nutritionPer100g.netCarbs < 10
+      food.nutritionPer100g?.netCarbs < 10
     );
+    
+    // S'assurer qu'on a des aliments disponibles
+    if (proteinFoods.length === 0 || vegetableFoods.length === 0 || fatFoods.length === 0) {
+      throw new Error("Pas assez d'aliments disponibles pour générer un repas équilibré");
+    }
     
     // Sélectionner une protéine
     const proteinFood = proteinFoods[Math.floor(Math.random() * proteinFoods.length)];
@@ -283,11 +307,12 @@ const MealGeneratorForPlan = () => {
     
     // Ajouter la protéine
     if (proteinFood) {
-      const quantity = Math.round(
-        (caloriesProtein / (proteinFood.nutritionPer100g.calories / 100))
-      );
+      const proteinCaloriesPer100g = proteinFood.nutritionPer100g?.calories || 200;
+      const quantity = Math.round((caloriesProtein / (proteinCaloriesPer100g / 100)));
       
       items.push({
+        id: proteinFood.id,
+        type: 'food',
         name: proteinFood.name,
         quantity: quantity,
         unit: 'g'
@@ -297,14 +322,15 @@ const MealGeneratorForPlan = () => {
     // Ajouter les légumes
     selectedVegetables.forEach(vegetable => {
       const caloriesPerVegetable = caloriesVegetables / selectedVegetables.length;
-      let quantity = Math.round(
-        (caloriesPerVegetable / (vegetable.nutritionPer100g.calories / 100))
-      );
+      const vegCaloriesPer100g = vegetable.nutritionPer100g?.calories || 25;
+      let quantity = Math.round((caloriesPerVegetable / (vegCaloriesPer100g / 100)));
       
       // Minimum 100g de légumes
       quantity = Math.max(quantity, 100);
       
       items.push({
+        id: vegetable.id,
+        type: 'food',
         name: vegetable.name,
         quantity: quantity,
         unit: 'g'
@@ -314,11 +340,12 @@ const MealGeneratorForPlan = () => {
     // Ajouter les matières grasses
     selectedFats.forEach(fat => {
       const caloriesPerFat = caloriesFat / selectedFats.length;
-      const quantity = Math.round(
-        (caloriesPerFat / (fat.nutritionPer100g.calories / 100))
-      );
+      const fatCaloriesPer100g = fat.nutritionPer100g?.calories || 800;
+      const quantity = Math.round((caloriesPerFat / (fatCaloriesPer100g / 100)));
       
       items.push({
+        id: fat.id,
+        type: 'food',
         name: fat.name,
         quantity: quantity,
         unit: 'g'
@@ -332,13 +359,13 @@ const MealGeneratorForPlan = () => {
     let totalNetCarbs = 0;
     
     items.forEach(item => {
-      const food = foods.find(f => f.name === item.name);
-      if (food) {
+      const food = foods.find(f => f.id === item.id);
+      if (food && food.nutritionPer100g) {
         const ratio = item.quantity / 100;
-        totalCalories += food.nutritionPer100g.calories * ratio;
-        totalProtein += food.nutritionPer100g.protein * ratio;
-        totalFat += food.nutritionPer100g.fat * ratio;
-        totalNetCarbs += (food.nutritionPer100g.carbs - (food.nutritionPer100g.fiber || 0)) * ratio;
+        totalCalories += (food.nutritionPer100g.calories || 0) * ratio;
+        totalProtein += (food.nutritionPer100g.protein || 0) * ratio;
+        totalFat += (food.nutritionPer100g.fat || 0) * ratio;
+        totalNetCarbs += ((food.nutritionPer100g.carbs || 0) - (food.nutritionPer100g.fiber || 0)) * ratio;
       }
     });
     
@@ -360,14 +387,16 @@ const MealGeneratorForPlan = () => {
     return {
       name: mealName,
       type: type,
-      totalNutrition: {
+      isRecipe: false,
+      totaux: {
         calories: Math.round(totalCalories),
-        protein: Math.round(totalProtein * 10) / 10,
-        fat: Math.round(totalFat * 10) / 10,
-        netCarbs: Math.round(totalNetCarbs * 10) / 10
+        macros: {
+          protein: Math.round(totalProtein * 10) / 10,
+          fat: Math.round(totalFat * 10) / 10,
+          netCarbs: Math.round(totalNetCarbs * 10) / 10
+        }
       },
-      items: items,
-      isRecipe: false
+      items: items
     };
   };
   
@@ -496,7 +525,7 @@ const MealGeneratorForPlan = () => {
             >
               {isGenerating ? (
                 <>
-                  <span className="loading-spinner"></span>
+                  <FaSpinner className="spinner-icon" />
                   Génération en cours...
                 </>
               ) : (
@@ -509,13 +538,15 @@ const MealGeneratorForPlan = () => {
       
       {errorMessage && (
         <div className="error-message">
-          {errorMessage}
+          <FaExclamationTriangle className="message-icon" />
+          <span>{errorMessage}</span>
         </div>
       )}
       
       {successMessage && (
         <div className="success-message">
-          {successMessage}
+          <FaCheck className="message-icon" />
+          <span>{successMessage}</span>
         </div>
       )}
       
@@ -526,21 +557,21 @@ const MealGeneratorForPlan = () => {
             <div className="meal-card">
               <div className="meal-header">
                 <h4>{generatedMeal.name}</h4>
-                <span className="meal-calorie">{generatedMeal.totalNutrition.calories} kcal</span>
+                <span className="meal-calorie">{generatedMeal.totaux.calories} kcal</span>
               </div>
               
               <div className="meal-macros">
                 <div className="macro">
                   <span className="macro-label">Protéines</span>
-                  <span className="macro-value protein">{generatedMeal.totalNutrition.protein}g</span>
+                  <span className="macro-value protein">{generatedMeal.totaux.macros.protein}g</span>
                 </div>
                 <div className="macro">
                   <span className="macro-label">Lipides</span>
-                  <span className="macro-value fat">{generatedMeal.totalNutrition.fat}g</span>
+                  <span className="macro-value fat">{generatedMeal.totaux.macros.fat}g</span>
                 </div>
                 <div className="macro">
                   <span className="macro-label">Glucides</span>
-                  <span className="macro-value carbs">{generatedMeal.totalNutrition.netCarbs}g</span>
+                  <span className="macro-value carbs">{generatedMeal.totaux.macros.netCarbs}g</span>
                 </div>
               </div>
               
