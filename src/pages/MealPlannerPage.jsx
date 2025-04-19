@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet';
-import { FaUtensils, FaCalendarAlt, FaCog, FaListUl, FaThLarge } from 'react-icons/fa';
+import { FaUtensils, FaCalendarAlt, FaCog } from 'react-icons/fa';
 import { useMealPlan } from '../contexts/MealPlanContext';
 import { useUser } from '../contexts/UserContext';
 import { FridgeProvider } from '../contexts/FridgeContext';
@@ -12,7 +12,6 @@ import WeeklyMealGenerator from '../components/meals/WeeklyMealGenerator';
 import MealPlanOptions from '../components/meals/MealPlanOptions';
 import FastingScheduleDisplay from '../components/meals/FastingScheduleDisplay';
 import WeeklyMealPlanDisplay from '../components/meals/WeeklyMealPlanDisplay';
-import WeeklyMealPlanGrid from '../components/meals/WeeklyMealPlanGrid';
 import './MealPlannerPage.css';
 
 /**
@@ -30,7 +29,6 @@ const MealPlannerPage = () => {
   const [planOptions, setPlanOptions] = useState(null);
   const [generatorMode, setGeneratorMode] = useState('weekly'); // 'weekly', 'individual', 'none'
   const [fridgeStep, setFridgeStep] = useState(1); // 1: Sélection frigo, 2: Génération repas
-  const [viewMode, setViewMode] = useState('grid'); // 'list' ou 'grid' pour l'affichage des repas
   
   // Contextes
   const { dietType, ketoProfile, calorieTarget, macroTargets, intermittentFasting } = useUser();
@@ -105,11 +103,6 @@ const MealPlannerPage = () => {
       // Si on revient à l'onglet weekly, réinitialiser le mode de générateur
       setGeneratorMode('none');
     }
-  };
-  
-  // Changement du mode d'affichage des repas (liste ou grille)
-  const toggleViewMode = () => {
-    setViewMode(viewMode === 'list' ? 'grid' : 'list');
   };
   
   // Gestionnaire pour les changements d'options avancées
@@ -352,24 +345,12 @@ const MealPlannerPage = () => {
             {/* Affichage du plan de repas hebdomadaire si un plan existe */}
             {currentPlan && (
               <div className="meal-plan-display">
-                <div className="flex justify-between items-center mb-4">
+                <div className="mb-4">
                   <h2 className="text-xl font-bold text-text-primary">Plan de repas</h2>
-                  
-                  {/* Bouton de changement de vue (liste ou grille) */}
-                  <button 
-                    className="view-toggle-button"
-                    onClick={toggleViewMode}
-                    title={viewMode === 'list' ? 'Afficher en grille' : 'Afficher en liste'}
-                  >
-                    {viewMode === 'list' ? <FaThLarge /> : <FaListUl />}
-                  </button>
                 </div>
                 
-                {viewMode === 'list' ? (
-                  <WeeklyMealPlanDisplay />
-                ) : (
-                  <WeeklyMealPlanGrid />
-                )}
+                {/* Nouveau format unifié d'affichage du plan */}
+                <WeeklyMealPlanDisplay />
               </div>
             )}
           </div>
