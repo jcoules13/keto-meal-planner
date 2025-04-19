@@ -1,22 +1,25 @@
 import React, { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet';
-import { FaUtensils, FaCalendarAlt, FaCog } from 'react-icons/fa';
+import { FaUtensils, FaCalendarAlt, FaCog, FaListUl, FaThLarge } from 'react-icons/fa';
 import { useMealPlan } from '../contexts/MealPlanContext';
 import { useUser } from '../contexts/UserContext';
 import { FridgeProvider } from '../contexts/FridgeContext';
 import FridgeSelector from '../components/meals/FridgeSelector';
-// Remplacer l'ancien import par les nouveaux composants spécifiques
+// Importer les composants pour la planification des repas
 import MealGeneratorForPlan from '../components/meals/MealGeneratorForPlan';
 import MealGeneratorFromFridge from '../components/meals/MealGeneratorFromFridge';
+import WeeklyMealGenerator from '../components/meals/WeeklyMealGenerator';
 import MealPlanOptions from '../components/meals/MealPlanOptions';
 import FastingScheduleDisplay from '../components/meals/FastingScheduleDisplay';
 import WeeklyMealPlanDisplay from '../components/meals/WeeklyMealPlanDisplay';
+import WeeklyMealPlanGrid from '../components/meals/WeeklyMealPlanGrid';
 import './MealPlannerPage.css';
 
 /**
  * Page de planification de repas intelligente
  * Permet de générer des repas en fonction des besoins nutritionnels
  * et des aliments disponibles dans le frigo
+ * Version améliorée avec génération automatique de repas hebdomadaires
  */
 const MealPlannerPage = () => {
   // États locaux
@@ -25,12 +28,11 @@ const MealPlannerPage = () => {
   const [planName, setPlanName] = useState('');
   const [showAdvancedOptions, setShowAdvancedOptions] = useState(false);
   const [planOptions, setPlanOptions] = useState(null);
-  const [showMealGenerator, setShowMealGenerator] = useState(false);
+  const [generatorMode, setGeneratorMode] = useState('weekly'); // 'weekly', 'individual', 'none'
   const [fridgeStep, setFridgeStep] = useState(1); // 1: Sélection frigo, 2: Génération repas
+  const [viewMode, setViewMode] = useState('grid'); // 'list' ou 'grid' pour l'affichage des repas
   
   // Contextes
-  // Récupérer les paramètres et retirer mealFrequency pour éviter l'avertissement 
-  // puisqu'il n'est pas utilisé dans le composant
   const { dietType, ketoProfile, calorieTarget, macroTargets, intermittentFasting } = useUser();
   const { createEmptyPlan, currentPlan } = useMealPlan();
   
@@ -82,16 +84,15 @@ const MealPlannerPage = () => {
     if (planId) {
       setPlanCreated(true);
       setPlanName(displayName);
-      setShowMealGenerator(false); // Masquer le générateur puisque le plan est vide
+      setGeneratorMode('none'); // Réinitialiser le mode de génération
     }
   };
   
   // Génération d'un plan personnalisé avec les options avancées
   const handleGeneratePlan = () => {
     handleCreateEmptyPlan();
-    // Afficher le générateur de repas après la création du plan
-    setShowMealGenerator(true);
-    console.log("Génération de plan personnalisé avec options:", planOptions);
+    // Afficher le générateur de repas automatique après la création du plan
+    setGeneratorMode('weekly');
   };
   
   // Changement d'onglet
@@ -100,18 +101,35 @@ const MealPlannerPage = () => {
     // Réinitialiser l'étape de l'onglet frigo quand on change d'onglet
     if (tab === 'fridge') {
       setFridgeStep(1);
+    } else {
+      // Si on revient à l'onglet weekly, réinitialiser le mode de générateur
+      setGeneratorMode('none');
     }
+  };
+  
+  // Changement du mode d'affichage des repas (liste ou grille)
+  const toggleViewMode = () => {
+    setViewMode(viewMode === 'list' ? 'grid' : 'list');
   };
   
   // Gestionnaire pour les changements d'options avancées
   const handleOptionsChange = (options) => {
     setPlanOptions(options);
-    console.log("Options mises à jour:", options);
   };
   
   // Passer à l'étape de génération des repas dans l'onglet frigo
   const goToFridgeMealGeneration = () => {
     setFridgeStep(2);
+  };
+  
+  // Afficher le générateur de repas individuel
+  const showIndividualGenerator = () => {
+    setGeneratorMode('individual');
+  };
+  
+  // Afficher le générateur hebdomadaire
+  const showWeeklyGenerator = () => {
+    setGeneratorMode('weekly');
   };
   
   return (
@@ -211,66 +229,148 @@ const MealPlannerPage = () => {
               )}
             </div>
             
-            <div className="grid md:grid-cols-2 gap-8 mb-8">
-              <div className="card hover:shadow-lg transition-shadow duration-300">
-                <div className="flex justify-center mb-4 text-primary-500 text-3xl">
-                  <FaUtensils />
+            {/* Boutons de création de plan si aucun plan n'existe encore */}
+            {!currentPlan && (
+              <div className="grid md:grid-cols-2 gap-8 mb-8">
+                <div className="card hover:shadow-lg transition-shadow duration-300">
+                  <div className="flex justify-center mb-4 text-primary-500 text-3xl">
+                    <FaUtensils />
+                  </div>
+                  <h3 className="text-lg font-bold text-text-primary mb-4 text-center">Générer un plan personnalisé</h3>
+                  <p className="text-text-secondary mb-6 text-center">
+                    Créez un plan de repas complet pour la semaine en fonction de vos besoins nutritionnels
+                    {showAdvancedOptions && ' et de vos préférences avancées'}.
+                  </p>
+                  <button 
+                    className="btn-primary w-full mt-auto"
+                    onClick={handleGeneratePlan}
+                  >
+                    Générer mon plan
+                  </button>
                 </div>
-                <h3 className="text-lg font-bold text-text-primary mb-4 text-center">Générer un plan personnalisé</h3>
-                <p className="text-text-secondary mb-6 text-center">
-                  Créez un plan de repas complet pour la semaine en fonction de vos besoins nutritionnels
-                  {showAdvancedOptions && ' et de vos préférences avancées'}.
-                </p>
-                <button 
-                  className="btn-primary w-full mt-auto"
-                  onClick={handleGeneratePlan}
-                >
-                  Générer mon plan
-                </button>
-              </div>
-              
-              <div className="card hover:shadow-lg transition-shadow duration-300">
-                <div className="flex justify-center mb-4 text-primary-500 text-3xl">
-                  <FaCalendarAlt />
+                
+                <div className="card hover:shadow-lg transition-shadow duration-300">
+                  <div className="flex justify-center mb-4 text-primary-500 text-3xl">
+                    <FaCalendarAlt />
+                  </div>
+                  <h3 className="text-lg font-bold text-text-primary mb-4 text-center">Créer un plan vide</h3>
+                  <p className="text-text-secondary mb-6 text-center">
+                    Commencez avec un plan vide et ajoutez vos propres repas manuellement.
+                  </p>
+                  <button 
+                    className="btn-outline w-full mt-auto"
+                    onClick={handleCreateEmptyPlan}
+                  >
+                    Créer un plan vide
+                  </button>
                 </div>
-                <h3 className="text-lg font-bold text-text-primary mb-4 text-center">Créer un plan vide</h3>
-                <p className="text-text-secondary mb-6 text-center">
-                  Commencez avec un plan vide et ajoutez vos propres repas manuellement.
-                </p>
-                <button 
-                  className="btn-outline w-full mt-auto"
-                  onClick={handleCreateEmptyPlan}
-                >
-                  Créer un plan vide
-                </button>
               </div>
-            </div>
+            )}
             
             {/* Message de plan créé si nécessaire */}
             {planCreated && (
               <div className="bg-success bg-opacity-10 border-l-4 border-success text-success p-4 rounded mb-8">
                 <p>
                   Votre plan "{planName}" a été créé avec succès. 
-                  Vous pouvez maintenant ajouter des repas.
+                  {generatorMode === 'weekly' 
+                    ? ' Utilisez le générateur ci-dessous pour remplir automatiquement votre semaine.' 
+                    : ' Vous pouvez maintenant ajouter des repas.'}
                 </p>
               </div>
             )}
             
-            {/* Affichage du générateur de repas après création d'un plan */}
-            {showMealGenerator && currentPlan && (
-              <div className="meal-generator-container mb-8">
+            {/* Si un plan existe, afficher les boutons de génération de repas */}
+            {currentPlan && generatorMode === 'none' && (
+              <div className="meal-generation-options mb-8">
                 <h2 className="text-xl font-bold text-text-primary mb-4">Génération de repas</h2>
-                <p className="text-text-secondary mb-6">
-                  Générez des repas pour votre plan en utilisant l'assistant de génération.
+                <p className="text-text-secondary mb-4">
+                  Choisissez comment vous souhaitez générer les repas pour votre plan.
                 </p>
-                {/* Utiliser le nouveau composant qui ne dépend pas de FridgeContext */}
+                
+                <div className="grid md:grid-cols-2 gap-6">
+                  <div className="card hover:shadow-md p-5">
+                    <h3 className="text-lg font-semibold mb-3">Génération automatique</h3>
+                    <p className="text-text-secondary mb-4">
+                      Générez automatiquement tous les repas de la semaine en un seul clic.
+                    </p>
+                    <button 
+                      className="btn-primary w-full"
+                      onClick={showWeeklyGenerator}
+                    >
+                      Générer toute la semaine
+                    </button>
+                  </div>
+                  
+                  <div className="card hover:shadow-md p-5">
+                    <h3 className="text-lg font-semibold mb-3">Génération manuelle</h3>
+                    <p className="text-text-secondary mb-4">
+                      Générez des repas individuels en choisissant le jour et le type de repas.
+                    </p>
+                    <button 
+                      className="btn-outline w-full"
+                      onClick={showIndividualGenerator}
+                    >
+                      Générer repas par repas
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+            
+            {/* Afficher le générateur hebdomadaire automatique si sélectionné */}
+            {currentPlan && generatorMode === 'weekly' && (
+              <div className="meal-generator-container mb-8">
+                <div className="flex justify-between items-center mb-2">
+                  <h2 className="text-xl font-bold text-text-primary">Générateur automatique</h2>
+                  <button 
+                    className="text-text-secondary hover:text-primary-500 text-sm"
+                    onClick={() => setGeneratorMode('none')}
+                  >
+                    Changer de mode &times;
+                  </button>
+                </div>
+                <WeeklyMealGenerator />
+              </div>
+            )}
+            
+            {/* Afficher le générateur de repas individuel si sélectionné */}
+            {currentPlan && generatorMode === 'individual' && (
+              <div className="meal-generator-container mb-8">
+                <div className="flex justify-between items-center mb-2">
+                  <h2 className="text-xl font-bold text-text-primary">Générateur individuel</h2>
+                  <button 
+                    className="text-text-secondary hover:text-primary-500 text-sm"
+                    onClick={() => setGeneratorMode('none')}
+                  >
+                    Changer de mode &times;
+                  </button>
+                </div>
                 <MealGeneratorForPlan />
               </div>
             )}
             
-            {/* Nouvel affichage du plan de repas hebdomadaire */}
+            {/* Affichage du plan de repas hebdomadaire si un plan existe */}
             {currentPlan && (
-              <WeeklyMealPlanDisplay />
+              <div className="meal-plan-display">
+                <div className="flex justify-between items-center mb-4">
+                  <h2 className="text-xl font-bold text-text-primary">Plan de repas</h2>
+                  
+                  {/* Bouton de changement de vue (liste ou grille) */}
+                  <button 
+                    className="view-toggle-button"
+                    onClick={toggleViewMode}
+                    title={viewMode === 'list' ? 'Afficher en grille' : 'Afficher en liste'}
+                  >
+                    {viewMode === 'list' ? <FaThLarge /> : <FaListUl />}
+                  </button>
+                </div>
+                
+                {viewMode === 'list' ? (
+                  <WeeklyMealPlanDisplay />
+                ) : (
+                  <WeeklyMealPlanGrid />
+                )}
+              </div>
             )}
           </div>
         )}
@@ -318,7 +418,6 @@ const MealPlannerPage = () => {
                   </div>
                 ) : (
                   <div>
-                    {/* Utiliser le nouveau composant spécifique pour le frigo */}
                     <MealGeneratorFromFridge />
                   </div>
                 )}
