@@ -3,7 +3,7 @@
   background-color: var(--bg-primary);
   border-radius: 8px;
   padding: 20px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-card);
 }
 
 .weekly-meal-plan-empty {
@@ -20,98 +20,236 @@
   border-radius: 6px;
   padding: 12px 15px;
   margin-bottom: 20px;
+  color: var(--text-primary);
 }
 
-.day-navigator {
+/* Nouvelle navigation par onglets pour les jours */
+.day-tabs-container {
+  margin-bottom: 20px;
+  overflow: hidden;
+  border-radius: 6px;
+  background-color: var(--bg-secondary);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.day-tabs {
   display: flex;
   overflow-x: auto;
-  gap: 10px;
-  padding-bottom: 15px;
-  margin-bottom: 20px;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: thin;
+  padding: 0;
+  background-color: var(--bg-secondary);
+  border-bottom: 1px solid var(--border-color);
 }
 
 .day-tab {
-  flex: 0 0 auto;
-  padding: 10px 15px;
-  border-radius: 20px;
-  background-color: var(--bg-secondary);
+  flex: 1;
+  min-width: 80px;
+  padding: 12px 8px;
+  text-align: center;
   cursor: pointer;
-  transition: background-color 0.2s;
-  white-space: nowrap;
-  user-select: none;
+  transition: all 0.2s ease;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary); /* Couleur de texte pour thème clair */
+  border-bottom: 3px solid transparent;
+  position: relative;
+  outline: none;
+}
+
+.day-tab:hover {
+  background-color: rgba(0, 0, 0, 0.04);
+  color: var(--text-primary);
 }
 
 .day-tab.active {
-  background-color: var(--primary-color);
-  color: white;
+  color: var(--primary-500);
+  border-bottom: 3px solid var(--primary-500);
+  font-weight: 500;
+  background-color: var(--bg-card);
 }
 
 .day-name {
   font-weight: 500;
-  display: block;
-  margin-bottom: 2px;
+  font-size: 0.9rem;
+  margin-bottom: 3px;
+  text-transform: capitalize;
 }
 
 .day-date {
   font-size: 0.8rem;
-  color: var(--text-secondary);
+  color: inherit;
+  opacity: 0.8;
 }
 
-.day-tab.active .day-date {
-  color: rgba(255, 255, 255, 0.8);
-}
-
-.day-meals {
-  padding: 10px 0;
-}
-
-.day-meals-empty {
-  text-align: center;
-  padding: 30px;
-  color: var(--text-secondary);
-  border: 1px dashed var(--border-color);
-  border-radius: 8px;
-  margin: 20px 0;
-}
-
-.day-nutrition-summary {
-  background-color: var(--bg-secondary);
+/* Panneau d'affichage du jour sélectionné */
+.day-panel {
+  background-color: var(--bg-primary);
   border-radius: 6px;
+  border: 1px solid var(--border-card);
+  overflow: hidden;
+  animation: fadeIn 0.3s ease;
+}
+
+.day-header {
   padding: 15px;
-  margin-bottom: 20px;
+  background-color: var(--bg-secondary);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.day-title {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+/* Résumé nutritionnel */
+.day-nutrition-summary {
+  padding: 15px;
+  border-bottom: 1px solid var(--border-color);
+  background-color: var(--bg-primary);
+}
+
+.nutrition-header {
+  margin-top: 0;
+  margin-bottom: 10px;
+  font-size: 1rem;
+  color: var(--text-primary);
+  font-weight: 600;
 }
 
 .nutrition-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-  gap: 10px;
-  margin-top: 10px;
+  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+  gap: 15px;
 }
 
 .nutrition-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   text-align: center;
 }
 
+.nutrition-value {
+  font-size: 1.25rem;
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+
 .nutrition-label {
-  display: block;
   font-size: 0.8rem;
   color: var(--text-secondary);
+  text-transform: capitalize;
+}
+
+/* Couleurs spécifiques pour les macros */
+.protein-value {
+  color: var(--protein-color);
+}
+
+.fat-value {
+  color: var(--fat-color);
+}
+
+.carbs-value {
+  color: var(--carbs-color);
+}
+
+/* Barres de progression pour les macros */
+.macro-progress-bars {
+  margin-top: 15px;
+}
+
+.macro-progress {
+  margin-bottom: 10px;
+}
+
+.progress-label {
+  display: flex;
+  justify-content: space-between;
   margin-bottom: 5px;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
 }
 
-.nutrition-value {
-  font-size: 1.1rem;
-  font-weight: 500;
+.progress-bar {
+  height: 8px;
+  background-color: var(--neutral-200);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  border-radius: 4px;
+}
+
+.calories-fill {
+  background-color: var(--primary-500);
+}
+
+/* Section des repas */
+.meals-section {
+  padding: 15px;
+}
+
+.meals-header {
+  margin-top: 0;
+  margin-bottom: 15px;
+  font-size: 1rem;
   color: var(--text-primary);
+  font-weight: 600;
 }
 
-.meal-item {
-  background-color: var(--bg-primary);
+/* Styles pour les repas individuels */
+.day-meal-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.day-meal-item {
+  position: relative;
   border: 1px solid var(--border-color);
   border-radius: 6px;
-  margin-bottom: 15px;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.day-meal-item:hover {
+  box-shadow: var(--shadow-card);
+}
+
+/* Bouton d'ajout de repas */
+.add-meal-button-container {
+  padding: 15px;
+  display: flex;
+  justify-content: center;
+}
+
+.add-meal-button {
+  background-color: var(--primary-500);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.add-meal-button:hover {
+  background-color: var(--primary-600);
+}
+
+/* Styles pour les repas */
+.meal-item {
+  background-color: var(--bg-card);
+  border-radius: 6px;
   overflow: hidden;
 }
 
@@ -121,11 +259,13 @@
   align-items: flex-start;
   padding: 15px;
   cursor: pointer;
+  background-color: var(--bg-card);
+  color: var(--text-primary);
   transition: background-color 0.2s;
 }
 
 .meal-header:hover {
-  background-color: var(--bg-hover);
+  background-color: var(--bg-secondary);
 }
 
 .meal-title-info {
@@ -143,11 +283,6 @@
   font-size: 0.85rem;
   color: var(--text-secondary);
   margin-top: 4px;
-}
-
-.more-ingredients {
-  font-style: italic;
-  margin-left: 5px;
 }
 
 .meal-time {
@@ -191,191 +326,49 @@
   color: #2ecc71;
 }
 
-.details-toggle {
-  background: none;
-  border: none;
-  color: var(--text-secondary);
-  cursor: pointer;
-  padding: 0;
-  font-size: 1rem;
-  margin-left: 8px;
-}
-
-.meal-details {
-  padding: 0 15px 15px;
-  border-top: 1px solid var(--border-color-lighter);
-}
-
-.meal-items-list {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.meal-detail-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 8px;
-  border-radius: 4px;
-  background-color: var(--bg-secondary);
-}
-
-.item-icon-name {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.item-icon {
-  font-size: 0.9rem;
-  color: var(--text-secondary);
-}
-
-.item-icon.recipe {
-  color: #e74c3c;
-}
-
-.item-icon.food {
-  color: #2ecc71;
-}
-
-.item-name {
-  font-size: 0.9rem;
-  color: var(--text-primary);
-}
-
-.item-quantity {
-  font-size: 0.8rem;
-  color: var(--text-secondary);
-  margin-left: 8px;
-}
-
-.item-nutrition {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.item-calories {
-  font-size: 0.8rem;
-  color: var(--text-secondary);
-}
-
-.item-macros {
-  display: flex;
-  gap: 8px;
-}
-
-.item-macros .macro {
-  font-size: 0.75rem;
-  padding: 2px 5px;
-  border-radius: 4px;
-}
-
-.item-macros .macro.protein {
-  background-color: rgba(231, 76, 60, 0.1);
-  color: #e74c3c;
-}
-
-.item-macros .macro.fat {
-  background-color: rgba(243, 156, 18, 0.1);
-  color: #f39c12;
-}
-
-.item-macros .macro.carbs {
-  background-color: rgba(46, 204, 113, 0.1);
-  color: #2ecc71;
-}
-
 .empty-items {
   text-align: center;
-  padding: 15px;
+  padding: 20px;
   color: var(--text-secondary);
   font-style: italic;
-}
-
-/* Styles pour l'affichage en grille des jours de la semaine */
-.week-grid-view {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 15px;
-  margin-top: 20px;
-}
-
-.day-card {
   background-color: var(--bg-secondary);
-  border-radius: 8px;
-  overflow: hidden;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border-radius: 6px;
 }
 
-.day-card-header {
-  background-color: var(--primary-color);
-  color: white;
-  padding: 10px 15px;
-}
-
-.day-card-title {
-  margin: 0;
-  font-size: 1rem;
-  display: flex;
-  justify-content: space-between;
-}
-
-.day-card-date {
-  font-size: 0.8rem;
-  opacity: 0.9;
-}
-
-.day-card-content {
-  padding: 15px;
-}
-
-.day-meal-list {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.day-meal-item {
-  border-bottom: 1px solid var(--border-color);
-  padding-bottom: 10px;
-}
-
-.day-meal-item:last-child {
-  border-bottom: none;
-}
-
-/* Responsive */
+/* Media queries pour la responsivité */
 @media (max-width: 768px) {
-  .meal-header {
-    flex-direction: column;
-    gap: 10px;
+  .day-tabs {
+    padding: 0;
   }
   
-  .meal-macros-summary {
-    justify-content: flex-start;
+  .day-tab {
+    min-width: 70px;
+    padding: 10px 5px;
   }
   
-  .meal-detail-item {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 8px;
+  .day-name {
+    font-size: 0.85rem;
   }
   
-  .item-nutrition {
-    width: 100%;
-    justify-content: space-between;
+  .day-date {
+    font-size: 0.75rem;
+  }
+  
+  .nutrition-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .day-nutrition-summary {
+    padding: 12px;
+  }
+  
+  .meals-section {
+    padding: 12px;
   }
 }
 
 /* Animation pour les transitions */
-.meal-details {
-  animation: fadeIn 0.3s ease;
-}
-
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(-10px); }
+  from { opacity: 0; transform: translateY(5px); }
   to { opacity: 1; transform: translateY(0); }
 }
