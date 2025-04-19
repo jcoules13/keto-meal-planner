@@ -28,25 +28,6 @@ export interface NutritionalNeeds {
   };
 }
 
-// Fonctions pour le calcul des repas
-export function calculateMealNutrition(meal: any) {
-  // Fonction existante préservée
-  // Implémentation à conserver
-  return {};
-}
-
-export function updateMealNutrition(meal: any) {
-  // Fonction existante préservée
-  // Implémentation à conserver
-  return {};
-}
-
-export function calculateDailyTotals(meals: any[]) {
-  // Fonction existante préservée
-  // Implémentation à conserver
-  return {};
-}
-
 /**
  * Calcule le métabolisme de base (BMR) selon la formule de Mifflin-St Jeor
  */
