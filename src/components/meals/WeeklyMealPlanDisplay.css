@@ -123,6 +123,7 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
   gap: 15px;
+  margin-bottom: 15px;
 }
 
 .nutrition-item {
@@ -148,48 +149,20 @@
 
 /* Couleurs spécifiques pour les macros */
 .protein-value {
-  color: var(--protein-color);
+  color: var(--protein-color, #e74c3c);
 }
 
 .fat-value {
-  color: var(--fat-color);
+  color: var(--fat-color, #f39c12);
 }
 
 .carbs-value {
-  color: var(--carbs-color);
+  color: var(--carbs-color, #2ecc71);
 }
 
 /* Barres de progression pour les macros */
 .macro-progress-bars {
   margin-top: 15px;
-}
-
-.macro-progress {
-  margin-bottom: 10px;
-}
-
-.progress-label {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 5px;
-  font-size: 0.85rem;
-  color: var(--text-secondary);
-}
-
-.progress-bar {
-  height: 8px;
-  background-color: var(--neutral-200);
-  border-radius: 4px;
-  overflow: hidden;
-}
-
-.progress-bar-fill {
-  height: 100%;
-  border-radius: 4px;
-}
-
-.calories-fill {
-  background-color: var(--primary-500);
 }
 
 /* Section des repas */
@@ -205,6 +178,26 @@
   font-weight: 600;
 }
 
+/* Styles pour les groupes de repas par type */
+.meal-type-group {
+  margin-bottom: 20px;
+}
+
+.meal-type-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 10px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.meal-items-by-type {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
 /* Styles pour les repas individuels */
 .day-meal-list {
   display: flex;
@@ -218,6 +211,7 @@
   border-radius: 6px;
   overflow: hidden;
   transition: all 0.3s ease;
+  margin-bottom: 12px;
 }
 
 .day-meal-item:hover {
@@ -291,6 +285,11 @@
   margin-left: 10px;
 }
 
+.meal-summary-container {
+  display: flex;
+  align-items: center;
+}
+
 .meal-macros-summary {
   display: flex;
   align-items: center;
@@ -326,6 +325,111 @@
   color: #2ecc71;
 }
 
+.details-toggle {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  cursor: pointer;
+  margin-left: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 24px;
+  width: 24px;
+  border-radius: 50%;
+  transition: all 0.2s;
+}
+
+.details-toggle:hover {
+  background-color: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+
+/* Détails du repas */
+.meal-details {
+  padding: 10px 15px 15px;
+  border-top: 1px solid var(--border-color);
+  background-color: var(--bg-secondary);
+}
+
+.meal-items-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.meal-detail-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 10px;
+  border-radius: 4px;
+  background-color: var(--bg-card);
+}
+
+.item-icon-name {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.item-icon {
+  font-size: 0.9rem;
+  opacity: 0.7;
+}
+
+.item-icon.recipe {
+  color: var(--protein-color, #e74c3c);
+}
+
+.item-icon.food {
+  color: var(--carbs-color, #2ecc71);
+}
+
+.item-name {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.item-quantity {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  margin-left: 8px;
+}
+
+.item-nutrition {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.item-calories {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.item-macros {
+  display: flex;
+  gap: 8px;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
+.macro.protein {
+  color: var(--protein-color, #e74c3c);
+}
+
+.macro.fat {
+  color: var(--fat-color, #f39c12);
+}
+
+.macro.carbs {
+  color: var(--carbs-color, #2ecc71);
+}
+
 .empty-items {
   text-align: center;
   padding: 20px;
@@ -333,6 +437,15 @@
   font-style: italic;
   background-color: var(--bg-secondary);
   border-radius: 6px;
+}
+
+/* Message pour jour vide */
+.day-meals-empty {
+  text-align: center;
+  padding: 30px;
+  background-color: var(--bg-secondary);
+  border-radius: 6px;
+  color: var(--text-secondary);
 }
 
 /* Media queries pour la responsivité */
@@ -364,6 +477,17 @@
   
   .meals-section {
     padding: 12px;
+  }
+  
+  .meal-detail-item {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .item-nutrition {
+    align-items: flex-start;
+    margin-top: 5px;
+    margin-left: 26px; /* Pour aligner avec l'icône */
   }
 }
 
