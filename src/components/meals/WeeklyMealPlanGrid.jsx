@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useMealPlan } from '../../contexts/MealPlanContext';
 import { useFood } from '../../contexts/FoodContext';
 import { useRecipe } from '../../contexts/RecipeContext';
@@ -7,12 +7,15 @@ import './WeeklyMealPlanDisplay.css';
 
 /**
  * Composant d'affichage en grille du plan de repas hebdomadaire
- * Permet de visualiser tous les jours de la semaine simultanément
+ * Vue interactive avec sélection des jours en haut et détails en dessous
  */
 const WeeklyMealPlanGrid = () => {
   const { currentPlan, getDayNutritionTotals } = useMealPlan();
   const { getFoodById } = useFood();
   const { getRecipeById } = useRecipe();
+  
+  // État pour le jour sélectionné (index)
+  const [selectedDayIndex, setSelectedDayIndex] = useState(0);
   
   // Si aucun plan n'est actif, afficher un message
   if (!currentPlan) {
@@ -38,16 +41,18 @@ const WeeklyMealPlanGrid = () => {
     return new Date(dateString).toLocaleDateString('fr-FR', { day: 'numeric', month: 'numeric' });
   };
   
-  // Obtenir le jour de la semaine
+  // Obtenir le jour de la semaine (format court)
   const getDayOfWeek = (dateString) => {
     if (!dateString) return '';
-    return new Date(dateString).toLocaleDateString('fr-FR', { weekday: 'long' });
+    return new Date(dateString).toLocaleDateString('fr-FR', { weekday: 'short' });
   };
+
+  // Jour sélectionné
+  const selectedDay = currentPlan.days[selectedDayIndex];
+  const dayNutrition = getDayNutritionTotals(currentPlan.id, selectedDayIndex);
 
   return (
     <div className="weekly-meal-plan">
-      <h2 className="text-xl font-bold text-text-primary mb-4">Vue d'ensemble de la semaine</h2>
-      
       {/* Informations sur le plan */}
       <div className="plan-info mb-4">
         <h3 className="font-medium">{currentPlan.name}</h3>
@@ -58,65 +63,83 @@ const WeeklyMealPlanGrid = () => {
         </p>
       </div>
       
-      {/* Grille des jours de la semaine */}
-      <div className="week-grid-view">
-        {currentPlan.days.map((day, dayIndex) => {
-          // Obtenir les données nutritionnelles du jour
-          const dayNutrition = getDayNutritionTotals(currentPlan.id, dayIndex);
-          
-          return (
-            <div key={dayIndex} className="day-card">
-              <div className="day-card-header">
-                <div className="day-card-title">
-                  <span>{getDayOfWeek(day.date)}</span>
-                  <span className="day-card-date">{formatDate(day.date)}</span>
-                </div>
+      {/* Navigation par jour - nouvelle UI */}
+      <div className="day-tabs-container">
+        <div className="day-tabs">
+          {currentPlan.days.map((day, index) => (
+            <button
+              key={index}
+              className={`day-tab ${selectedDayIndex === index ? 'active' : ''}`}
+              onClick={() => setSelectedDayIndex(index)}
+              aria-selected={selectedDayIndex === index}
+              aria-controls={`day-panel-${index}`}
+            >
+              <div className="day-name">{getDayOfWeek(day.date)}</div>
+              <div className="day-date">{formatDate(day.date)}</div>
+            </button>
+          ))}
+        </div>
+      </div>
+      
+      {/* Détails du jour sélectionné */}
+      <div className="day-panel" id={`day-panel-${selectedDayIndex}`}>
+        <div className="day-header">
+          <h3 className="day-title">
+            {new Date(selectedDay.date).toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })}
+          </h3>
+        </div>
+        
+        {/* Résumé nutritionnel du jour */}
+        {dayNutrition && (
+          <div className="day-nutrition-summary">
+            <h4 className="nutrition-header">Macros Quotidiennes</h4>
+            <div className="nutrition-grid">
+              <div className="nutrition-item">
+                <span className="nutrition-value">{dayNutrition.calories}</span>
+                <span className="nutrition-label">calories</span>
               </div>
-              
-              <div className="day-card-content">
-                {day.meals && day.meals.length > 0 ? (
-                  <div className="day-meal-list">
-                    {day.meals.map((meal, mealIndex) => (
-                      <div key={mealIndex} className="day-meal-item">
-                        <MealItem 
-                          meal={meal} 
-                          getFoodById={getFoodById}
-                          getRecipeById={getRecipeById}
-                        />
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="empty-items">Aucun repas pour cette journée.</p>
-                )}
-                
-                {/* Résumé nutritionnel du jour */}
-                {dayNutrition && (
-                  <div className="day-nutrition-summary mt-3">
-                    <div className="nutrition-grid">
-                      <div className="nutrition-item">
-                        <span className="nutrition-label">Calories</span>
-                        <span className="nutrition-value">{dayNutrition.calories} kcal</span>
-                      </div>
-                      <div className="nutrition-item">
-                        <span className="nutrition-label">Lipides</span>
-                        <span className="nutrition-value">{dayNutrition.fat}g</span>
-                      </div>
-                      <div className="nutrition-item">
-                        <span className="nutrition-label">Protéines</span>
-                        <span className="nutrition-value">{dayNutrition.protein}g</span>
-                      </div>
-                      <div className="nutrition-item">
-                        <span className="nutrition-label">Glucides nets</span>
-                        <span className="nutrition-value">{dayNutrition.netCarbs}g</span>
-                      </div>
-                    </div>
-                  </div>
-                )}
+              <div className="nutrition-item">
+                <span className="nutrition-value protein-value">{dayNutrition.protein}g</span>
+                <span className="nutrition-label">protéines</span>
+              </div>
+              <div className="nutrition-item">
+                <span className="nutrition-value fat-value">{dayNutrition.fat}g</span>
+                <span className="nutrition-label">lipides</span>
+              </div>
+              <div className="nutrition-item">
+                <span className="nutrition-value carbs-value">{dayNutrition.netCarbs}g</span>
+                <span className="nutrition-label">glucides</span>
               </div>
             </div>
-          );
-        })}
+          </div>
+        )}
+        
+        {/* Liste des repas du jour */}
+        <div className="meals-section">
+          <h4 className="meals-header">Repas du jour</h4>
+          <div className="day-meal-list">
+            {selectedDay.meals && selectedDay.meals.length > 0 ? (
+              selectedDay.meals.map((meal, mealIndex) => (
+                <div key={mealIndex} className="day-meal-item">
+                  <MealItem 
+                    meal={meal} 
+                    getFoodById={getFoodById}
+                    getRecipeById={getRecipeById}
+                  />
+                </div>
+              ))
+            ) : (
+              <p className="empty-items">Aucun repas pour cette journée.</p>
+            )}
+          </div>
+        </div>
+        
+        {/* Bouton pour ajouter un repas */}
+        <div className="add-meal-button-container">
+          <button className="add-meal-button">
+            Ajouter un repas
+          </button>
+        </div>
       </div>
     </div>
   );
