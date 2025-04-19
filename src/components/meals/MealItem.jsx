@@ -1,13 +1,22 @@
 import React, { useState } from 'react';
-import { FaUtensils, FaLeaf, FaClock, FaChevronDown, FaChevronUp } from 'react-icons/fa';
+import { FaUtensils, FaLeaf, FaChevronDown, FaChevronUp } from 'react-icons/fa';
+import MacroProgressBar from './MacroProgressBar';
 import './WeeklyMealPlanDisplay.css';
 
 /**
  * Composant pour afficher un repas individuel
- * Avec possibilité d'expansion pour voir les détails
+ * Déroulé par défaut et avec affichage amélioré des macros
  */
 const MealItem = ({ meal, getFoodById, getRecipeById }) => {
-  const [isExpanded, setIsExpanded] = useState(false);
+  // État pour contrôler l'expansion, déroulé par défaut
+  const [isExpanded, setIsExpanded] = useState(true);
+  
+  // Valeurs par défaut pour les macros si elles sont manquantes
+  const macros = meal.macros || { 
+    protein: 0, 
+    fat: 0, 
+    netCarbs: 0 
+  };
   
   // Formater l'heure du repas
   const formatTime = (timeString) => {
@@ -57,9 +66,9 @@ const MealItem = ({ meal, getFoodById, getRecipeById }) => {
         <div className="meal-summary-container">
           <div className="meal-macros-summary">
             <span className="macro-pill calories">{meal.calories || 0} kcal</span>
-            <span className="macro-pill protein">P: {meal.macros?.protein || 0}g</span>
-            <span className="macro-pill fat">L: {meal.macros?.fat || 0}g</span>
-            <span className="macro-pill carbs">G: {meal.macros?.netCarbs || 0}g</span>
+            <span className="macro-pill protein">P: {macros.protein || 0}g</span>
+            <span className="macro-pill fat">L: {macros.fat || 0}g</span>
+            <span className="macro-pill carbs">G: {macros.netCarbs || 0}g</span>
           </div>
           
           <button className="details-toggle">
@@ -76,15 +85,31 @@ const MealItem = ({ meal, getFoodById, getRecipeById }) => {
                 let name = 'Item inconnu';
                 let icon = <FaLeaf />;
                 
+                // Récupérer les informations détaillées sur l'item
+                let detailedItem = null;
+                
                 if (item.type === 'recipe') {
                   const recipe = getRecipeById ? getRecipeById(item.id) : null;
                   name = recipe ? recipe.name : 'Recette inconnue';
                   icon = <FaUtensils className="item-icon recipe" />;
+                  detailedItem = recipe;
                 } else {
                   const food = getFoodById ? getFoodById(item.id) : null;
                   name = food ? food.name : 'Aliment inconnu';
                   icon = <FaLeaf className="item-icon food" />;
+                  detailedItem = food;
                 }
+                
+                // S'assurer que les macros sont définies
+                const itemMacros = item.macros || (detailedItem && detailedItem.nutritionPer100g ? {
+                  protein: (detailedItem.nutritionPer100g.protein * (item.quantity || 0)) / 100,
+                  fat: (detailedItem.nutritionPer100g.fat * (item.quantity || 0)) / 100,
+                  netCarbs: (detailedItem.nutritionPer100g.netCarbs * (item.quantity || 0)) / 100
+                } : { protein: 0, fat: 0, netCarbs: 0 });
+                
+                // Calories de l'item
+                const itemCalories = item.calories || (detailedItem && detailedItem.nutritionPer100g ? 
+                  (detailedItem.nutritionPer100g.calories * (item.quantity || 0)) / 100 : 0);
                 
                 return (
                   <div key={index} className="meal-detail-item">
@@ -97,11 +122,11 @@ const MealItem = ({ meal, getFoodById, getRecipeById }) => {
                     </div>
                     
                     <div className="item-nutrition">
-                      <span className="item-calories">{item.calories || 0} kcal</span>
+                      <span className="item-calories">{Math.round(itemCalories || 0)} kcal</span>
                       <div className="item-macros">
-                        <span className="macro protein">P: {item.macros?.protein || 0}g</span>
-                        <span className="macro fat">L: {item.macros?.fat || 0}g</span>
-                        <span className="macro carbs">G: {item.macros?.netCarbs || 0}g</span>
+                        <span className="macro protein">P: {Math.round(itemMacros.protein || 0)}g</span>
+                        <span className="macro fat">L: {Math.round(itemMacros.fat || 0)}g</span>
+                        <span className="macro carbs">G: {Math.round(itemMacros.netCarbs || 0)}g</span>
                       </div>
                     </div>
                   </div>
