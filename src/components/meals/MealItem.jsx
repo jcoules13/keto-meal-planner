@@ -33,10 +33,10 @@ const MealItem = ({ meal, getFoodById, getRecipeById }) => {
     const previewItems = meal.items.slice(0, 2).map(item => {
       if (item.type === 'recipe') {
         const recipe = getRecipeById ? getRecipeById(item.id) : null;
-        return recipe ? recipe.name : 'Recette inconnue';
+        return recipe ? recipe.name : (item.name || 'Recette inconnue');
       } else {
         const food = getFoodById ? getFoodById(item.id) : null;
-        return food ? food.name : 'Aliment inconnu';
+        return food ? food.name : (item.name || 'Aliment inconnu');
       }
     });
     
@@ -82,34 +82,55 @@ const MealItem = ({ meal, getFoodById, getRecipeById }) => {
           {meal.items && meal.items.length > 0 ? (
             <div className="meal-items-list">
               {meal.items.map((item, index) => {
-                let name = 'Item inconnu';
-                let icon = <FaLeaf />;
-                
                 // Récupérer les informations détaillées sur l'item
                 let detailedItem = null;
+                let name = item.name || 'Item inconnu';
+                let icon = <FaLeaf />;
                 
                 if (item.type === 'recipe') {
+                  // Trouver la recette correspondante
                   const recipe = getRecipeById ? getRecipeById(item.id) : null;
-                  name = recipe ? recipe.name : 'Recette inconnue';
-                  icon = <FaUtensils className="item-icon recipe" />;
-                  detailedItem = recipe;
+                  if (recipe) {
+                    detailedItem = recipe;
+                    name = recipe.name; // Priorité au nom de la recette dans la base de données
+                    icon = <FaUtensils className="item-icon recipe" />;
+                  } else {
+                    // Garder le nom de l'item si défini, sinon "Recette inconnue"
+                    name = item.name || 'Recette inconnue';
+                    icon = <FaUtensils className="item-icon recipe" />;
+                  }
                 } else {
+                  // Trouver l'aliment correspondant
                   const food = getFoodById ? getFoodById(item.id) : null;
-                  name = food ? food.name : 'Aliment inconnu';
-                  icon = <FaLeaf className="item-icon food" />;
-                  detailedItem = food;
+                  if (food) {
+                    detailedItem = food;
+                    name = food.name; // Priorité au nom de l'aliment dans la base de données
+                    icon = <FaLeaf className="item-icon food" />;
+                  } else {
+                    // Garder le nom de l'item si défini, sinon "Aliment inconnu"
+                    name = item.name || 'Aliment inconnu';
+                    icon = <FaLeaf className="item-icon food" />;
+                  }
                 }
                 
                 // S'assurer que les macros sont définies
-                const itemMacros = item.macros || (detailedItem && detailedItem.nutritionPer100g ? {
+                const itemMacros = item.macros || (detailedItem && item.type === 'food' && detailedItem.nutritionPer100g ? {
                   protein: (detailedItem.nutritionPer100g.protein * (item.quantity || 0)) / 100,
                   fat: (detailedItem.nutritionPer100g.fat * (item.quantity || 0)) / 100,
-                  netCarbs: (detailedItem.nutritionPer100g.netCarbs * (item.quantity || 0)) / 100
-                } : { protein: 0, fat: 0, netCarbs: 0 });
+                  netCarbs: ((detailedItem.nutritionPer100g.netCarbs || 
+                    (detailedItem.nutritionPer100g.carbs - detailedItem.nutritionPer100g.fiber)) * (item.quantity || 0)) / 100
+                } : (detailedItem && item.type === 'recipe' && detailedItem.nutritionPerServing ? {
+                  protein: detailedItem.nutritionPerServing.protein * (item.servings || 1),
+                  fat: detailedItem.nutritionPerServing.fat * (item.servings || 1),
+                  netCarbs: detailedItem.nutritionPerServing.netCarbs * (item.servings || 1)
+                } : { protein: 0, fat: 0, netCarbs: 0 }));
                 
                 // Calories de l'item
-                const itemCalories = item.calories || (detailedItem && detailedItem.nutritionPer100g ? 
-                  (detailedItem.nutritionPer100g.calories * (item.quantity || 0)) / 100 : 0);
+                const itemCalories = item.calories || 
+                  (detailedItem && item.type === 'food' && detailedItem.nutritionPer100g ? 
+                    (detailedItem.nutritionPer100g.calories * (item.quantity || 0)) / 100 : 
+                    (detailedItem && item.type === 'recipe' && detailedItem.nutritionPerServing ?
+                      detailedItem.nutritionPerServing.calories * (item.servings || 1) : 0));
                 
                 return (
                   <div key={index} className="meal-detail-item">
@@ -117,7 +138,7 @@ const MealItem = ({ meal, getFoodById, getRecipeById }) => {
                       {icon}
                       <span className="item-name">{name}</span>
                       <span className="item-quantity">
-                        {item.quantity || item.servings || 0} {item.unit || 'portion(s)'}
+                        {item.quantity || item.servings || 0} {item.unit || (item.type === 'recipe' ? 'portion(s)' : 'g')}
                       </span>
                     </div>
                     
