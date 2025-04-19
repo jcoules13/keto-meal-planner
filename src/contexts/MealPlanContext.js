@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useReducer, useEffect } from 'react';
 import { generateShoppingList } from '../utils/shoppingListGenerator';
-import { calculateDailyTotals, calculateMealNutrition, updateMealNutrition } from '../utils/nutritionCalculator';
+import { calculateDailyTotals, calculateMealNutrition, updateMealNutrition } from '../utils/mealNutritionCalculator';
 import { validateMealPlan } from '../utils/mealPlanUtils';
 import { useUser } from './UserContext';
 import { useFood } from './FoodContext';
