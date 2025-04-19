@@ -1,0 +1,103 @@
+/* Styles pour les barres de progression des macronutriments */
+
+.macro-progress {
+  margin-bottom: 10px;
+}
+
+.progress-label {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 5px;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.progress-bar {
+  height: 8px;
+  background-color: var(--bg-secondary);
+  border-radius: 4px;
+  overflow: hidden;
+  position: relative;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+/* Couleurs spécifiques pour chaque type de macro */
+.calories-fill {
+  background-color: var(--primary-500);
+}
+
+.protein-fill {
+  background-color: var(--protein-color, #e74c3c);
+}
+
+.fat-fill {
+  background-color: var(--fat-color, #f39c12);
+}
+
+.carbs-fill {
+  background-color: var(--carbs-color, #2ecc71);
+}
+
+/* Couleurs de texte pour les valeurs */
+.calories-text {
+  color: var(--primary-500);
+  font-weight: 500;
+}
+
+.protein-text {
+  color: var(--protein-color, #e74c3c);
+  font-weight: 500;
+}
+
+.fat-text {
+  color: var(--fat-color, #f39c12);
+  font-weight: 500;
+}
+
+.carbs-text {
+  color: var(--carbs-color, #2ecc71);
+  font-weight: 500;
+}
+
+/* Animation pour les transitions */
+@keyframes fillProgress {
+  from { width: 0%; }
+  to { width: var(--target-width); }
+}
+
+/* Style de groupe pour les barres de progression */
+.macro-progress-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 10px 0;
+}
+
+/* Style pour le titre du groupe */
+.macro-progress-title {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 5px;
+}
+
+/* Animation d'entrée */
+.macro-progress-enter {
+  animation: fadeInProgress 0.3s ease;
+}
+
+@keyframes fadeInProgress {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
