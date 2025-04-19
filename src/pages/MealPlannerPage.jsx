@@ -12,6 +12,7 @@ import WeeklyMealGenerator from '../components/meals/WeeklyMealGenerator';
 import MealPlanOptions from '../components/meals/MealPlanOptions';
 import FastingScheduleDisplay from '../components/meals/FastingScheduleDisplay';
 import WeeklyMealPlanDisplay from '../components/meals/WeeklyMealPlanDisplay';
+import NutritionRecalculator from '../components/meals/NutritionRecalculator';
 import './MealPlannerPage.css';
 
 /**
@@ -407,6 +408,9 @@ const MealPlannerPage = () => {
           </FridgeProvider>
         )}
       </div>
+      
+      {/* Composant invisible pour recalculer les valeurs nutritionnelles */}
+      <NutritionRecalculator />
     </div>
   );
 };
