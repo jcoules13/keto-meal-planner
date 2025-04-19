@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useReducer, useEffect } from 'react';
 import { generateShoppingList } from '../utils/shoppingListGenerator';
-import { calculateDailyTotals, validateMealPlan } from '../utils/mealPlanUtils';
+import { calculateDailyTotals, calculateMealNutrition, updateMealNutrition } from '../utils/nutritionCalculator';
+import { validateMealPlan } from '../utils/mealPlanUtils';
 import { useUser } from './UserContext';
 import { useFood } from './FoodContext';
 import { useRecipe } from './RecipeContext';
@@ -609,6 +610,7 @@ export function MealPlanProvider({ children }) {
       const day = plan.days[dayIndex];
       if (!day) return null;
       
+      // Utiliser notre nouvelle fonction de calcul des totaux nutritionnels
       return calculateDailyTotals(day, { getFoodById, getRecipeById });
     } catch (error) {
       console.error('Erreur lors du calcul des totaux nutritionnels:', error);
@@ -690,6 +692,81 @@ export function MealPlanProvider({ children }) {
     return totalItems > 0 ? Math.round((checkedItems / totalItems) * 100) : 0;
   };
   
+  // Recalculer les macros d'un repas spécifique
+  const recalculateMealNutrition = (planId, dayIndex, mealId) => {
+    try {
+      const plan = state.mealPlans.find(p => p.id === planId);
+      if (!plan) return false;
+      
+      const day = plan.days[dayIndex];
+      if (!day) return false;
+      
+      const mealIndex = day.meals.findIndex(m => m.id === mealId);
+      if (mealIndex === -1) return false;
+      
+      // Récupérer le repas
+      const meal = day.meals[mealIndex];
+      
+      // Mettre à jour les macros du repas
+      const updatedMeal = updateMealNutrition(meal, getFoodById, getRecipeById);
+      
+      // Mettre à jour le repas dans le plan
+      dispatch({ 
+        type: actions.UPDATE_MEAL, 
+        payload: { 
+          planId, 
+          dayIndex, 
+          mealId, 
+          updatedMeal
+        } 
+      });
+      
+      return true;
+    } catch (error) {
+      console.error('Erreur lors de la mise à jour des macros du repas:', error);
+      return false;
+    }
+  };
+  
+  // Recalculer les macros de tous les repas d'un jour
+  const recalculateDayNutrition = (planId, dayIndex) => {
+    try {
+      const plan = state.mealPlans.find(p => p.id === planId);
+      if (!plan) return false;
+      
+      const day = plan.days[dayIndex];
+      if (!day) return false;
+      
+      // Mettre à jour chaque repas du jour
+      day.meals.forEach(meal => {
+        recalculateMealNutrition(planId, dayIndex, meal.id);
+      });
+      
+      return true;
+    } catch (error) {
+      console.error('Erreur lors de la mise à jour des macros du jour:', error);
+      return false;
+    }
+  };
+  
+  // Recalculer les macros de tous les repas d'un plan
+  const recalculatePlanNutrition = (planId) => {
+    try {
+      const plan = state.mealPlans.find(p => p.id === planId);
+      if (!plan) return false;
+      
+      // Mettre à jour chaque jour du plan
+      plan.days.forEach((day, index) => {
+        recalculateDayNutrition(planId, index);
+      });
+      
+      return true;
+    } catch (error) {
+      console.error('Erreur lors de la mise à jour des macros du plan:', error);
+      return false;
+    }
+  };
+  
   // Construire la valeur du contexte
   const value = {
     ...state,
@@ -701,7 +778,7 @@ export function MealPlanProvider({ children }) {
     addMeal,
     updateMeal,
     deleteMeal,
-    addMealToCurrentPlan, // Nouvelle fonction ajoutée
+    addMealToCurrentPlan,
     generateShoppingListFromPlan,
     updateShoppingItem,
     clearShoppingList,
@@ -710,7 +787,10 @@ export function MealPlanProvider({ children }) {
     createEmptyPlan,
     hasMeals,
     getShoppingListProgress,
-    shoppingListProgress: getShoppingListProgress()
+    shoppingListProgress: getShoppingListProgress(),
+    recalculateMealNutrition,
+    recalculateDayNutrition,
+    recalculatePlanNutrition
   };
   
   return (
