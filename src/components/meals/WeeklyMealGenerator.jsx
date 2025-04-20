@@ -17,11 +17,11 @@ const WeeklyMealGenerator = () => {
   const { recipes } = useRecipe();
   
   const [isGenerating, setIsGenerating] = useState(false);
+  const [isClearing, setIsClearing] = useState(false);
   const [generationProgress, setGenerationProgress] = useState(0);
   const [successMessage, setSuccessMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [statsMessage, setStatsMessage] = useState('');
-  const [isClearing, setIsClearing] = useState(false);
   const [debugInfo, setDebugInfo] = useState('');
   
   // Options du générateur
@@ -622,7 +622,7 @@ const WeeklyMealGenerator = () => {
         <h2>Générateur automatique de repas hebdomadaires</h2>
         <p className="subheading">Générez en un clic tous les repas de votre semaine</p>
       </div>
-      
+
       {!currentPlan ? (
         <div className="empty-plan-message">
           <p>Vous devez d'abord créer un plan pour pouvoir générer des repas.</p>
@@ -637,65 +637,14 @@ const WeeklyMealGenerator = () => {
                 <label className="checkbox-label">
                   <input 
                     type="checkbox" 
-                    checked={generationOptions.clearExistingMeals} 
-                    onChange={(e) => handleOptionChange('clearExistingMeals', e.target.checked)}
+                    checked={generationOptions.preferLowCarbs} 
+                    onChange={(e) => handleOptionChange('preferLowCarbs', e.target.checked)}
                   />
-                  <span className="checkbox-text">Effacer les repas existants</span>
+                  <span className="checkbox-text">Privilégier les faibles glucides</span>
                 </label>
               </div>
-            </div>
-            
-            <button 
-              className="weekly-generate-button" 
-              onClick={generateWeeklyMeals}
-              disabled={isGenerating || isClearing}
-            >
-              {isClearing ? (
-                <>
-                  <FaTrashAlt className="spinner-icon" />
-                  <span>Effacement des repas existants...</span>
-                </>
-              ) : isGenerating ? (
-                <>
-                  <FaSpinner className="spinner-icon" />
-                  <span>Génération en cours... {generationProgress}%</span>
-                </>
-              ) : (
-                'Générer tous les repas de la semaine'
-              )}
-            </button>
-            
-            {(isGenerating || isClearing) && (
-              <div className="progress-bar-container">
-                <div 
-                  className="progress-bar-fill" 
-                  style={{ width: `${generationProgress}%` }}
-                ></div>
-              </div>
-            )}
-          </div>
-          
-          {errorMessage && (
-            <div className="error-message">
-              <FaExclamationTriangle className="message-icon" />
-              <span>{errorMessage}</span>
-            </div>
-          )}
-          
-          {successMessage && (
-            <div className="success-message">
-              <FaCheckCircle className="message-icon" />
-              <span>{successMessage}</span>
-              {statsMessage && <p className="stats-message">{statsMessage}</p>}
-            </div>
-          )}
-        </>
-      )}
-    </div>
-  );
-};
-
-export default WeeklyMealGenerator;="option-item">
+              
+              <div className="option-item">
                 <label className="checkbox-label">
                   <input 
                     type="checkbox" 
