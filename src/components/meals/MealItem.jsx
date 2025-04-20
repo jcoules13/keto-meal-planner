@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FaUtensils, FaLeaf, FaChevronDown, FaChevronUp } from 'react-icons/fa';
+import { FaUtensils, FaLeaf, FaChevronDown, FaChevronUp, FaMugHot, FaSun, FaMoon, FaCookie } from 'react-icons/fa';
 import MacroProgressBar from './MacroProgressBar';
 import './WeeklyMealPlanDisplay.css';
 
@@ -49,8 +49,33 @@ const MealItem = ({ meal, getFoodById, getRecipeById }) => {
     return preview;
   };
   
+  // Obtenir l'icône et le nom du type de repas
+  const getMealTypeInfo = () => {
+    const mealTypeMap = {
+      'petit_dejeuner': { icon: <FaMugHot />, name: 'Petit déjeuner' },
+      'dejeuner': { icon: <FaSun />, name: 'Déjeuner' },
+      'diner': { icon: <FaMoon />, name: 'Dîner' },
+      'collation': { icon: <FaCookie />, name: 'Collation' },
+      'default': { icon: <FaUtensils />, name: 'Repas' }
+    };
+    
+    const type = meal.type || 'default';
+    
+    // Correction pour le type dejeuner/déjeuner
+    if (type === 'déjeuner') return mealTypeMap['dejeuner'];
+    
+    return mealTypeMap[type] || mealTypeMap['default'];
+  };
+  
+  const mealTypeInfo = getMealTypeInfo();
+  
   return (
     <div className="meal-item">
+      <div className="meal-type-badge">
+        {mealTypeInfo.icon}
+        <span>{mealTypeInfo.name}</span>
+      </div>
+      
       <div 
         className="meal-header"
         onClick={() => setIsExpanded(!isExpanded)}
