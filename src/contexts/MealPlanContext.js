@@ -6,6 +6,36 @@ import { useUser } from './UserContext';
 import { useFood } from './FoodContext';
 import { useRecipe } from './RecipeContext';
 
+// Fonction pour obtenir le nom d'affichage d'un type de repas
+const getMealLabel = (mealTypeId) => {
+  const mealLabels = {
+    'petit_dejeuner': 'Petit déjeuner',
+    'collation_matin': 'Collation du matin',
+    'dejeuner': 'Déjeuner',
+    'collation_aprem': 'Collation après-midi',
+    'souper': 'Souper',
+    'diner': 'Dîner', // Alternativement à souper
+    'collation': 'Collation' // Générique
+  };
+  
+  return mealLabels[mealTypeId] || mealTypeId;
+};
+
+// Fonction pour obtenir l'ordre d'un type de repas
+const getMealOrder = (mealTypeId) => {
+  const mealOrders = {
+    'petit_dejeuner': 1,
+    'collation_matin': 2,
+    'dejeuner': 3,
+    'collation_aprem': 4,
+    'collation': 4, // Même que collation_aprem
+    'souper': 5,
+    'diner': 5 // Même que souper
+  };
+  
+  return mealOrders[mealTypeId] || 99; // 99 comme valeur par défaut
+};
+
 // État initial
 const initialState = {
   mealPlans: [],         // Liste des plans de repas
@@ -509,47 +539,52 @@ export function MealPlanProvider({ children }) {
    * @param {string} mealType - Type de repas (déjeuner, dîner, etc.)
    * @returns {string|null} ID du repas ajouté ou null en cas d'erreur
    */
-  const addMealToCurrentPlan = (meal, dayIndex, mealType = 'repas') => {
-    try {
-      // Vérifier qu'un plan est sélectionné
-      if (!state.currentPlanId) {
-        throw new Error('Aucun plan n\'est sélectionné. Veuillez d\'abord créer ou sélectionner un plan.');
-      }
-      
-      const currentPlan = state.mealPlans.find(plan => plan.id === state.currentPlanId);
-      if (!currentPlan) {
-        throw new Error('Le plan sélectionné n\'existe plus.');
-      }
-      
-      // Vérifier que l'index du jour est valide
-      if (dayIndex < 0 || dayIndex >= currentPlan.days.length) {
-        throw new Error(`L'index du jour ${dayIndex} est hors limites pour ce plan.`);
-      }
-      
-      // Préparer le repas avec des informations additionnelles
-      const preparedMeal = {
-        ...meal,
-        id: meal.id || `meal-${Date.now()}-${Math.round(Math.random() * 1000)}`,
-        type: mealType,
-        addedAt: new Date().toISOString()
-      };
-      
-      // Si le repas n'a pas de nom, lui en attribuer un par défaut
-      if (!preparedMeal.name) {
-        preparedMeal.name = `${mealType.charAt(0).toUpperCase() + mealType.slice(1)} du ${
-          new Date(currentPlan.days[dayIndex].date).toLocaleDateString('fr-FR')
-        }`;
-      }
-      
-      // Utiliser la fonction addMeal existante pour ajouter le repas
-      return addMeal(state.currentPlanId, dayIndex, preparedMeal);
-      
-    } catch (error) {
-      console.error('Erreur lors de l\'ajout du repas au plan courant:', error);
-      dispatch({ type: actions.SET_ERROR, payload: error.message });
-      return null;
+// Ajoute un repas au plan actuellement sélectionné
+const addMealToCurrentPlan = (meal, dayIndex, mealType = 'repas') => {
+  try {
+    // Vérifier qu'un plan est sélectionné
+    if (!state.currentPlanId) {
+      throw new Error('Aucun plan n\'est sélectionné. Veuillez d\'abord créer ou sélectionner un plan.');
     }
-  };
+    
+    const currentPlan = state.mealPlans.find(plan => plan.id === state.currentPlanId);
+    if (!currentPlan) {
+      throw new Error('Le plan sélectionné n\'existe plus.');
+    }
+    
+    // Vérifier que l'index du jour est valide
+    if (dayIndex < 0 || dayIndex >= currentPlan.days.length) {
+      throw new Error(`L'index du jour ${dayIndex} est hors limites pour ce plan.`);
+    }
+    
+    // Préparer le repas avec des informations additionnelles
+    const preparedMeal = {
+      ...meal,
+      id: meal.id || `meal-${Date.now()}-${Math.round(Math.random() * 1000)}`,
+      type: mealType,
+      // Utiliser displayType s'il existe ou le déduire du type
+      displayType: meal.displayType || getMealLabel(mealType), 
+      // Utiliser l'ordre s'il existe ou le déduire du type
+      order: meal.order || getMealOrder(mealType),
+      addedAt: new Date().toISOString()
+    };
+    
+    // Si le repas n'a pas de nom, lui en attribuer un par défaut
+    if (!preparedMeal.name) {
+      preparedMeal.name = `${preparedMeal.displayType} du ${
+        new Date(currentPlan.days[dayIndex].date).toLocaleDateString('fr-FR')
+      }`;
+    }
+    
+    // Utiliser la fonction addMeal existante pour ajouter le repas
+    return addMeal(state.currentPlanId, dayIndex, preparedMeal);
+    
+  } catch (error) {
+    console.error('Erreur lors de l\'ajout du repas au plan courant:', error);
+    dispatch({ type: actions.SET_ERROR, payload: error.message });
+    return null;
+  }
+};
   
   // Générer une liste de courses à partir d'un plan
   const generateShoppingListFromPlan = async (planId) => {
