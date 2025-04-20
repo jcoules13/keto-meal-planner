@@ -8,12 +8,12 @@ import './MealGenerator.css';
 
 /**
  * Générateur de repas pour la semaine entière
- * Génère automatiquement des repas pour déjeuner et dîner pour chaque jour du plan
+ * Génère automatiquement des repas pour chaque jour du plan selon la fréquence configurée
  */
 const WeeklyMealGenerator = () => {
   const { calorieTarget, macroTargets, dietType, preferences, mealFrequency } = useUser();
   const { currentPlan, addMealToCurrentPlan, deleteMeal } = useMealPlan();
-  const { foods, getFoodById } = useFood();
+  const { foods } = useFood();
   const { recipes } = useRecipe();
   
   const [isGenerating, setIsGenerating] = useState(false);
@@ -22,7 +22,7 @@ const WeeklyMealGenerator = () => {
   const [successMessage, setSuccessMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [statsMessage, setStatsMessage] = useState('');
-  const [debugInfo, setDebugInfo] = useState('');
+  const [debugLog, setDebugLog] = useState('');
   
   // Options du générateur
   const [generationOptions, setGenerationOptions] = useState({
@@ -74,8 +74,7 @@ const WeeklyMealGenerator = () => {
       }));
     }
   };
-  
-  /**
+/**
    * Génère un repas réel basé sur les données d'aliments et de recettes
    * Version améliorée avec meilleure récupération des aliments
    */
@@ -160,8 +159,7 @@ const WeeklyMealGenerator = () => {
             unit: ingredient.unit
           };
         }) || [];
-        
-        // Créer l'objet repas avec les valeurs nutritionnelles ajustées
+     // Créer l'objet repas avec les valeurs nutritionnelles ajustées
         return {
           name: selectedRecipe.name,
           type: type,
@@ -250,7 +248,6 @@ const WeeklyMealGenerator = () => {
         availableVegetables[Math.floor(Math.random() * availableVegetables.length)]
       );
     }
-    
     // Sélectionner 1-2 sources de graisses
     const fatCount = Math.floor(Math.random() * 2) + 1;
     const selectedFats = [];
@@ -345,7 +342,6 @@ const WeeklyMealGenerator = () => {
         totalNetCarbs += ((food.nutritionPer100g.carbs || 0) - (food.nutritionPer100g.fiber || 0)) * ratio;
       }
     });
-    
     // Créer le nom du repas
     let mealName = "";
     if (proteinFood) {
@@ -400,17 +396,17 @@ const WeeklyMealGenerator = () => {
 
     setIsClearing(true);
     let deletedCount = 0;
-    let debugLog = "";
+    let currentDebugLog = ""; // Variable locale pour accumuler le log
     
     try {
       // Normaliser les types de repas à supprimer
       const normalizedTypes = mealTypes.map(type => normalizeType(type));
-      debugLog += `Types normalisés à supprimer: ${normalizedTypes.join(', ')}\n`;
+      currentDebugLog += `Types normalisés à supprimer: ${normalizedTypes.join(', ')}\n`;
       
       // Pour chaque jour du plan
       for (let dayIndex = 0; dayIndex < currentPlan.days.length; dayIndex++) {
         const day = currentPlan.days[dayIndex];
-        debugLog += `Jour ${dayIndex}: ${day.meals.length} repas\n`;
+        currentDebugLog += `Jour ${dayIndex}: ${day.meals.length} repas\n`;
         
         // Récupérer tous les IDs des repas qui correspondent aux types à supprimer
         const mealIdsToDelete = [];
@@ -418,26 +414,31 @@ const WeeklyMealGenerator = () => {
         day.meals.forEach(meal => {
           const mealType = meal.type || '';
           const normalizedMealType = normalizeType(mealType);
-          debugLog += `  Repas: ${meal.name}, Type: ${mealType} (normalisé: ${normalizedMealType})\n`;
+          currentDebugLog += `  Repas: ${meal.name}, Type: ${mealType} (normalisé: ${normalizedMealType})\n`;
           
           // Vérifier si ce type de repas doit être supprimé
           if (normalizedTypes.some(type => normalizedMealType.includes(type))) {
             mealIdsToDelete.push(meal.id);
-            debugLog += `    À supprimer: OUI\n`;
+            currentDebugLog += `    À supprimer: OUI\n`;
           } else {
-            debugLog += `    À supprimer: NON\n`;
+            currentDebugLog += `    À supprimer: NON\n`;
           }
         });
         
+        // Mise à jour du log de debug après la collecte des IDs à supprimer
+        const deletionLogMessage = `  IDs à supprimer: ${mealIdsToDelete.join(', ')}\n`;
+        currentDebugLog += deletionLogMessage;
+        
         // Supprimer chaque repas identifié, un par un
-        debugLog += `  IDs à supprimer: ${mealIdsToDelete.join(', ')}\n`;
         for (const mealId of mealIdsToDelete) {
           try {
             await deleteMeal(currentPlan.id, dayIndex, mealId);
             deletedCount++;
-            debugLog += `  Repas ${mealId} supprimé avec succès\n`;
+            const successMessage = `  Repas ${mealId} supprimé avec succès\n`;
+            currentDebugLog += successMessage;
           } catch (err) {
-            debugLog += `  ERREUR lors de la suppression du repas ${mealId}: ${err.message}\n`;
+            const errorMessage = `  ERREUR lors de la suppression du repas ${mealId}: ${err.message}\n`;
+            currentDebugLog += errorMessage;
           }
         }
       }
@@ -449,21 +450,20 @@ const WeeklyMealGenerator = () => {
       }
       
       // Conserver les informations de debug
-      setDebugInfo(debugLog);
-      console.log("Debug: Suppression des repas", debugLog);
+      setDebugLog(currentDebugLog);
+      console.log("Debug: Suppression des repas", currentDebugLog);
       
       return true;
     } catch (error) {
       console.error('Erreur lors de la suppression des repas existants:', error);
       setErrorMessage(`Erreur lors de la suppression: ${error.message}`);
-      setDebugInfo(debugLog + `\nErreur générale: ${error.message}`);
+      setDebugLog(currentDebugLog + `\nErreur générale: ${error.message}`);
       return false;
     } finally {
       setIsClearing(false);
     }
   };
-  
-  /**
+   /**
    * Génère des repas pour toute la semaine en fonction des options sélectionnées
    * Version améliorée pour respecter la fréquence des repas
    */
@@ -478,10 +478,10 @@ const WeeklyMealGenerator = () => {
     setErrorMessage('');
     setSuccessMessage('');
     setStatsMessage('');
-    setDebugInfo('');
+    setDebugLog('');
     
-    let debugLog = "Génération des repas - Log de debug\n";
-    debugLog += `Fréquence de repas définie: ${mealFrequency}\n`;
+    let currentDebugLog = "Génération des repas - Log de debug\n";
+    currentDebugLog += `Fréquence de repas définie: ${mealFrequency}\n`;
     
     try {
       // Déterminer les types de repas à générer en fonction des options et de la fréquence
@@ -489,13 +489,13 @@ const WeeklyMealGenerator = () => {
       
       if (generationOptions.generateDinnerOnly) {
         mealTypes = ['diner'];
-        debugLog += "Option sélectionnée: Dîners uniquement\n";
+        currentDebugLog += "Option sélectionnée: Dîners uniquement\n";
       } else if (generationOptions.generateLunchOnly) {
         mealTypes = ['dejeuner'];
-        debugLog += "Option sélectionnée: Déjeuners uniquement\n";
+        currentDebugLog += "Option sélectionnée: Déjeuners uniquement\n";
       } else {
         // Distribuer les repas selon la fréquence utilisateur
-        debugLog += `Distribution selon fréquence: ${mealFrequency} repas/jour\n`;
+        currentDebugLog += `Distribution selon fréquence: ${mealFrequency} repas/jour\n`;
         switch (mealFrequency) {
           case 1:
             mealTypes = ['diner']; // Un seul repas: dîner
@@ -506,20 +506,25 @@ const WeeklyMealGenerator = () => {
           case 3:
             mealTypes = ['petit_dejeuner', 'dejeuner', 'diner']; // Trois repas
             break;
-          // Ajouter d'autres cas selon les besoins
+          case 4:
+            mealTypes = ['petit_dejeuner', 'dejeuner', 'collation', 'diner']; // Quatre repas
+            break;
+          case 5:
+            mealTypes = ['petit_dejeuner', 'collation_matin', 'dejeuner', 'collation', 'diner']; // Cinq repas
+            break;
           default:
             mealTypes = ['dejeuner', 'diner']; // Par défaut: déjeuner et dîner
         }
       }
       
-      debugLog += `Types de repas à générer: ${mealTypes.join(', ')}\n`;
+      currentDebugLog += `Types de repas à générer: ${mealTypes.join(', ')}\n`;
       
       // Si l'option est activée, supprimer d'abord les repas existants des types concernés
       if (generationOptions.clearExistingMeals) {
         setGenerationProgress(5); // Commencer à 5% pour montrer que quelque chose se passe
-        debugLog += "Suppression des repas existants...\n";
+        currentDebugLog += "Suppression des repas existants...\n";
         const clearResult = await clearExistingMeals(mealTypes);
-        debugLog += `Résultat de la suppression: ${clearResult ? "Succès" : "Échec"}\n`;
+        currentDebugLog += `Résultat de la suppression: ${clearResult ? "Succès" : "Échec"}\n`;
         setGenerationProgress(10); // Après la suppression, marquer 10% de progrès
       }
       
@@ -528,42 +533,47 @@ const WeeklyMealGenerator = () => {
       let completedOperations = 0;
       let successfulAdditions = 0;
       
-      debugLog += `Nombre total d'opérations: ${totalOperations}\n`;
+      currentDebugLog += `Nombre total d'opérations: ${totalOperations}\n`;
+      
+      // Calculer la distribution des calories par repas en fonction du nombre de repas
+      const calorieDistribution = calculateCalorieDistribution(mealTypes);
+      currentDebugLog += "Distribution des calories:\n";
+      Object.entries(calorieDistribution).forEach(([type, percentage]) => {
+        currentDebugLog += `  ${type}: ${percentage * 100}% (${Math.round(calorieTarget * percentage)} kcal)\n`;
+      });
       
       // Pour chaque jour du plan
       for (let dayIndex = 0; dayIndex < currentPlan.days.length; dayIndex++) {
-        debugLog += `\nJour ${dayIndex}: ${currentPlan.days[dayIndex].date}\n`;
+        currentDebugLog += `\nJour ${dayIndex}: ${currentPlan.days[dayIndex].date}\n`;
         
         // Pour chaque type de repas à générer
         for (const mealType of mealTypes) {
           try {
-            debugLog += `  Génération du repas de type: ${mealType}\n`;
+            currentDebugLog += `  Génération du repas de type: ${mealType}\n`;
             
             // Calculer les calories cibles en fonction du type de repas
-            const mealCalorieTarget = mealType === 'dejeuner' 
-              ? calorieTarget * 0.4  // 40% des calories pour le déjeuner
-              : (mealType === 'diner' ? calorieTarget * 0.3 : calorieTarget * 0.3);  // 30% des calories pour le dîner
+            const mealCalorieTarget = calorieTarget * (calorieDistribution[mealType] || 0.2);
             
-            debugLog += `    Calories cibles: ${mealCalorieTarget}\n`;
+            currentDebugLog += `    Calories cibles: ${mealCalorieTarget}\n`;
             
             // Calculer les macros cibles
             const mealMacros = {
-              protein: mealType === 'dejeuner' ? macroTargets.protein * 0.4 : macroTargets.protein * 0.3,
-              fat: mealType === 'dejeuner' ? macroTargets.fat * 0.4 : macroTargets.fat * 0.3,
-              carbs: mealType === 'dejeuner' ? macroTargets.carbs * 0.4 : macroTargets.carbs * 0.3
+              protein: macroTargets.protein * (calorieDistribution[mealType] || 0.2),
+              fat: macroTargets.fat * (calorieDistribution[mealType] || 0.2),
+              carbs: macroTargets.carbs * (calorieDistribution[mealType] || 0.2)
             };
             
             // Générer un repas approprié selon le type de régime
             const meal = generateRealMeal(mealType, mealCalorieTarget, mealMacros, dietType, dayIndex);
-            debugLog += `    Repas généré: ${meal.name}\n`;
+            currentDebugLog += `    Repas généré: ${meal.name}\n`;
             
             // Ajouter le repas au plan
             const newMealId = await addMealToCurrentPlan(meal, dayIndex, mealType);
             if (newMealId) {
               successfulAdditions++;
-              debugLog += `    Repas ajouté avec succès, ID: ${newMealId}\n`;
+              currentDebugLog += `    Repas ajouté avec succès, ID: ${newMealId}\n`;
             } else {
-              debugLog += `    ÉCHEC de l'ajout du repas\n`;
+              currentDebugLog += `    ÉCHEC de l'ajout du repas\n`;
             }
             
             // Mise à jour de la progression
@@ -571,13 +581,13 @@ const WeeklyMealGenerator = () => {
             // Répartir la progression entre 10% et 100%
             const progressValue = 10 + Math.floor((completedOperations / totalOperations) * 90);
             setGenerationProgress(progressValue);
-            debugLog += `    Progression: ${completedOperations}/${totalOperations} (${progressValue}%)\n`;
+            currentDebugLog += `    Progression: ${completedOperations}/${totalOperations} (${progressValue}%)\n`;
             
             // Petite pause pour éviter de bloquer l'interface utilisateur
             await new Promise(resolve => setTimeout(resolve, 100));
           } catch (error) {
             console.error(`Erreur lors de la génération du repas ${mealType} pour le jour ${dayIndex}:`, error);
-            debugLog += `    ERREUR: ${error.message}\n`;
+            currentDebugLog += `    ERREUR: ${error.message}\n`;
             // On continue avec les autres repas même en cas d'erreur
             completedOperations++;
             const progressValue = 10 + Math.floor((completedOperations / totalOperations) * 90);
@@ -587,9 +597,9 @@ const WeeklyMealGenerator = () => {
       }
       
       // Log final
-      debugLog += `\nRécapitulatif:\n`;
-      debugLog += `Total des repas ajoutés avec succès: ${successfulAdditions}/${totalOperations}\n`;
-      setDebugInfo(debugLog);
+      currentDebugLog += `\nRécapitulatif:\n`;
+      currentDebugLog += `Total des repas ajoutés avec succès: ${successfulAdditions}/${totalOperations}\n`;
+      setDebugLog(currentDebugLog);
       
       // Message de succès avec statistiques
       if (successfulAdditions > 0) {
@@ -598,7 +608,9 @@ const WeeklyMealGenerator = () => {
         const typesLabel = mealTypes.map(type => 
           type === 'dejeuner' ? 'Déjeuners' : 
           type === 'diner' ? 'Dîners' : 
-          type === 'petit_dejeuner' ? 'Petits déjeuners' : 
+          type === 'petit_dejeuner' ? 'Petits déjeuners' :
+          type === 'collation_matin' ? 'Collations du matin' :
+          type === 'collation' ? 'Collations' : 
           'Repas'
         ).join(' et ');
         setStatsMessage(`${typesLabel} générés pour ${currentPlan.days.length} jours.`);
@@ -608,12 +620,89 @@ const WeeklyMealGenerator = () => {
     } catch (error) {
       console.error('Erreur lors de la génération des repas:', error);
       setErrorMessage(`Une erreur est survenue: ${error.message}`);
-      debugLog += `\nERREUR GÉNÉRALE: ${error.message}\n`;
-      setDebugInfo(debugLog);
+      currentDebugLog += `\nERREUR GÉNÉRALE: ${error.message}\n`;
+      setDebugLog(currentDebugLog);
     } finally {
       setIsGenerating(false);
       setGenerationProgress(100);
     }
+  };
+  
+  /**
+   * Calcule la distribution optimale des calories pour chaque type de repas
+   * en fonction du nombre de repas par jour
+   */
+  const calculateCalorieDistribution = (mealTypes) => {
+    const distribution = {};
+    
+    // Distribution de base pour les types de repas standard
+    if (mealTypes.length === 1) {
+      // Si un seul repas, il prend 100% des calories
+      distribution[mealTypes[0]] = 1.0;
+    } else if (mealTypes.length === 2) {
+      // Répartition pour deux repas (déjeuner et dîner généralement)
+      if (mealTypes.includes('dejeuner') && mealTypes.includes('diner')) {
+        distribution['dejeuner'] = 0.55; // 55% pour le déjeuner
+        distribution['diner'] = 0.45; // 45% pour le dîner
+      } else {
+        // Distribution équitable si ce n'est pas le couple déjeuner/dîner
+        mealTypes.forEach(type => distribution[type] = 1.0 / mealTypes.length);
+      }
+    } else if (mealTypes.length === 3) {
+      // Répartition pour trois repas
+      if (mealTypes.includes('petit_dejeuner') && mealTypes.includes('dejeuner') && mealTypes.includes('diner')) {
+        distribution['petit_dejeuner'] = 0.25; // 25% pour le petit déjeuner
+        distribution['dejeuner'] = 0.40; // 40% pour le déjeuner
+        distribution['diner'] = 0.35; // 35% pour le dîner
+      } else {
+        // Distribution équitable pour d'autres combinaisons
+        mealTypes.forEach(type => distribution[type] = 1.0 / mealTypes.length);
+      }
+    } else if (mealTypes.length === 4) {
+      // Répartition pour quatre repas
+      if (mealTypes.includes('petit_dejeuner')) distribution['petit_dejeuner'] = 0.2; // 20%
+      if (mealTypes.includes('dejeuner')) distribution['dejeuner'] = 0.35; // 35%
+      if (mealTypes.includes('diner')) distribution['diner'] = 0.30; // 30%
+      if (mealTypes.includes('collation')) distribution['collation'] = 0.15; // 15%
+      
+      // Si certains types manquent, redistribuer équitablement le reste
+      const totalAllocated = Object.values(distribution).reduce((sum, val) => sum + val, 0);
+      const remaining = 1.0 - totalAllocated;
+      const missingTypes = mealTypes.filter(type => !distribution[type]);
+      
+      if (missingTypes.length > 0 && remaining > 0) {
+        const sharePerMissing = remaining / missingTypes.length;
+        missingTypes.forEach(type => distribution[type] = sharePerMissing);
+      }
+    } else if (mealTypes.length === 5) {
+      // Répartition pour cinq repas
+      distribution['petit_dejeuner'] = 0.2; // 20%
+      distribution['collation_matin'] = 0.1; // 10%
+      distribution['dejeuner'] = 0.3; // 30%
+      distribution['collation'] = 0.1; // 10%
+      distribution['diner'] = 0.3; // 30%
+      
+      // Gérer les éventuels types différents
+      mealTypes.forEach(type => {
+        if (!distribution[type]) {
+          // Redistribuer équitablement si un type non standard est présent
+          distribution[type] = 0.2;
+        }
+      });
+    } else {
+      // Distribution équitable pour tout autre nombre de repas
+      mealTypes.forEach(type => distribution[type] = 1.0 / mealTypes.length);
+    }
+    
+    // Normaliser pour s'assurer que la somme fait exactement 1.0
+    const totalPercentage = Object.values(distribution).reduce((sum, val) => sum + val, 0);
+    if (totalPercentage !== 1.0) {
+      Object.keys(distribution).forEach(key => {
+        distribution[key] = distribution[key] / totalPercentage;
+      });
+    }
+    
+    return distribution;
   };
   
   return (
