@@ -275,7 +275,155 @@ const WeeklyMealGenerator = () => {
     });
     
     // Code de sélection des aliments (reste identique, juste ajout de l'ordre et du type d'affichage)
-    // ...
+    // Diviser les aliments par catégorie
+const proteinFoods = filteredFoods.filter(food => 
+  food.category === 'viande' || 
+  food.category === 'poisson' || 
+  food.category === 'œufs' || 
+  (food.category === 'produits_laitiers' && food.nutritionPer100g?.protein > 15)
+);
+
+const fatFoods = filteredFoods.filter(food => 
+  food.category === 'matières_grasses' || 
+  food.category === 'noix_graines'
+);
+
+const vegetableFoods = filteredFoods.filter(food => 
+  food.category === 'légumes' && 
+  food.nutritionPer100g?.netCarbs < 10
+);
+
+// S'assurer qu'on a des aliments disponibles
+if (proteinFoods.length === 0 || vegetableFoods.length === 0 || fatFoods.length === 0) {
+  throw new Error("Pas assez d'aliments disponibles pour générer un repas équilibré");
+}
+
+// Sélectionner une protéine
+const proteinFood = proteinFoods[Math.floor(Math.random() * proteinFoods.length)];
+
+// Sélectionner 1-2 légumes
+const vegetableCount = Math.floor(Math.random() * 2) + 1;
+const selectedVegetables = [];
+
+for (let i = 0; i < vegetableCount && i < vegetableFoods.length; i++) {
+  // Éviter de sélectionner le même légume deux fois
+  let availableVegetables = vegetableFoods.filter(veg => 
+    !selectedVegetables.some(selected => selected.id === veg.id)
+  );
+  
+  if (availableVegetables.length === 0) break;
+  
+  selectedVegetables.push(
+    availableVegetables[Math.floor(Math.random() * availableVegetables.length)]
+  );
+}
+
+// Sélectionner 1-2 sources de graisses
+const fatCount = Math.floor(Math.random() * 2) + 1;
+const selectedFats = [];
+
+for (let i = 0; i < fatCount && i < fatFoods.length; i++) {
+  // Éviter de sélectionner la même source de graisse deux fois
+  let availableFats = fatFoods.filter(fat => 
+    !selectedFats.some(selected => selected.id === fat.id)
+  );
+  
+  if (availableFats.length === 0) break;
+  
+  selectedFats.push(
+    availableFats[Math.floor(Math.random() * availableFats.length)]
+  );
+}
+
+// Calculer les proportions pour atteindre les objectifs caloriques et de macros
+// Distribution typique pour un repas keto
+// Protéine: 25-30% des calories
+// Légumes: 10-15% des calories
+// Matières grasses: 55-65% des calories
+const caloriesProtein = calories * 0.28; // 28% des calories
+const caloriesVegetables = calories * 0.12; // 12% des calories
+const caloriesFat = calories * 0.60; // 60% des calories
+
+// Calculer les quantités pour chaque aliment
+const items = [];
+
+// Ajouter la protéine
+if (proteinFood) {
+  const proteinCaloriesPer100g = proteinFood.nutritionPer100g?.calories || 200;
+  const quantity = Math.round((caloriesProtein / (proteinCaloriesPer100g / 100)));
+  
+  items.push({
+    id: proteinFood.id,
+    type: 'food',
+    name: proteinFood.name,
+    quantity: quantity,
+    unit: 'g'
+  });
+}
+
+// Ajouter les légumes
+selectedVegetables.forEach(vegetable => {
+  const caloriesPerVegetable = caloriesVegetables / selectedVegetables.length;
+  const vegCaloriesPer100g = vegetable.nutritionPer100g?.calories || 25;
+  let quantity = Math.round((caloriesPerVegetable / (vegCaloriesPer100g / 100)));
+  
+  // Minimum 100g de légumes
+  quantity = Math.max(quantity, 100);
+  
+  items.push({
+    id: vegetable.id,
+    type: 'food',
+    name: vegetable.name,
+    quantity: quantity,
+    unit: 'g'
+  });
+});
+
+// Ajouter les matières grasses
+selectedFats.forEach(fat => {
+  const caloriesPerFat = caloriesFat / selectedFats.length;
+  const fatCaloriesPer100g = fat.nutritionPer100g?.calories || 800;
+  const quantity = Math.round((caloriesPerFat / (fatCaloriesPer100g / 100)));
+  
+  items.push({
+    id: fat.id,
+    type: 'food',
+    name: fat.name,
+    quantity: quantity,
+    unit: 'g'
+  });
+});
+
+// Calculer les valeurs nutritionnelles totales
+let totalCalories = 0;
+let totalProtein = 0;
+let totalFat = 0;
+let totalNetCarbs = 0;
+
+items.forEach(item => {
+  const food = foods.find(f => f.id === item.id);
+  if (food && food.nutritionPer100g) {
+    const ratio = item.quantity / 100;
+    totalCalories += (food.nutritionPer100g.calories || 0) * ratio;
+    totalProtein += (food.nutritionPer100g.protein || 0) * ratio;
+    totalFat += (food.nutritionPer100g.fat || 0) * ratio;
+    totalNetCarbs += ((food.nutritionPer100g.carbs || 0) - (food.nutritionPer100g.fiber || 0)) * ratio;
+  }
+});
+
+// Créer le nom du repas
+let mealName = "";
+if (proteinFood) {
+  if (selectedVegetables.length > 0) {
+    mealName = `${proteinFood.name} avec ${selectedVegetables.map(v => v.name).join(' et ')}`;
+  } else {
+    mealName = `${proteinFood.name} à la ${selectedFats[0]?.name || 'maison'}`;
+  }
+} else if (selectedVegetables.length > 0) {
+  mealName = `Salade de ${selectedVegetables.map(v => v.name).join(' et ')}`;
+} else {
+  mealName = `Plat keto ${type === MEAL_TYPES.DEJEUNER.id ? 'du midi' : 'du soir'}`;
+}
     
     // À la fin, retourner l'objet repas avec les propriétés additionnelles
     return {
