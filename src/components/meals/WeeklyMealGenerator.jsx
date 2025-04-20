@@ -3,7 +3,7 @@ import { useUser } from '../../contexts/UserContext';
 import { useMealPlan } from '../../contexts/MealPlanContext';
 import { useFood } from '../../contexts/FoodContext';
 import { useRecipe } from '../../contexts/RecipeContext';
-import { FaCheckCircle, FaSpinner, FaExclamationTriangle } from 'react-icons/fa';
+import { FaCheckCircle, FaSpinner, FaExclamationTriangle, FaTrashAlt } from 'react-icons/fa';
 import './MealGenerator.css';
 
 /**
@@ -12,7 +12,7 @@ import './MealGenerator.css';
  */
 const WeeklyMealGenerator = () => {
   const { calorieTarget, macroTargets, dietType, preferences } = useUser();
-  const { currentPlan, addMealToCurrentPlan } = useMealPlan();
+  const { currentPlan, addMealToCurrentPlan, deleteMeal } = useMealPlan();
   const { foods, getFoodById } = useFood();
   const { recipes } = useRecipe();
   
@@ -21,6 +21,7 @@ const WeeklyMealGenerator = () => {
   const [successMessage, setSuccessMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [statsMessage, setStatsMessage] = useState('');
+  const [isClearing, setIsClearing] = useState(false);
   
   // Options du générateur
   const [generationOptions, setGenerationOptions] = useState({
@@ -29,6 +30,7 @@ const WeeklyMealGenerator = () => {
     balancedMacros: true,
     generateDinnerOnly: false, // Option pour générer seulement les dîners
     generateLunchOnly: false,  // Option pour générer seulement les déjeuners
+    clearExistingMeals: true,  // Nouvelle option pour effacer les repas existants
   });
   
   // Effacer les messages après un délai
@@ -112,7 +114,7 @@ const WeeklyMealGenerator = () => {
         }
         
         // Vérifier que la recette correspond au type de repas
-        return recipe.tags && recipe.tags.includes(type === 'déjeuner' ? 'déjeuner' : 'dîner');
+        return recipe.tags && recipe.tags.includes(type === 'dejeuner' ? 'dejeuner' : 'diner');
       });
       
       // Si l'option preferLowCarbs est activée, privilégier les recettes faibles en glucides
@@ -354,7 +356,7 @@ const WeeklyMealGenerator = () => {
     } else if (selectedVegetables.length > 0) {
       mealName = `Salade de ${selectedVegetables.map(v => v.name).join(' et ')}`;
     } else {
-      mealName = `Plat keto ${type === 'déjeuner' ? 'du midi' : 'du soir'}`;
+      mealName = `Plat keto ${type === 'dejeuner' ? 'du midi' : 'du soir'}`;
     }
     
     // Créer l'objet repas final
@@ -372,6 +374,50 @@ const WeeklyMealGenerator = () => {
       },
       items: items
     };
+  };
+
+  /**
+   * Supprime tous les repas d'un type spécifique pour tous les jours du plan
+   */
+  const clearExistingMeals = async (mealTypes) => {
+    if (!currentPlan || !currentPlan.days || currentPlan.days.length === 0) {
+      return false;
+    }
+
+    setIsClearing(true);
+    let deletedCount = 0;
+    
+    try {
+      // Pour chaque jour du plan
+      for (let dayIndex = 0; dayIndex < currentPlan.days.length; dayIndex++) {
+        const day = currentPlan.days[dayIndex];
+        
+        // Filtrer les repas correspondant aux types à supprimer
+        const mealsToDelete = day.meals.filter(meal => mealTypes.includes(meal.type));
+        
+        // Supprimer chaque repas
+        for (const meal of mealsToDelete) {
+          await deleteMeal(currentPlan.id, dayIndex, meal.id);
+          deletedCount++;
+          
+          // Petite pause pour éviter de bloquer l'interface
+          await new Promise(resolve => setTimeout(resolve, 10));
+        }
+      }
+      
+      if (deletedCount > 0) {
+        setSuccessMessage(`${deletedCount} repas ont été supprimés avant la génération.`);
+        setTimeout(() => setSuccessMessage(''), 3000);
+      }
+      
+      return true;
+    } catch (error) {
+      console.error('Erreur lors de la suppression des repas existants:', error);
+      setErrorMessage(`Erreur lors de la suppression: ${error.message}`);
+      return false;
+    } finally {
+      setIsClearing(false);
+    }
   };
   
   /**
@@ -392,8 +438,15 @@ const WeeklyMealGenerator = () => {
     try {
       // Déterminer les types de repas à générer
       const mealTypes = [];
-      if (!generationOptions.generateDinnerOnly) mealTypes.push('déjeuner');
-      if (!generationOptions.generateLunchOnly) mealTypes.push('dîner');
+      if (!generationOptions.generateDinnerOnly) mealTypes.push('dejeuner');
+      if (!generationOptions.generateLunchOnly) mealTypes.push('diner');
+      
+      // Si l'option est activée, supprimer d'abord les repas existants des types concernés
+      if (generationOptions.clearExistingMeals) {
+        setGenerationProgress(5); // Commencer à 5% pour montrer que quelque chose se passe
+        await clearExistingMeals(mealTypes);
+        setGenerationProgress(10); // Après la suppression, marquer 10% de progrès
+      }
       
       // Calculer le nombre total d'opérations pour la barre de progression
       const totalOperations = currentPlan.days.length * mealTypes.length;
@@ -406,15 +459,15 @@ const WeeklyMealGenerator = () => {
         for (const mealType of mealTypes) {
           try {
             // Calculer les calories cibles en fonction du type de repas
-            const mealCalorieTarget = mealType === 'déjeuner' 
+            const mealCalorieTarget = mealType === 'dejeuner' 
               ? calorieTarget * 0.4  // 40% des calories pour le déjeuner
               : calorieTarget * 0.3;  // 30% des calories pour le dîner
             
             // Calculer les macros cibles
             const mealMacros = {
-              protein: mealType === 'déjeuner' ? macroTargets.protein * 0.4 : macroTargets.protein * 0.3,
-              fat: mealType === 'déjeuner' ? macroTargets.fat * 0.4 : macroTargets.fat * 0.3,
-              carbs: mealType === 'déjeuner' ? macroTargets.carbs * 0.4 : macroTargets.carbs * 0.3
+              protein: mealType === 'dejeuner' ? macroTargets.protein * 0.4 : macroTargets.protein * 0.3,
+              fat: mealType === 'dejeuner' ? macroTargets.fat * 0.4 : macroTargets.fat * 0.3,
+              carbs: mealType === 'dejeuner' ? macroTargets.carbs * 0.4 : macroTargets.carbs * 0.3
             };
             
             // Générer un repas approprié selon le type de régime
@@ -426,7 +479,9 @@ const WeeklyMealGenerator = () => {
             
             // Mise à jour de la progression
             completedOperations++;
-            setGenerationProgress(Math.floor((completedOperations / totalOperations) * 100));
+            // Répartir la progression entre 10% et 100%
+            const progressValue = 10 + Math.floor((completedOperations / totalOperations) * 90);
+            setGenerationProgress(progressValue);
             
             // Petite pause pour éviter de bloquer l'interface utilisateur
             await new Promise(resolve => setTimeout(resolve, 100));
@@ -434,7 +489,8 @@ const WeeklyMealGenerator = () => {
             console.error(`Erreur lors de la génération du repas ${mealType} pour le jour ${dayIndex}:`, error);
             // On continue avec les autres repas même en cas d'erreur
             completedOperations++;
-            setGenerationProgress(Math.floor((completedOperations / totalOperations) * 100));
+            const progressValue = 10 + Math.floor((completedOperations / totalOperations) * 90);
+            setGenerationProgress(progressValue);
           }
         }
       }
@@ -442,7 +498,9 @@ const WeeklyMealGenerator = () => {
       // Message de succès avec statistiques
       if (successfulAdditions > 0) {
         setSuccessMessage(`${successfulAdditions} repas ont été générés et ajoutés à votre plan avec succès!`);
-        setStatsMessage(`${mealTypes.join(' et ')} générés pour ${currentPlan.days.length} jours.`);
+        // Adapter le message à la sélection des types de repas
+        const typesLabel = mealTypes.map(type => type === 'dejeuner' ? 'Déjeuners' : 'Dîners').join(' et ');
+        setStatsMessage(`${typesLabel} générés pour ${currentPlan.days.length} jours.`);
       } else {
         setErrorMessage('Aucun repas n\'a pu être généré. Veuillez vérifier vos données d\'aliments et de recettes.');
       }
@@ -526,14 +584,30 @@ const WeeklyMealGenerator = () => {
                   <span className="checkbox-text">Dîners uniquement</span>
                 </label>
               </div>
+              
+              <div className="option-item">
+                <label className="checkbox-label">
+                  <input 
+                    type="checkbox" 
+                    checked={generationOptions.clearExistingMeals} 
+                    onChange={(e) => handleOptionChange('clearExistingMeals', e.target.checked)}
+                  />
+                  <span className="checkbox-text">Effacer les repas existants</span>
+                </label>
+              </div>
             </div>
             
             <button 
               className="weekly-generate-button" 
               onClick={generateWeeklyMeals}
-              disabled={isGenerating}
+              disabled={isGenerating || isClearing}
             >
-              {isGenerating ? (
+              {isClearing ? (
+                <>
+                  <FaTrashAlt className="spinner-icon" />
+                  <span>Effacement des repas existants...</span>
+                </>
+              ) : isGenerating ? (
                 <>
                   <FaSpinner className="spinner-icon" />
                   <span>Génération en cours... {generationProgress}%</span>
@@ -543,7 +617,7 @@ const WeeklyMealGenerator = () => {
               )}
             </button>
             
-            {isGenerating && (
+            {(isGenerating || isClearing) && (
               <div className="progress-bar-container">
                 <div 
                   className="progress-bar-fill" 
