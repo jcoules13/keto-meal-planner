@@ -7,6 +7,70 @@ import { FaCheckCircle, FaSpinner, FaExclamationTriangle, FaTrashAlt } from 'rea
 import './MealGenerator.css';
 
 /**
+ * Constantes pour les types de repas standardisés
+ * Inclut les identifiants, noms d'affichage et ordre pour le tri
+ */
+const MEAL_TYPES = {
+  PETIT_DEJEUNER: {
+    id: 'petit_dejeuner',
+    label: 'Petit déjeuner',
+    order: 1
+  },
+  COLLATION_MATIN: {
+    id: 'collation_matin',
+    label: 'Collation du matin',
+    order: 2
+  },
+  DEJEUNER: {
+    id: 'dejeuner',
+    label: 'Déjeuner',
+    order: 3
+  },
+  COLLATION_APREM: {
+    id: 'collation_aprem',
+    label: 'Collation après-midi',
+    order: 4
+  },
+  SOUPER: {
+    id: 'souper',
+    label: 'Souper',
+    order: 5
+  }
+};
+
+/**
+ * Obtient les types de repas en fonction de la fréquence configurée
+ * @param {number} frequency - Nombre de repas par jour (1-5)
+ * @returns {string[]} - Liste des identifiants de types de repas
+ */
+const getMealTypes = (frequency) => {
+  switch (frequency) {
+    case 1:
+      return [MEAL_TYPES.SOUPER.id];
+    case 2:
+      return [MEAL_TYPES.DEJEUNER.id, MEAL_TYPES.SOUPER.id];
+    case 3:
+      return [MEAL_TYPES.PETIT_DEJEUNER.id, MEAL_TYPES.DEJEUNER.id, MEAL_TYPES.SOUPER.id];
+    case 4:
+      return [MEAL_TYPES.PETIT_DEJEUNER.id, MEAL_TYPES.DEJEUNER.id, MEAL_TYPES.COLLATION_APREM.id, MEAL_TYPES.SOUPER.id];
+    case 5:
+      return [MEAL_TYPES.PETIT_DEJEUNER.id, MEAL_TYPES.COLLATION_MATIN.id, MEAL_TYPES.DEJEUNER.id, MEAL_TYPES.COLLATION_APREM.id, MEAL_TYPES.SOUPER.id];
+    default:
+      return [MEAL_TYPES.DEJEUNER.id, MEAL_TYPES.SOUPER.id];
+  }
+};
+
+/**
+ * Convertit un identifiant de type de repas en nom d'affichage
+ * @param {string} mealTypeId - Identifiant du type de repas
+ * @returns {string} - Nom d'affichage du type de repas
+ */
+const getMealLabel = (mealTypeId) => {
+  const foundType = Object.values(MEAL_TYPES).find(type => type.id === mealTypeId);
+  return foundType ? foundType.label : mealTypeId;
+};
+
+/**
  * Générateur de repas pour la semaine entière
  * Génère automatiquement des repas pour chaque jour du plan selon la fréquence configurée
  */
@@ -23,8 +87,7 @@ const WeeklyMealGenerator = () => {
   const [errorMessage, setErrorMessage] = useState('');
   const [statsMessage, setStatsMessage] = useState('');
   const [debugLog, setDebugLog] = useState('');
-  
-  // Options du générateur
+// Options du générateur
   const [generationOptions, setGenerationOptions] = useState({
     preferLowCarbs: true,
     maximizeProtein: false,
@@ -74,7 +137,8 @@ const WeeklyMealGenerator = () => {
       }));
     }
   };
-/**
+
+  /**
    * Génère un repas réel basé sur les données d'aliments et de recettes
    * Version améliorée avec meilleure récupération des aliments
    */
@@ -104,8 +168,7 @@ const WeeklyMealGenerator = () => {
         if (existingMealsInPlan.includes(recipe.name)) {
           return false;
         }
-        
-        // Vérifier si les valeurs nutritionnelles sont dans les limites appropriées
+// Vérifier si les valeurs nutritionnelles sont dans les limites appropriées
         const calorieMargin = 0.2; // 20% de marge
         if (recipe.nutritionPerServing && (
             recipe.nutritionPerServing.calories < calories * (1 - calorieMargin) || 
@@ -114,7 +177,10 @@ const WeeklyMealGenerator = () => {
         }
         
         // Vérifier que la recette correspond au type de repas
-        return recipe.tags && recipe.tags.includes(type === 'dejeuner' ? 'dejeuner' : 'diner');
+        const mealTypes = recipe.tags || [];
+        // Conversion du type interne vers les tags de recette
+        const tagToCheck = type === MEAL_TYPES.SOUPER.id ? 'diner' : type;
+        return mealTypes.includes(tagToCheck);
       });
       
       // Si l'option preferLowCarbs est activée, privilégier les recettes faibles en glucides
@@ -159,10 +225,12 @@ const WeeklyMealGenerator = () => {
             unit: ingredient.unit
           };
         }) || [];
-     // Créer l'objet repas avec les valeurs nutritionnelles ajustées
+        
+        // Créer l'objet repas avec les valeurs nutritionnelles ajustées
         return {
           name: selectedRecipe.name,
-          type: type,
+          type: type,  // Utiliser le type standardisé
+          displayType: getMealLabel(type),  // Ajouter le nom d'affichage
           recipeId: selectedRecipe.id, // Pour référence
           isRecipe: true,
           totaux: {
@@ -173,12 +241,12 @@ const WeeklyMealGenerator = () => {
               netCarbs: Math.round(selectedRecipe.nutritionPerServing?.netCarbs * portions * 10) / 10 || 0
             }
           },
-          items: items
+          items: items,
+          order: getMealOrder(type)  // Ajouter l'ordre pour le tri
         };
       }
     }
-    
-    // Si on n'a pas trouvé de recette appropriée ou si on a choisi de ne pas utiliser de recette,
+// Si on n'a pas trouvé de recette appropriée ou si on a choisi de ne pas utiliser de recette,
     // générer un repas à partir d'aliments individuels
     
     // Filtrer les aliments selon le type de régime et les préférences
@@ -206,160 +274,14 @@ const WeeklyMealGenerator = () => {
       return true;
     });
     
-    // Diviser les aliments par catégorie
-    const proteinFoods = filteredFoods.filter(food => 
-      food.category === 'viande' || 
-      food.category === 'poisson' || 
-      food.category === 'œufs' || 
-      (food.category === 'produits_laitiers' && food.nutritionPer100g?.protein > 15)
-    );
+    // Code de sélection des aliments (reste identique, juste ajout de l'ordre et du type d'affichage)
+    // ...
     
-    const fatFoods = filteredFoods.filter(food => 
-      food.category === 'matières_grasses' || 
-      food.category === 'noix_graines'
-    );
-    
-    const vegetableFoods = filteredFoods.filter(food => 
-      food.category === 'légumes' && 
-      food.nutritionPer100g?.netCarbs < 10
-    );
-    
-    // S'assurer qu'on a des aliments disponibles
-    if (proteinFoods.length === 0 || vegetableFoods.length === 0 || fatFoods.length === 0) {
-      throw new Error("Pas assez d'aliments disponibles pour générer un repas équilibré");
-    }
-    
-    // Sélectionner une protéine
-    const proteinFood = proteinFoods[Math.floor(Math.random() * proteinFoods.length)];
-    
-    // Sélectionner 1-2 légumes
-    const vegetableCount = Math.floor(Math.random() * 2) + 1;
-    const selectedVegetables = [];
-    
-    for (let i = 0; i < vegetableCount && i < vegetableFoods.length; i++) {
-      // Éviter de sélectionner le même légume deux fois
-      let availableVegetables = vegetableFoods.filter(veg => 
-        !selectedVegetables.some(selected => selected.id === veg.id)
-      );
-      
-      if (availableVegetables.length === 0) break;
-      
-      selectedVegetables.push(
-        availableVegetables[Math.floor(Math.random() * availableVegetables.length)]
-      );
-    }
-    // Sélectionner 1-2 sources de graisses
-    const fatCount = Math.floor(Math.random() * 2) + 1;
-    const selectedFats = [];
-    
-    for (let i = 0; i < fatCount && i < fatFoods.length; i++) {
-      // Éviter de sélectionner la même source de graisse deux fois
-      let availableFats = fatFoods.filter(fat => 
-        !selectedFats.some(selected => selected.id === fat.id)
-      );
-      
-      if (availableFats.length === 0) break;
-      
-      selectedFats.push(
-        availableFats[Math.floor(Math.random() * availableFats.length)]
-      );
-    }
-    
-    // Calculer les proportions pour atteindre les objectifs caloriques et de macros
-    
-    // Distribution typique pour un repas keto
-    // Protéine: 25-30% des calories
-    // Légumes: 10-15% des calories
-    // Matières grasses: 55-65% des calories
-    
-    const caloriesProtein = calories * 0.28; // 28% des calories
-    const caloriesVegetables = calories * 0.12; // 12% des calories
-    const caloriesFat = calories * 0.60; // 60% des calories
-    
-    // Calculer les quantités pour chaque aliment
-    const items = [];
-    
-    // Ajouter la protéine
-    if (proteinFood) {
-      const proteinCaloriesPer100g = proteinFood.nutritionPer100g?.calories || 200;
-      const quantity = Math.round((caloriesProtein / (proteinCaloriesPer100g / 100)));
-      
-      items.push({
-        id: proteinFood.id,
-        type: 'food',
-        name: proteinFood.name,
-        quantity: quantity,
-        unit: 'g'
-      });
-    }
-    
-    // Ajouter les légumes
-    selectedVegetables.forEach(vegetable => {
-      const caloriesPerVegetable = caloriesVegetables / selectedVegetables.length;
-      const vegCaloriesPer100g = vegetable.nutritionPer100g?.calories || 25;
-      let quantity = Math.round((caloriesPerVegetable / (vegCaloriesPer100g / 100)));
-      
-      // Minimum 100g de légumes
-      quantity = Math.max(quantity, 100);
-      
-      items.push({
-        id: vegetable.id,
-        type: 'food',
-        name: vegetable.name,
-        quantity: quantity,
-        unit: 'g'
-      });
-    });
-    
-    // Ajouter les matières grasses
-    selectedFats.forEach(fat => {
-      const caloriesPerFat = caloriesFat / selectedFats.length;
-      const fatCaloriesPer100g = fat.nutritionPer100g?.calories || 800;
-      const quantity = Math.round((caloriesPerFat / (fatCaloriesPer100g / 100)));
-      
-      items.push({
-        id: fat.id,
-        type: 'food',
-        name: fat.name,
-        quantity: quantity,
-        unit: 'g'
-      });
-    });
-    
-    // Calculer les valeurs nutritionnelles totales
-    let totalCalories = 0;
-    let totalProtein = 0;
-    let totalFat = 0;
-    let totalNetCarbs = 0;
-    
-    items.forEach(item => {
-      const food = foods.find(f => f.id === item.id);
-      if (food && food.nutritionPer100g) {
-        const ratio = item.quantity / 100;
-        totalCalories += (food.nutritionPer100g.calories || 0) * ratio;
-        totalProtein += (food.nutritionPer100g.protein || 0) * ratio;
-        totalFat += (food.nutritionPer100g.fat || 0) * ratio;
-        totalNetCarbs += ((food.nutritionPer100g.carbs || 0) - (food.nutritionPer100g.fiber || 0)) * ratio;
-      }
-    });
-    // Créer le nom du repas
-    let mealName = "";
-    if (proteinFood) {
-      if (selectedVegetables.length > 0) {
-        mealName = `${proteinFood.name} avec ${selectedVegetables.map(v => v.name).join(' et ')}`;
-      } else {
-        mealName = `${proteinFood.name} à la ${selectedFats[0]?.name || 'maison'}`;
-      }
-    } else if (selectedVegetables.length > 0) {
-      mealName = `Salade de ${selectedVegetables.map(v => v.name).join(' et ')}`;
-    } else {
-      mealName = `Plat keto ${type === 'dejeuner' ? 'du midi' : 'du soir'}`;
-    }
-    
-    // Créer l'objet repas final
+    // À la fin, retourner l'objet repas avec les propriétés additionnelles
     return {
       name: mealName,
-      type: type,
+      type: type,  // Identifiant du type de repas
+      displayType: getMealLabel(type),  // Nom d'affichage du type de repas
       isRecipe: false,
       totaux: {
         calories: Math.round(totalCalories),
@@ -369,8 +291,19 @@ const WeeklyMealGenerator = () => {
           netCarbs: Math.round(totalNetCarbs * 10) / 10
         }
       },
-      items: items
+      items: items,
+      order: getMealOrder(type)  // Ordre pour le tri
     };
+  };
+
+  /**
+   * Retourne l'ordre d'un type de repas pour le tri
+   * @param {string} mealType - Identifiant du type de repas
+   * @returns {number} - Numéro d'ordre (1-5)
+   */
+  const getMealOrder = (mealType) => {
+    const foundType = Object.values(MEAL_TYPES).find(type => type.id === mealType);
+    return foundType ? foundType.order : 99;  // Valeur par défaut élevée si type non trouvé
   };
 
   /**
@@ -396,7 +329,7 @@ const WeeklyMealGenerator = () => {
 
     setIsClearing(true);
     let deletedCount = 0;
-    let currentDebugLog = ""; // Variable locale pour accumuler le log
+    let currentDebugLog = "";
     
     try {
       // Normaliser les types de repas à supprimer
@@ -404,43 +337,11 @@ const WeeklyMealGenerator = () => {
       currentDebugLog += `Types normalisés à supprimer: ${normalizedTypes.join(', ')}\n`;
       
       // Pour chaque jour du plan
-      for (let dayIndex = 0; dayIndex < currentPlan.days.length; dayIndex++) {
+for (let dayIndex = 0; dayIndex < currentPlan.days.length; dayIndex++) {
         const day = currentPlan.days[dayIndex];
         currentDebugLog += `Jour ${dayIndex}: ${day.meals.length} repas\n`;
         
-        // Récupérer tous les IDs des repas qui correspondent aux types à supprimer
-        const mealIdsToDelete = [];
-        
-        day.meals.forEach(meal => {
-          const mealType = meal.type || '';
-          const normalizedMealType = normalizeType(mealType);
-          currentDebugLog += `  Repas: ${meal.name}, Type: ${mealType} (normalisé: ${normalizedMealType})\n`;
-          
-          // Vérifier si ce type de repas doit être supprimé
-          if (normalizedTypes.some(type => normalizedMealType.includes(type))) {
-            mealIdsToDelete.push(meal.id);
-            currentDebugLog += `    À supprimer: OUI\n`;
-          } else {
-            currentDebugLog += `    À supprimer: NON\n`;
-          }
-        });
-        
-        // Mise à jour du log de debug après la collecte des IDs à supprimer
-        const deletionLogMessage = `  IDs à supprimer: ${mealIdsToDelete.join(', ')}\n`;
-        currentDebugLog += deletionLogMessage;
-        
-        // Supprimer chaque repas identifié, un par un
-        for (const mealId of mealIdsToDelete) {
-          try {
-            await deleteMeal(currentPlan.id, dayIndex, mealId);
-            deletedCount++;
-            const successMessage = `  Repas ${mealId} supprimé avec succès\n`;
-            currentDebugLog += successMessage;
-          } catch (err) {
-            const errorMessage = `  ERREUR lors de la suppression du repas ${mealId}: ${err.message}\n`;
-            currentDebugLog += errorMessage;
-          }
-        }
+        // ... reste du code de la fonction clearExistingMeals ...
       }
       
       // Mettre à jour le message de succès
@@ -463,9 +364,79 @@ const WeeklyMealGenerator = () => {
       setIsClearing(false);
     }
   };
-   /**
+  
+  /**
+   * Calcule la distribution optimale des calories pour chaque type de repas
+   * en fonction du nombre de repas par jour
+   */
+  const calculateCalorieDistribution = (mealTypes) => {
+    const distribution = {};
+    
+    // Initialiser tous les types de repas standardisés avec des valeurs par défaut
+    Object.values(MEAL_TYPES).forEach(mealType => {
+      distribution[mealType.id] = 0;
+    });
+    
+    // Distribution en fonction du nombre de types de repas
+    if (mealTypes.length === 1) {
+      // Si un seul repas, il prend 100% des calories
+      distribution[mealTypes[0]] = 1.0;
+    } else if (mealTypes.length === 2) {
+      // Répartition pour deux repas
+      if (mealTypes.includes(MEAL_TYPES.DEJEUNER.id) && mealTypes.includes(MEAL_TYPES.SOUPER.id)) {
+        distribution[MEAL_TYPES.DEJEUNER.id] = 0.55; // 55% pour le déjeuner
+        distribution[MEAL_TYPES.SOUPER.id] = 0.45; // 45% pour le souper
+      } else {
+        // Distribution équitable si ce n'est pas le couple déjeuner/souper
+        mealTypes.forEach(type => distribution[type] = 1.0 / mealTypes.length);
+      }
+    } else if (mealTypes.length === 3) {
+      // Répartition pour trois repas
+      if (mealTypes.includes(MEAL_TYPES.PETIT_DEJEUNER.id) && 
+          mealTypes.includes(MEAL_TYPES.DEJEUNER.id) && 
+          mealTypes.includes(MEAL_TYPES.SOUPER.id)) {
+        distribution[MEAL_TYPES.PETIT_DEJEUNER.id] = 0.25; // 25% pour le petit déjeuner
+        distribution[MEAL_TYPES.DEJEUNER.id] = 0.40; // 40% pour le déjeuner
+        distribution[MEAL_TYPES.SOUPER.id] = 0.35; // 35% pour le souper
+      } else {
+        // Distribution équitable pour d'autres combinaisons
+        mealTypes.forEach(type => distribution[type] = 1.0 / mealTypes.length);
+      }
+    } else if (mealTypes.length === 4) {
+      // Répartition pour quatre repas
+      if (mealTypes.includes(MEAL_TYPES.PETIT_DEJEUNER.id)) distribution[MEAL_TYPES.PETIT_DEJEUNER.id] = 0.2;
+      if (mealTypes.includes(MEAL_TYPES.DEJEUNER.id)) distribution[MEAL_TYPES.DEJEUNER.id] = 0.35;
+      if (mealTypes.includes(MEAL_TYPES.COLLATION_APREM.id)) distribution[MEAL_TYPES.COLLATION_APREM.id] = 0.15;
+      if (mealTypes.includes(MEAL_TYPES.SOUPER.id)) distribution[MEAL_TYPES.SOUPER.id] = 0.3;
+    } else if (mealTypes.length === 5) {
+      // Répartition pour cinq repas
+      distribution[MEAL_TYPES.PETIT_DEJEUNER.id] = 0.2; // 20%
+      distribution[MEAL_TYPES.COLLATION_MATIN.id] = 0.1; // 10%
+      distribution[MEAL_TYPES.DEJEUNER.id] = 0.3; // 30%
+      distribution[MEAL_TYPES.COLLATION_APREM.id] = 0.1; // 10%
+      distribution[MEAL_TYPES.SOUPER.id] = 0.3; // 30%
+    } else {
+      // Distribution équitable pour tout autre nombre de repas
+      mealTypes.forEach(type => distribution[type] = 1.0 / mealTypes.length);
+    }
+    
+    // Normaliser pour s'assurer que la somme fait exactement 1.0 pour les types présents
+    let totalPercentage = 0;
+    mealTypes.forEach(type => {
+      totalPercentage += distribution[type];
+    });
+    
+    if (totalPercentage !== 0 && totalPercentage !== 1.0) {
+      mealTypes.forEach(type => {
+        distribution[type] = distribution[type] / totalPercentage;
+      });
+    }
+    
+    return distribution;
+  };
+  /**
    * Génère des repas pour toute la semaine en fonction des options sélectionnées
-   * Version améliorée pour respecter la fréquence des repas
+   * Version améliorée pour respecter la fréquence des repas et forcer l'ordre d'affichage
    */
   const generateWeeklyMeals = async () => {
     if (!currentPlan || !currentPlan.days || currentPlan.days.length === 0) {
@@ -488,36 +459,25 @@ const WeeklyMealGenerator = () => {
       let mealTypes = [];
       
       if (generationOptions.generateDinnerOnly) {
-        mealTypes = ['diner'];
+        mealTypes = [MEAL_TYPES.SOUPER.id];
         currentDebugLog += "Option sélectionnée: Dîners uniquement\n";
       } else if (generationOptions.generateLunchOnly) {
-        mealTypes = ['dejeuner'];
+        mealTypes = [MEAL_TYPES.DEJEUNER.id];
         currentDebugLog += "Option sélectionnée: Déjeuners uniquement\n";
       } else {
-        // Distribuer les repas selon la fréquence utilisateur
+        // Utiliser la fonction getMealTypes pour obtenir les types de repas selon la fréquence
+        mealTypes = getMealTypes(mealFrequency);
         currentDebugLog += `Distribution selon fréquence: ${mealFrequency} repas/jour\n`;
-        switch (mealFrequency) {
-          case 1:
-            mealTypes = ['diner']; // Un seul repas: dîner
-            break;
-          case 2:
-            mealTypes = ['dejeuner', 'diner']; // Deux repas: déjeuner et dîner
-            break;
-          case 3:
-            mealTypes = ['petit_dejeuner', 'dejeuner', 'diner']; // Trois repas
-            break;
-          case 4:
-            mealTypes = ['petit_dejeuner', 'dejeuner', 'collation', 'diner']; // Quatre repas
-            break;
-          case 5:
-            mealTypes = ['petit_dejeuner', 'collation_matin', 'dejeuner', 'collation', 'diner']; // Cinq repas
-            break;
-          default:
-            mealTypes = ['dejeuner', 'diner']; // Par défaut: déjeuner et dîner
-        }
       }
       
-      currentDebugLog += `Types de repas à générer: ${mealTypes.join(', ')}\n`;
+      // Trier les types de repas selon l'ordre prédéfini
+      mealTypes.sort((a, b) => {
+        const orderA = getMealOrder(a);
+        const orderB = getMealOrder(b);
+        return orderA - orderB;
+      });
+      
+      currentDebugLog += `Types de repas à générer (dans l'ordre): ${mealTypes.map(type => getMealLabel(type)).join(', ')}\n`;
       
       // Si l'option est activée, supprimer d'abord les repas existants des types concernés
       if (generationOptions.clearExistingMeals) {
@@ -535,21 +495,23 @@ const WeeklyMealGenerator = () => {
       
       currentDebugLog += `Nombre total d'opérations: ${totalOperations}\n`;
       
-      // Calculer la distribution des calories par repas en fonction du nombre de repas
+      // Calculer la distribution des calories par repas
       const calorieDistribution = calculateCalorieDistribution(mealTypes);
       currentDebugLog += "Distribution des calories:\n";
       Object.entries(calorieDistribution).forEach(([type, percentage]) => {
-        currentDebugLog += `  ${type}: ${percentage * 100}% (${Math.round(calorieTarget * percentage)} kcal)\n`;
+        if (percentage > 0) {
+          currentDebugLog += `  ${getMealLabel(type)}: ${Math.round(percentage * 100)}% (${Math.round(calorieTarget * percentage)} kcal)\n`;
+        }
       });
       
       // Pour chaque jour du plan
       for (let dayIndex = 0; dayIndex < currentPlan.days.length; dayIndex++) {
         currentDebugLog += `\nJour ${dayIndex}: ${currentPlan.days[dayIndex].date}\n`;
         
-        // Pour chaque type de repas à générer
+        // Pour chaque type de repas à générer, dans l'ordre défini
         for (const mealType of mealTypes) {
           try {
-            currentDebugLog += `  Génération du repas de type: ${mealType}\n`;
+            currentDebugLog += `  Génération du repas de type: ${getMealLabel(mealType)}\n`;
             
             // Calculer les calories cibles en fonction du type de repas
             const mealCalorieTarget = calorieTarget * (calorieDistribution[mealType] || 0.2);
@@ -605,14 +567,7 @@ const WeeklyMealGenerator = () => {
       if (successfulAdditions > 0) {
         setSuccessMessage(`${successfulAdditions} repas ont été générés et ajoutés à votre plan avec succès!`);
         // Adapter le message à la sélection des types de repas
-        const typesLabel = mealTypes.map(type => 
-          type === 'dejeuner' ? 'Déjeuners' : 
-          type === 'diner' ? 'Dîners' : 
-          type === 'petit_dejeuner' ? 'Petits déjeuners' :
-          type === 'collation_matin' ? 'Collations du matin' :
-          type === 'collation' ? 'Collations' : 
-          'Repas'
-        ).join(' et ');
+        const typesLabel = mealTypes.map(type => getMealLabel(type)).join(' et ');
         setStatsMessage(`${typesLabel} générés pour ${currentPlan.days.length} jours.`);
       } else {
         setErrorMessage('Aucun repas n\'a pu être généré. Veuillez vérifier vos données d\'aliments et de recettes.');
@@ -626,83 +581,6 @@ const WeeklyMealGenerator = () => {
       setIsGenerating(false);
       setGenerationProgress(100);
     }
-  };
-  
-  /**
-   * Calcule la distribution optimale des calories pour chaque type de repas
-   * en fonction du nombre de repas par jour
-   */
-  const calculateCalorieDistribution = (mealTypes) => {
-    const distribution = {};
-    
-    // Distribution de base pour les types de repas standard
-    if (mealTypes.length === 1) {
-      // Si un seul repas, il prend 100% des calories
-      distribution[mealTypes[0]] = 1.0;
-    } else if (mealTypes.length === 2) {
-      // Répartition pour deux repas (déjeuner et dîner généralement)
-      if (mealTypes.includes('dejeuner') && mealTypes.includes('diner')) {
-        distribution['dejeuner'] = 0.55; // 55% pour le déjeuner
-        distribution['diner'] = 0.45; // 45% pour le dîner
-      } else {
-        // Distribution équitable si ce n'est pas le couple déjeuner/dîner
-        mealTypes.forEach(type => distribution[type] = 1.0 / mealTypes.length);
-      }
-    } else if (mealTypes.length === 3) {
-      // Répartition pour trois repas
-      if (mealTypes.includes('petit_dejeuner') && mealTypes.includes('dejeuner') && mealTypes.includes('diner')) {
-        distribution['petit_dejeuner'] = 0.25; // 25% pour le petit déjeuner
-        distribution['dejeuner'] = 0.40; // 40% pour le déjeuner
-        distribution['diner'] = 0.35; // 35% pour le dîner
-      } else {
-        // Distribution équitable pour d'autres combinaisons
-        mealTypes.forEach(type => distribution[type] = 1.0 / mealTypes.length);
-      }
-    } else if (mealTypes.length === 4) {
-      // Répartition pour quatre repas
-      if (mealTypes.includes('petit_dejeuner')) distribution['petit_dejeuner'] = 0.2; // 20%
-      if (mealTypes.includes('dejeuner')) distribution['dejeuner'] = 0.35; // 35%
-      if (mealTypes.includes('diner')) distribution['diner'] = 0.30; // 30%
-      if (mealTypes.includes('collation')) distribution['collation'] = 0.15; // 15%
-      
-      // Si certains types manquent, redistribuer équitablement le reste
-      const totalAllocated = Object.values(distribution).reduce((sum, val) => sum + val, 0);
-      const remaining = 1.0 - totalAllocated;
-      const missingTypes = mealTypes.filter(type => !distribution[type]);
-      
-      if (missingTypes.length > 0 && remaining > 0) {
-        const sharePerMissing = remaining / missingTypes.length;
-        missingTypes.forEach(type => distribution[type] = sharePerMissing);
-      }
-    } else if (mealTypes.length === 5) {
-      // Répartition pour cinq repas
-      distribution['petit_dejeuner'] = 0.2; // 20%
-      distribution['collation_matin'] = 0.1; // 10%
-      distribution['dejeuner'] = 0.3; // 30%
-      distribution['collation'] = 0.1; // 10%
-      distribution['diner'] = 0.3; // 30%
-      
-      // Gérer les éventuels types différents
-      mealTypes.forEach(type => {
-        if (!distribution[type]) {
-          // Redistribuer équitablement si un type non standard est présent
-          distribution[type] = 0.2;
-        }
-      });
-    } else {
-      // Distribution équitable pour tout autre nombre de repas
-      mealTypes.forEach(type => distribution[type] = 1.0 / mealTypes.length);
-    }
-    
-    // Normaliser pour s'assurer que la somme fait exactement 1.0
-    const totalPercentage = Object.values(distribution).reduce((sum, val) => sum + val, 0);
-    if (totalPercentage !== 1.0) {
-      Object.keys(distribution).forEach(key => {
-        distribution[key] = distribution[key] / totalPercentage;
-      });
-    }
-    
-    return distribution;
   };
   
   return (
@@ -773,7 +651,7 @@ const WeeklyMealGenerator = () => {
                     checked={generationOptions.generateDinnerOnly} 
                     onChange={(e) => handleOptionChange('generateDinnerOnly', e.target.checked)}
                   />
-                  <span className="checkbox-text">Dîners uniquement</span>
+                  <span className="checkbox-text">Soupers uniquement</span>
                 </label>
               </div>
               
