@@ -105,25 +105,6 @@ const WeeklyMealPlanDisplay = () => {
         <div className="day-nutrition-summary">
           <h4 className="nutrition-header">Macros Quotidiennes</h4>
           
-          <div className="nutrition-grid">
-            <div className="nutrition-item">
-              <span className="nutrition-value">{dayNutrition.calories}</span>
-              <span className="nutrition-label">calories</span>
-            </div>
-            <div className="nutrition-item">
-              <span className="nutrition-value protein-value">{dayNutrition.protein}g</span>
-              <span className="nutrition-label">protéines</span>
-            </div>
-            <div className="nutrition-item">
-              <span className="nutrition-value fat-value">{dayNutrition.fat}g</span>
-              <span className="nutrition-label">lipides</span>
-            </div>
-            <div className="nutrition-item">
-              <span className="nutrition-value carbs-value">{dayNutrition.netCarbs}g</span>
-              <span className="nutrition-label">glucides</span>
-            </div>
-          </div>
-          
           {/* Utilisation de notre nouveau composant MacroProgressBar */}
           <div className="macro-progress-bars">
             <MacroProgressBar 
