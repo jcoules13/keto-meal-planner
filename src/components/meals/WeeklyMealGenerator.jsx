@@ -868,7 +868,10 @@ return (
                   />
                   <span className="checkbox-text">Effacer les repas existants</span>
                 </label>
-                             
+              </div>
+            </div>
+            
+            <button 
               className="weekly-generate-button" 
               onClick={generateWeeklyMeals}
               disabled={isGenerating || isClearing}
