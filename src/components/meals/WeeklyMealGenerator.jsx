@@ -69,7 +69,6 @@ const getMealLabel = (mealTypeId) => {
   const foundType = Object.values(MEAL_TYPES).find(type => type.id === mealTypeId);
   return foundType ? foundType.label : mealTypeId;
 };
-
 /**
  * Générateur de repas pour la semaine entière
  * Génère automatiquement des repas pour chaque jour du plan selon la fréquence configurée
@@ -87,7 +86,8 @@ const WeeklyMealGenerator = () => {
   const [errorMessage, setErrorMessage] = useState('');
   const [statsMessage, setStatsMessage] = useState('');
   const [debugLog, setDebugLog] = useState('');
-// Options du générateur
+  
+  // Options du générateur
   const [generationOptions, setGenerationOptions] = useState({
     preferLowCarbs: true,
     maximizeProtein: false,
@@ -137,8 +137,7 @@ const WeeklyMealGenerator = () => {
       }));
     }
   };
-
-  /**
+/**
    * Génère un repas réel basé sur les données d'aliments et de recettes
    * Version améliorée avec meilleure récupération des aliments
    */
@@ -168,7 +167,8 @@ const WeeklyMealGenerator = () => {
         if (existingMealsInPlan.includes(recipe.name)) {
           return false;
         }
-// Vérifier si les valeurs nutritionnelles sont dans les limites appropriées
+        
+        // Vérifier si les valeurs nutritionnelles sont dans les limites appropriées
         const calorieMargin = 0.2; // 20% de marge
         if (recipe.nutritionPerServing && (
             recipe.nutritionPerServing.calories < calories * (1 - calorieMargin) || 
@@ -179,7 +179,8 @@ const WeeklyMealGenerator = () => {
         // Vérifier que la recette correspond au type de repas
         const mealTypes = recipe.tags || [];
         // Conversion du type interne vers les tags de recette
-        const tagToCheck = type === MEAL_TYPES.SOUPER.id ? 'diner' : type;
+        // Correction: Utiliser 'souper' au lieu de 'diner' pour être cohérent
+        const tagToCheck = type === MEAL_TYPES.SOUPER.id ? 'souper' : type;
         return mealTypes.includes(tagToCheck);
       });
       
@@ -276,154 +277,154 @@ const WeeklyMealGenerator = () => {
     
     // Code de sélection des aliments (reste identique, juste ajout de l'ordre et du type d'affichage)
     // Diviser les aliments par catégorie
-const proteinFoods = filteredFoods.filter(food => 
-  food.category === 'viande' || 
-  food.category === 'poisson' || 
-  food.category === 'œufs' || 
-  (food.category === 'produits_laitiers' && food.nutritionPer100g?.protein > 15)
-);
+    const proteinFoods = filteredFoods.filter(food => 
+      food.category === 'viande' || 
+      food.category === 'poisson' || 
+      food.category === 'œufs' || 
+      (food.category === 'produits_laitiers' && food.nutritionPer100g?.protein > 15)
+    );
 
-const fatFoods = filteredFoods.filter(food => 
-  food.category === 'matières_grasses' || 
-  food.category === 'noix_graines'
-);
+    const fatFoods = filteredFoods.filter(food => 
+      food.category === 'matières_grasses' || 
+      food.category === 'noix_graines'
+    );
 
-const vegetableFoods = filteredFoods.filter(food => 
-  food.category === 'légumes' && 
-  food.nutritionPer100g?.netCarbs < 10
-);
+    const vegetableFoods = filteredFoods.filter(food => 
+      food.category === 'légumes' && 
+      food.nutritionPer100g?.netCarbs < 10
+    );
 
-// S'assurer qu'on a des aliments disponibles
-if (proteinFoods.length === 0 || vegetableFoods.length === 0 || fatFoods.length === 0) {
-  throw new Error("Pas assez d'aliments disponibles pour générer un repas équilibré");
-}
+    // S'assurer qu'on a des aliments disponibles
+    if (proteinFoods.length === 0 || vegetableFoods.length === 0 || fatFoods.length === 0) {
+      throw new Error("Pas assez d'aliments disponibles pour générer un repas équilibré");
+    }
 
-// Sélectionner une protéine
-const proteinFood = proteinFoods[Math.floor(Math.random() * proteinFoods.length)];
+    // Sélectionner une protéine
+    const proteinFood = proteinFoods[Math.floor(Math.random() * proteinFoods.length)];
 
-// Sélectionner 1-2 légumes
-const vegetableCount = Math.floor(Math.random() * 2) + 1;
-const selectedVegetables = [];
+    // Sélectionner 1-2 légumes
+    const vegetableCount = Math.floor(Math.random() * 2) + 1;
+    const selectedVegetables = [];
 
-for (let i = 0; i < vegetableCount && i < vegetableFoods.length; i++) {
-  // Éviter de sélectionner le même légume deux fois
-  let availableVegetables = vegetableFoods.filter(veg => 
-    !selectedVegetables.some(selected => selected.id === veg.id)
-  );
-  
-  if (availableVegetables.length === 0) break;
-  
-  selectedVegetables.push(
-    availableVegetables[Math.floor(Math.random() * availableVegetables.length)]
-  );
-}
+    for (let i = 0; i < vegetableCount && i < vegetableFoods.length; i++) {
+      // Éviter de sélectionner le même légume deux fois
+      let availableVegetables = vegetableFoods.filter(veg => 
+        !selectedVegetables.some(selected => selected.id === veg.id)
+      );
+      
+      if (availableVegetables.length === 0) break;
+      
+      selectedVegetables.push(
+        availableVegetables[Math.floor(Math.random() * availableVegetables.length)]
+      );
+    }
 
-// Sélectionner 1-2 sources de graisses
-const fatCount = Math.floor(Math.random() * 2) + 1;
-const selectedFats = [];
+    // Sélectionner 1-2 sources de graisses
+    const fatCount = Math.floor(Math.random() * 2) + 1;
+    const selectedFats = [];
 
-for (let i = 0; i < fatCount && i < fatFoods.length; i++) {
-  // Éviter de sélectionner la même source de graisse deux fois
-  let availableFats = fatFoods.filter(fat => 
-    !selectedFats.some(selected => selected.id === fat.id)
-  );
-  
-  if (availableFats.length === 0) break;
-  
-  selectedFats.push(
-    availableFats[Math.floor(Math.random() * availableFats.length)]
-  );
-}
-
+    for (let i = 0; i < fatCount && i < fatFoods.length; i++) {
+      // Éviter de sélectionner la même source de graisse deux fois
+      let availableFats = fatFoods.filter(fat => 
+        !selectedFats.some(selected => selected.id === fat.id)
+      );
+      
+      if (availableFats.length === 0) break;
+      
+      selectedFats.push(
+        availableFats[Math.floor(Math.random() * availableFats.length)]
+      );
+    }
 // Calculer les proportions pour atteindre les objectifs caloriques et de macros
-// Distribution typique pour un repas keto
-// Protéine: 25-30% des calories
-// Légumes: 10-15% des calories
-// Matières grasses: 55-65% des calories
-const caloriesProtein = calories * 0.28; // 28% des calories
-const caloriesVegetables = calories * 0.12; // 12% des calories
-const caloriesFat = calories * 0.60; // 60% des calories
+    // Distribution typique pour un repas keto
+    // Protéine: 25-30% des calories
+    // Légumes: 10-15% des calories
+    // Matières grasses: 55-65% des calories
+    const caloriesProtein = calories * 0.28; // 28% des calories
+    const caloriesVegetables = calories * 0.12; // 12% des calories
+    const caloriesFat = calories * 0.60; // 60% des calories
 
-// Calculer les quantités pour chaque aliment
-const items = [];
+    // Calculer les quantités pour chaque aliment
+    const items = [];
 
-// Ajouter la protéine
-if (proteinFood) {
-  const proteinCaloriesPer100g = proteinFood.nutritionPer100g?.calories || 200;
-  const quantity = Math.round((caloriesProtein / (proteinCaloriesPer100g / 100)));
-  
-  items.push({
-    id: proteinFood.id,
-    type: 'food',
-    name: proteinFood.name,
-    quantity: quantity,
-    unit: 'g'
-  });
-}
+    // Ajouter la protéine
+    if (proteinFood) {
+      const proteinCaloriesPer100g = proteinFood.nutritionPer100g?.calories || 200;
+      const quantity = Math.round((caloriesProtein / (proteinCaloriesPer100g / 100)));
+      
+      items.push({
+        id: proteinFood.id,
+        type: 'food',
+        name: proteinFood.name,
+        quantity: quantity,
+        unit: 'g'
+      });
+    }
 
-// Ajouter les légumes
-selectedVegetables.forEach(vegetable => {
-  const caloriesPerVegetable = caloriesVegetables / selectedVegetables.length;
-  const vegCaloriesPer100g = vegetable.nutritionPer100g?.calories || 25;
-  let quantity = Math.round((caloriesPerVegetable / (vegCaloriesPer100g / 100)));
-  
-  // Minimum 100g de légumes
-  quantity = Math.max(quantity, 100);
-  
-  items.push({
-    id: vegetable.id,
-    type: 'food',
-    name: vegetable.name,
-    quantity: quantity,
-    unit: 'g'
-  });
-});
+    // Ajouter les légumes
+    selectedVegetables.forEach(vegetable => {
+      const caloriesPerVegetable = caloriesVegetables / selectedVegetables.length;
+      const vegCaloriesPer100g = vegetable.nutritionPer100g?.calories || 25;
+      let quantity = Math.round((caloriesPerVegetable / (vegCaloriesPer100g / 100)));
+      
+      // Minimum 100g de légumes
+      quantity = Math.max(quantity, 100);
+      
+      items.push({
+        id: vegetable.id,
+        type: 'food',
+        name: vegetable.name,
+        quantity: quantity,
+        unit: 'g'
+      });
+    });
 
-// Ajouter les matières grasses
-selectedFats.forEach(fat => {
-  const caloriesPerFat = caloriesFat / selectedFats.length;
-  const fatCaloriesPer100g = fat.nutritionPer100g?.calories || 800;
-  const quantity = Math.round((caloriesPerFat / (fatCaloriesPer100g / 100)));
-  
-  items.push({
-    id: fat.id,
-    type: 'food',
-    name: fat.name,
-    quantity: quantity,
-    unit: 'g'
-  });
-});
+    // Ajouter les matières grasses
+    selectedFats.forEach(fat => {
+      const caloriesPerFat = caloriesFat / selectedFats.length;
+      const fatCaloriesPer100g = fat.nutritionPer100g?.calories || 800;
+      const quantity = Math.round((caloriesPerFat / (fatCaloriesPer100g / 100)));
+      
+      items.push({
+        id: fat.id,
+        type: 'food',
+        name: fat.name,
+        quantity: quantity,
+        unit: 'g'
+      });
+    });
 
-// Calculer les valeurs nutritionnelles totales
-let totalCalories = 0;
-let totalProtein = 0;
-let totalFat = 0;
-let totalNetCarbs = 0;
+    // Calculer les valeurs nutritionnelles totales
+    let totalCalories = 0;
+    let totalProtein = 0;
+    let totalFat = 0;
+    let totalNetCarbs = 0;
 
-items.forEach(item => {
-  const food = foods.find(f => f.id === item.id);
-  if (food && food.nutritionPer100g) {
-    const ratio = item.quantity / 100;
-    totalCalories += (food.nutritionPer100g.calories || 0) * ratio;
-    totalProtein += (food.nutritionPer100g.protein || 0) * ratio;
-    totalFat += (food.nutritionPer100g.fat || 0) * ratio;
-    totalNetCarbs += ((food.nutritionPer100g.carbs || 0) - (food.nutritionPer100g.fiber || 0)) * ratio;
-  }
-});
+    items.forEach(item => {
+      const food = foods.find(f => f.id === item.id);
+      if (food && food.nutritionPer100g) {
+        const ratio = item.quantity / 100;
+        totalCalories += (food.nutritionPer100g.calories || 0) * ratio;
+        totalProtein += (food.nutritionPer100g.protein || 0) * ratio;
+        totalFat += (food.nutritionPer100g.fat || 0) * ratio;
+        totalNetCarbs += ((food.nutritionPer100g.carbs || 0) - (food.nutritionPer100g.fiber || 0)) * ratio;
+      }
+    });
 
-// Créer le nom du repas
-let mealName = "";
-if (proteinFood) {
-  if (selectedVegetables.length > 0) {
-    mealName = `${proteinFood.name} avec ${selectedVegetables.map(v => v.name).join(' et ')}`;
-  } else {
-    mealName = `${proteinFood.name} à la ${selectedFats[0]?.name || 'maison'}`;
-  }
-} else if (selectedVegetables.length > 0) {
-  mealName = `Salade de ${selectedVegetables.map(v => v.name).join(' et ')}`;
-} else {
-  mealName = `Plat keto ${type === MEAL_TYPES.DEJEUNER.id ? 'du midi' : 'du soir'}`;
-}
+    // Créer le nom du repas
+    let mealName = "";
+    if (proteinFood) {
+      if (selectedVegetables.length > 0) {
+        mealName = `${proteinFood.name} avec ${selectedVegetables.map(v => v.name).join(' et ')}`;
+      } else {
+        mealName = `${proteinFood.name} à la ${selectedFats[0]?.name || 'maison'}`;
+      }
+    } else if (selectedVegetables.length > 0) {
+      mealName = `Salade de ${selectedVegetables.map(v => v.name).join(' et ')}`;
+    } else {
+      // Correction: Utiliser "souper" au lieu de comparer avec "dejeuner"
+      mealName = `Plat keto ${type === MEAL_TYPES.DEJEUNER.id ? 'du midi' : 'du soir'}`;
+    }
     
     // À la fin, retourner l'objet repas avec les propriétés additionnelles
     return {
@@ -443,8 +444,7 @@ if (proteinFood) {
       order: getMealOrder(type)  // Ordre pour le tri
     };
   };
-
-  /**
+/**
    * Retourne l'ordre d'un type de repas pour le tri
    * @param {string} mealType - Identifiant du type de repas
    * @returns {number} - Numéro d'ordre (1-5)
@@ -485,11 +485,43 @@ if (proteinFood) {
       currentDebugLog += `Types normalisés à supprimer: ${normalizedTypes.join(', ')}\n`;
       
       // Pour chaque jour du plan
-for (let dayIndex = 0; dayIndex < currentPlan.days.length; dayIndex++) {
+      for (let dayIndex = 0; dayIndex < currentPlan.days.length; dayIndex++) {
         const day = currentPlan.days[dayIndex];
         currentDebugLog += `Jour ${dayIndex}: ${day.meals.length} repas\n`;
         
-        // ... reste du code de la fonction clearExistingMeals ...
+        // Trouver tous les repas à supprimer
+        const mealsToDelete = day.meals.filter(meal => {
+          // Vérifier si le type du repas correspond à l'un des types à supprimer
+          const normalizedMealType = normalizeType(meal.type || '');
+          const typesToCheck = [
+            normalizedMealType,
+            normalizeType(meal.displayType || '')
+          ];
+          
+          // CORRECTION: Gérer les équivalences souper/dîner explicitement
+          if (normalizedMealType === 'souper' || normalizedMealType === 'diner') {
+            return normalizedTypes.includes('souper') || normalizedTypes.includes('diner');
+          }
+          
+          // Pour les autres types, vérifier s'il y a une correspondance
+          return typesToCheck.some(type => normalizedTypes.includes(type));
+        });
+        
+        currentDebugLog += `  Repas à supprimer: ${mealsToDelete.length}\n`;
+        
+        // Supprimer chaque repas identifié
+        for (const meal of mealsToDelete) {
+          try {
+            await deleteMeal(currentPlan.id, dayIndex, meal.id);
+            deletedCount++;
+            currentDebugLog += `  Repas supprimé: ${meal.name} (ID: ${meal.id})\n`;
+          } catch (error) {
+            currentDebugLog += `  ERREUR lors de la suppression du repas ${meal.id}: ${error.message}\n`;
+          }
+          
+          // Petite pause pour éviter de surcharger l'interface
+          await new Promise(resolve => setTimeout(resolve, 50));
+        }
       }
       
       // Mettre à jour le message de succès
@@ -512,8 +544,7 @@ for (let dayIndex = 0; dayIndex < currentPlan.days.length; dayIndex++) {
       setIsClearing(false);
     }
   };
-  
-  /**
+/**
    * Calcule la distribution optimale des calories pour chaque type de repas
    * en fonction du nombre de repas par jour
    */
@@ -582,7 +613,7 @@ for (let dayIndex = 0; dayIndex < currentPlan.days.length; dayIndex++) {
     
     return distribution;
   };
-  /**
+/**
    * Génère des repas pour toute la semaine en fonction des options sélectionnées
    * Version améliorée pour respecter la fréquence des repas et forcer l'ordre d'affichage
    */
@@ -608,7 +639,7 @@ for (let dayIndex = 0; dayIndex < currentPlan.days.length; dayIndex++) {
       
       if (generationOptions.generateDinnerOnly) {
         mealTypes = [MEAL_TYPES.SOUPER.id];
-        currentDebugLog += "Option sélectionnée: Dîners uniquement\n";
+        currentDebugLog += "Option sélectionnée: Soupers uniquement\n";
       } else if (generationOptions.generateLunchOnly) {
         mealTypes = [MEAL_TYPES.DEJEUNER.id];
         currentDebugLog += "Option sélectionnée: Déjeuners uniquement\n";
@@ -651,8 +682,7 @@ for (let dayIndex = 0; dayIndex < currentPlan.days.length; dayIndex++) {
           currentDebugLog += `  ${getMealLabel(type)}: ${Math.round(percentage * 100)}% (${Math.round(calorieTarget * percentage)} kcal)\n`;
         }
       });
-      
-      // Pour chaque jour du plan
+// Pour chaque jour du plan
       for (let dayIndex = 0; dayIndex < currentPlan.days.length; dayIndex++) {
         currentDebugLog += `\nJour ${dayIndex}: ${currentPlan.days[dayIndex].date}\n`;
         
@@ -730,8 +760,7 @@ for (let dayIndex = 0; dayIndex < currentPlan.days.length; dayIndex++) {
       setGenerationProgress(100);
     }
   };
-  
-  return (
+return (
     <div className="weekly-meal-generator">
       <div className="generator-header">
         <h2>Générateur automatique de repas hebdomadaires</h2>
