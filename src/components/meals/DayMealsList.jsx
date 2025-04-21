@@ -31,7 +31,7 @@ const DayMealsList = ({ day, dayNutrition, getFoodById, getRecipeById }) => {
     
     // Créer un repas vide avec le type sélectionné
     const newMeal = {
-      name: `Nouveau ${selectedMealType === 'dejeuner' ? 'déjeuner' : 'dîner'}`,
+      name: `Nouveau ${selectedMealType === 'dejeuner' ? 'déjeuner' : 'souper'}`,
       type: selectedMealType,
       items: [],
       totaux: {
@@ -118,7 +118,7 @@ const DayMealsList = ({ day, dayNutrition, getFoodById, getRecipeById }) => {
                   checked={selectedMealType === 'souper'}
                   onChange={() => setSelectedMealType('souper')}
                 />
-                Dîner
+                souper
               </label>
             </div>
             <div className="meal-type-actions mt-4">
@@ -211,7 +211,7 @@ const DayMealsList = ({ day, dayNutrition, getFoodById, getRecipeById }) => {
                 checked={selectedMealType === 'souper'}
                 onChange={() => setSelectedMealType('souper')}
               />
-              Dîner
+              souper
             </label>
           </div>
           <div className="meal-type-actions mt-4">
