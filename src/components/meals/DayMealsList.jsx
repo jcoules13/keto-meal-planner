@@ -59,7 +59,13 @@ const DayMealsList = ({ day, dayNutrition, getFoodById, getRecipeById }) => {
     const mealsByType = {};
     
     // Types de repas standard en ordre chronologique
-    const mealTypes = ['petit_dejeuner', 'dejeuner', 'collation', 'diner'];
+    const mealTypes = [
+  'petit_dejeuner', 
+  'collation_matin', 
+  'dejeuner', 
+  'collation_aprem', 
+  'souper'
+];
     
     // Initialiser les types de repas
     mealTypes.forEach(type => {
@@ -108,9 +114,9 @@ const DayMealsList = ({ day, dayNutrition, getFoodById, getRecipeById }) => {
                 <input
                   type="radio"
                   name="meal-type"
-                  value="diner"
-                  checked={selectedMealType === 'diner'}
-                  onChange={() => setSelectedMealType('diner')}
+                  value="souper"
+                  checked={selectedMealType === 'souper'}
+                  onChange={() => setSelectedMealType('souper')}
                 />
                 Dîner
               </label>
@@ -140,16 +146,17 @@ const DayMealsList = ({ day, dayNutrition, getFoodById, getRecipeById }) => {
   
   // Obtenir les noms en français des types de repas
   const getTypeName = (type) => {
-    const typeNames = {
-      'petit_dejeuner': 'Petit déjeuner',
-      'dejeuner': 'Déjeuner',
-      'collation': 'Collation',
-      'diner': 'Dîner',
-      'autre': 'Autre repas'
-    };
-    
-    return typeNames[type] || 'Repas';
+  const typeNames = {
+    'petit_dejeuner': 'Petit déjeuner',
+    'dejeuner': 'Déjeuner',
+    'collation_matin': 'Collation du matin',
+    'collation_aprem': 'Collation après-midi',
+    'souper': 'Souper'    
   };
+  
+  return typeNames[type] || 'Repas';
+};
+
 
   return (
     <div className="day-meals">
@@ -200,9 +207,9 @@ const DayMealsList = ({ day, dayNutrition, getFoodById, getRecipeById }) => {
               <input
                 type="radio"
                 name="meal-type"
-                value="diner"
-                checked={selectedMealType === 'diner'}
-                onChange={() => setSelectedMealType('diner')}
+                value="souper"
+                checked={selectedMealType === 'souper'}
+                onChange={() => setSelectedMealType('souper')}
               />
               Dîner
             </label>
