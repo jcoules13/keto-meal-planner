@@ -868,6 +868,21 @@ return (
                   />
                   <span className="checkbox-text">Effacer les repas existants</span>
                 </label>
+             
+                  <button 
+  className="clear-existing-meals-button" 
+  onClick={() => clearExistingMeals(mealTypes)}
+  disabled={isClearing || isGenerating}
+>
+  {isClearing ? (
+    <>
+      <FaTrashAlt className="spinner-icon" />
+      <span>Effacement en cours...</span>
+    </>
+  ) : (
+    'Effacer les repas existants'
+  )}
+</button>
               </div>
             </div>
             
