@@ -13,9 +13,7 @@ const getMealLabel = (mealTypeId) => {
     'collation_matin': 'Collation du matin',
     'dejeuner': 'Déjeuner',
     'collation_aprem': 'Collation après-midi',
-    'souper': 'Souper',
-    'diner': 'Dîner', // Alternativement à souper
-    'collation': 'Collation' // Générique
+    'souper': 'Souper',    
   };
   
   return mealLabels[mealTypeId] || mealTypeId;
@@ -28,9 +26,7 @@ const getMealOrder = (mealTypeId) => {
     'collation_matin': 2,
     'dejeuner': 3,
     'collation_aprem': 4,
-    'collation': 4, // Même que collation_aprem
-    'souper': 5,
-    'diner': 5 // Même que souper
+    'souper': 5,    
   };
   
   return mealOrders[mealTypeId] || 99; // 99 comme valeur par défaut
