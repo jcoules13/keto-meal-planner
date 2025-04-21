@@ -553,15 +553,25 @@ const addMealToCurrentPlan = (meal, dayIndex, mealType = 'repas') => {
       throw new Error(`L'index du jour ${dayIndex} est hors limites pour ce plan.`);
     }
     
-    // Préparer le repas avec des informations additionnelles
+    // Normaliser le type de repas pour éviter les problèmes d'affichage
+    const normalizedType = mealType.toLowerCase();
+    
+    // Déterminer le bon displayType en fonction du type normalisé
+    let displayType = meal.displayType;
+    
+    if (!displayType || displayType === 'repas') {
+      // Si le displayType n'est pas défini ou est générique, utiliser getMealLabel
+      displayType = getMealLabel(normalizedType);
+    }
+    
+    // Préparer le repas avec des informations additionnelles et un displayType fiable
     const preparedMeal = {
       ...meal,
       id: meal.id || `meal-${Date.now()}-${Math.round(Math.random() * 1000)}`,
-      type: mealType,
-      // Utiliser displayType s'il existe ou le déduire du type
-      displayType: meal.displayType || getMealLabel(mealType), 
+      type: normalizedType,
+      displayType: displayType,
       // Utiliser l'ordre s'il existe ou le déduire du type
-      order: meal.order || getMealOrder(mealType),
+      order: meal.order || getMealOrder(normalizedType),
       addedAt: new Date().toISOString()
     };
     
