@@ -649,6 +649,12 @@ const WeeklyMealGenerator = () => {
         currentDebugLog += `Distribution selon fréquence: ${mealFrequency} repas/jour\n`;
       }
       
+      // CORRECTION: Vérifier qu'on n'a pas plus de types que la fréquence demandée
+      if (mealTypes.length > mealFrequency) {
+        currentDebugLog += `ATTENTION: Nombre de types (${mealTypes.length}) supérieur à la fréquence (${mealFrequency}). Limitation appliquée.\n`;
+        mealTypes = mealTypes.slice(0, mealFrequency);
+      }
+      
       // Trier les types de repas selon l'ordre prédéfini
       mealTypes.sort((a, b) => {
         const orderA = getMealOrder(a);
@@ -682,13 +688,27 @@ const WeeklyMealGenerator = () => {
           currentDebugLog += `  ${getMealLabel(type)}: ${Math.round(percentage * 100)}% (${Math.round(calorieTarget * percentage)} kcal)\n`;
         }
       });
-// Pour chaque jour du plan
+      
+      // CORRECTION: Suivi des repas déjà générés par jour et par type
+      const generatedMeals = {};
+      
+      // Pour chaque jour du plan
       for (let dayIndex = 0; dayIndex < currentPlan.days.length; dayIndex++) {
         currentDebugLog += `\nJour ${dayIndex}: ${currentPlan.days[dayIndex].date}\n`;
+        
+        // Initialiser le compteur pour ce jour
+        generatedMeals[dayIndex] = new Set();
         
         // Pour chaque type de repas à générer, dans l'ordre défini
         for (const mealType of mealTypes) {
           try {
+            // CORRECTION: Vérifier si ce type de repas a déjà été généré pour ce jour
+            if (generatedMeals[dayIndex].has(mealType)) {
+              currentDebugLog += `  IGNORÉ: Type de repas ${getMealLabel(mealType)} déjà généré pour ce jour\n`;
+              completedOperations++;
+              continue;
+            }
+            
             currentDebugLog += `  Génération du repas de type: ${getMealLabel(mealType)}\n`;
             
             // Calculer les calories cibles en fonction du type de repas
@@ -707,10 +727,17 @@ const WeeklyMealGenerator = () => {
             const meal = generateRealMeal(mealType, mealCalorieTarget, mealMacros, dietType, dayIndex);
             currentDebugLog += `    Repas généré: ${meal.name}\n`;
             
+            // CORRECTION: S'assurer que le displayType est bien défini
+            if (!meal.displayType || meal.displayType === 'repas') {
+              meal.displayType = getMealLabel(mealType);
+              currentDebugLog += `    Correction du displayType: ${meal.displayType}\n`;
+            }
+            
             // Ajouter le repas au plan
             const newMealId = await addMealToCurrentPlan(meal, dayIndex, mealType);
             if (newMealId) {
               successfulAdditions++;
+              generatedMeals[dayIndex].add(mealType); // Marquer ce type comme généré pour ce jour
               currentDebugLog += `    Repas ajouté avec succès, ID: ${newMealId}\n`;
             } else {
               currentDebugLog += `    ÉCHEC de l'ajout du repas\n`;
