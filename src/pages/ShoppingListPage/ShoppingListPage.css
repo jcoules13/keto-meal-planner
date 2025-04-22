@@ -1,0 +1,163 @@
+/* Styles spécifiques à la page de liste de courses */
+
+.shopping-list-page {
+  margin-bottom: 3rem;
+}
+
+/* Animation d'entrée pour le contenu */
+.animate-fadeIn {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Styles pour les catégories */
+.shopping-category {
+  margin-bottom: 1.5rem;
+  transition: all 0.2s ease-in-out;
+}
+
+.shopping-category-header {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+}
+
+.shopping-category-header h3 {
+  margin: 0;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+}
+
+.shopping-category-header .icon {
+  transition: transform 0.2s ease;
+}
+
+.shopping-category-header.collapsed .icon {
+  transform: rotate(-90deg);
+}
+
+.shopping-category-progress {
+  display: flex;
+  align-items: center;
+  color: var(--text-tertiary);
+  font-size: 0.875rem;
+}
+
+.shopping-category-progress-bar {
+  width: 60px;
+  height: 8px;
+  background-color: var(--neutral-200);
+  border-radius: 4px;
+  margin-right: 0.5rem;
+  overflow: hidden;
+}
+
+.shopping-category-progress-bar-fill {
+  height: 100%;
+  background-color: var(--success);
+  transition: width 0.3s ease;
+}
+
+/* Liste d'articles */
+.shopping-items {
+  padding: 0.5rem 0;
+}
+
+.shopping-item {
+  display: flex;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  border-bottom: 1px solid var(--border-color);
+  transition: background-color 0.15s ease;
+}
+
+.shopping-item:last-child {
+  border-bottom: none;
+}
+
+.shopping-item:hover {
+  background-color: var(--bg-secondary);
+}
+
+.shopping-item.checked .shopping-item-name {
+  text-decoration: line-through;
+  color: var(--text-tertiary);
+}
+
+.shopping-item-checkbox {
+  margin-right: 0.75rem;
+}
+
+.shopping-item-name {
+  flex: 1;
+  transition: color 0.15s ease, text-decoration 0.15s ease;
+}
+
+.shopping-item-quantity {
+  margin-left: 0.5rem;
+  color: var(--text-tertiary);
+  font-size: 0.875rem;
+}
+
+/* Barre de progression globale */
+.shopping-progress {
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+}
+
+.shopping-progress-bar {
+  height: 0.625rem;
+  background-color: var(--neutral-200);
+  border-radius: 0.313rem;
+  overflow: hidden;
+  margin-top: 0.5rem;
+}
+
+.shopping-progress-bar-fill {
+  height: 100%;
+  background-color: var(--success);
+  transition: width 0.3s ease;
+}
+
+.shopping-progress-label {
+  margin-top: 0.25rem;
+  font-size: 0.75rem;
+  color: var(--text-tertiary);
+}
+
+/* Page vide */
+.shopping-list-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Media queries pour responsive */
+@media (max-width: 640px) {
+  .shopping-list-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .shopping-list-actions button {
+    margin-bottom: 0.5rem;
+  }
+}
