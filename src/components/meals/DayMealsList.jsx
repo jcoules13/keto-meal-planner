@@ -9,7 +9,7 @@ import './WeeklyMealPlanDisplay.css';
  * et des titres de repas clairement visibles
  */
 const DayMealsList = ({ day, dayNutrition, getFoodById, getRecipeById }) => {
-  const { addMealToCurrentPlan, currentPlan } = useMealPlan();
+  const { addMealToCurrentPlan, currentPlan, deleteMeal } = useMealPlan();
   const [addingMeal, setAddingMeal] = useState(false);
   const [selectedMealType, setSelectedMealType] = useState('dejeuner');
   
@@ -52,6 +52,17 @@ const DayMealsList = ({ day, dayNutrition, getFoodById, getRecipeById }) => {
   // Gestionnaire pour annuler l'ajout d'un repas
   const handleCancelAddMeal = () => {
     setAddingMeal(false);
+  };
+  
+  // Gestionnaire pour supprimer un repas
+  const handleDeleteMeal = (mealId) => {
+    const dayIndex = findDayIndex();
+    if (dayIndex === -1 || !currentPlan || !currentPlan.id) return;
+    
+    // Confirmation avant suppression
+    if (window.confirm('Êtes-vous sûr de vouloir supprimer ce repas ?')) {
+      deleteMeal(currentPlan.id, dayIndex, mealId);
+    }
   };
   
   // Organiser les repas par type
@@ -172,6 +183,7 @@ const DayMealsList = ({ day, dayNutrition, getFoodById, getRecipeById }) => {
                     meal={meal} 
                     getFoodById={getFoodById}
                     getRecipeById={getRecipeById}
+                    onDeleteMeal={handleDeleteMeal}
                   />
                 </div>
               ))}
