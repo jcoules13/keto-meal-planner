@@ -61,7 +61,6 @@ const actions = {
   SET_ERROR: 'SET_ERROR',
   CLEAR_ERROR: 'CLEAR_ERROR'
 };
-
 // Reducer
 function mealPlanReducer(state, action) {
   switch (action.type) {
@@ -173,8 +172,7 @@ function mealPlanReducer(state, action) {
         })
       };
     }
-    
-    case actions.DELETE_MEAL: {
+case actions.DELETE_MEAL: {
       const { planId, dayIndex, mealId } = action.payload;
       
       return {
@@ -275,7 +273,6 @@ export function useMealPlan() {
   }
   return context;
 }
-
 // Provider
 export function MealPlanProvider({ children }) {
   const [state, dispatch] = useReducer(mealPlanReducer, initialState);
@@ -344,8 +341,7 @@ export function MealPlanProvider({ children }) {
     if (!state.currentPlanId) return null;
     return state.mealPlans.find(plan => plan.id === state.currentPlanId) || null;
   };
-  
-  // Créer un nouveau plan de repas
+// Créer un nouveau plan de repas
   const createMealPlan = (planData) => {
     try {
       const newPlan = {
@@ -434,8 +430,7 @@ export function MealPlanProvider({ children }) {
       return false;
     }
   };
-  
-  // Ajouter un repas à un jour du plan
+// Ajouter un repas à un jour du plan
   const addMeal = (planId, dayIndex, meal) => {
     try {
       const existingPlan = state.mealPlans.find(plan => plan.id === planId);
@@ -527,83 +522,123 @@ export function MealPlanProvider({ children }) {
       return false;
     }
   };
-  
-  /**
+/**
    * Ajoute un repas au plan actuellement sélectionné
    * @param {Object} meal - Le repas à ajouter (structure complète du repas)
    * @param {number} dayIndex - Index du jour dans le plan (0-6 pour une semaine)
    * @param {string} mealType - Type de repas (déjeuner, dîner, etc.)
    * @returns {string|null} ID du repas ajouté ou null en cas d'erreur
    */
-// Ajoute un repas au plan actuellement sélectionné
-const addMealToCurrentPlan = (meal, dayIndex, mealType = 'repas') => {
-  try {
-    // Vérifier qu'un plan est sélectionné
-    if (!state.currentPlanId) {
-      throw new Error('Aucun plan n\'est sélectionné. Veuillez d\'abord créer ou sélectionner un plan.');
+  const addMealToCurrentPlan = (meal, dayIndex, mealType = 'repas') => {
+    try {
+      // Vérifier qu'un plan est sélectionné
+      if (!state.currentPlanId) {
+        throw new Error('Aucun plan n\'est sélectionné. Veuillez d\'abord créer ou sélectionner un plan.');
+      }
+      
+      const currentPlan = state.mealPlans.find(plan => plan.id === state.currentPlanId);
+      if (!currentPlan) {
+        throw new Error('Le plan sélectionné n\'existe plus.');
+      }
+      
+      // Vérifier que l'index du jour est valide
+      if (dayIndex < 0 || dayIndex >= currentPlan.days.length) {
+        throw new Error(`L'index du jour ${dayIndex} est hors limites pour ce plan.`);
+      }
+      
+      // Normaliser le type de repas pour éviter les problèmes d'affichage
+      const normalizedType = mealType.toLowerCase();
+      
+      // Déterminer le bon displayType en fonction du type normalisé
+      let displayType = meal.displayType;
+      
+      if (!displayType || displayType === 'repas') {
+        // Si le displayType n'est pas défini ou est générique, utiliser getMealLabel
+        displayType = getMealLabel(normalizedType);
+      }
+      
+      // Préparer le repas avec des informations additionnelles et un displayType fiable
+      const preparedMeal = {
+        ...meal,
+        id: meal.id || `meal-${Date.now()}-${Math.round(Math.random() * 1000)}`,
+        type: normalizedType,
+        displayType: displayType,
+        // Utiliser l'ordre s'il existe ou le déduire du type
+        order: meal.order || getMealOrder(normalizedType),
+        addedAt: new Date().toISOString()
+      };
+      
+      // Si le repas n'a pas de nom, lui en attribuer un par défaut
+      if (!preparedMeal.name) {
+        preparedMeal.name = `${preparedMeal.displayType} du ${
+          new Date(currentPlan.days[dayIndex].date).toLocaleDateString('fr-FR')
+        }`;
+      }
+      
+      // Utiliser la fonction addMeal existante pour ajouter le repas
+      return addMeal(state.currentPlanId, dayIndex, preparedMeal);
+      
+    } catch (error) {
+      console.error('Erreur lors de l\'ajout du repas au plan courant:', error);
+      dispatch({ type: actions.SET_ERROR, payload: error.message });
+      return null;
     }
-    
-    const currentPlan = state.mealPlans.find(plan => plan.id === state.currentPlanId);
-    if (!currentPlan) {
-      throw new Error('Le plan sélectionné n\'existe plus.');
-    }
-    
-    // Vérifier que l'index du jour est valide
-    if (dayIndex < 0 || dayIndex >= currentPlan.days.length) {
-      throw new Error(`L'index du jour ${dayIndex} est hors limites pour ce plan.`);
-    }
-    
-    // Normaliser le type de repas pour éviter les problèmes d'affichage
-    const normalizedType = mealType.toLowerCase();
-    
-    // Déterminer le bon displayType en fonction du type normalisé
-    let displayType = meal.displayType;
-    
-    if (!displayType || displayType === 'repas') {
-      // Si le displayType n'est pas défini ou est générique, utiliser getMealLabel
-      displayType = getMealLabel(normalizedType);
-    }
-    
-    // Préparer le repas avec des informations additionnelles et un displayType fiable
-    const preparedMeal = {
-      ...meal,
-      id: meal.id || `meal-${Date.now()}-${Math.round(Math.random() * 1000)}`,
-      type: normalizedType,
-      displayType: displayType,
-      // Utiliser l'ordre s'il existe ou le déduire du type
-      order: meal.order || getMealOrder(normalizedType),
-      addedAt: new Date().toISOString()
-    };
-    
-    // Si le repas n'a pas de nom, lui en attribuer un par défaut
-    if (!preparedMeal.name) {
-      preparedMeal.name = `${preparedMeal.displayType} du ${
-        new Date(currentPlan.days[dayIndex].date).toLocaleDateString('fr-FR')
-      }`;
-    }
-    
-    // Utiliser la fonction addMeal existante pour ajouter le repas
-    return addMeal(state.currentPlanId, dayIndex, preparedMeal);
-    
-  } catch (error) {
-    console.error('Erreur lors de l\'ajout du repas au plan courant:', error);
-    dispatch({ type: actions.SET_ERROR, payload: error.message });
-    return null;
-  }
-};
+  };
   
   // Générer une liste de courses à partir d'un plan
   const generateShoppingListFromPlan = async (planId) => {
     try {
       dispatch({ type: actions.GENERATE_SHOPPING_LIST_START });
       
+      console.log("Génération de liste de courses pour le plan:", planId);
+      
       const plan = state.mealPlans.find(p => p.id === planId);
       if (!plan) {
         throw new Error(`Le plan avec l'ID ${planId} n'existe pas`);
       }
       
-      // Générer la liste de courses
-      const shoppingList = generateShoppingList(plan, { foods, getFoodById, recipes, getRecipeById });
+      // Vérifier si le plan a des repas
+      let hasMeals = false;
+      for (const day of plan.days) {
+        if (day && day.meals && day.meals.length > 0) {
+          for (const meal of day.meals) {
+            if (meal && meal.items && meal.items.length > 0) {
+              hasMeals = true;
+              break;
+            }
+          }
+          if (hasMeals) break;
+        }
+      }
+      
+      if (!hasMeals) {
+        console.warn("Le plan de repas n'a pas de meals ou d'items valides");
+        throw new Error("Le plan de repas ne contient aucun repas ou aliment à ajouter à la liste de courses.");
+      }
+      
+      // Log de débogage pour vérifier la structure du plan
+      console.log("Structure du plan:", JSON.stringify({
+        id: plan.id,
+        name: plan.name,
+        daysCount: plan.days.length,
+        daysWithMeals: plan.days.filter(d => d && d.meals && d.meals.length > 0).length
+      }));
+// Générer la liste de courses
+      const shoppingList = generateShoppingList(plan, { 
+        foods, 
+        getFoodById, 
+        recipes, 
+        getRecipeById 
+      });
+      
+      // Vérifier si la liste générée contient des catégories avec des éléments
+      const categoriesCount = Object.keys(shoppingList.categories).length;
+      if (categoriesCount === 0) {
+        console.warn("La liste de courses générée est vide");
+        throw new Error("Impossible de générer une liste de courses. Vérifiez que votre plan contient des aliments valides.");
+      }
+      
+      console.log(`Liste de courses générée avec ${categoriesCount} catégories`);
       
       dispatch({ 
         type: actions.GENERATE_SHOPPING_LIST_SUCCESS, 
@@ -616,6 +651,7 @@ const addMealToCurrentPlan = (meal, dayIndex, mealType = 'repas') => {
       
       return true;
     } catch (error) {
+      console.error("Erreur lors de la génération de la liste de courses:", error);
       dispatch({ 
         type: actions.GENERATE_SHOPPING_LIST_ERROR, 
         payload: `Erreur lors de la génération: ${error.message}` 
@@ -641,8 +677,7 @@ const addMealToCurrentPlan = (meal, dayIndex, mealType = 'repas') => {
   const clearError = () => {
     dispatch({ type: actions.CLEAR_ERROR });
   };
-  
-  // Calculer les totaux nutritionnels pour un jour du plan
+// Calculer les totaux nutritionnels pour un jour du plan
   const getDayNutritionTotals = (planId, dayIndex) => {
     try {
       const plan = state.mealPlans.find(p => p.id === planId);
@@ -717,10 +752,9 @@ const addMealToCurrentPlan = (meal, dayIndex, mealType = 'repas') => {
     
     return plan.days[dayIndex].meals.length > 0;
   };
-  
-  // Obtenir le progrès de la liste de courses (pourcentage d'éléments cochés)
+// Obtenir le progrès de la liste de courses (pourcentage d'éléments cochés)
   const getShoppingListProgress = () => {
-    if (!state.shoppingList) return 0;
+    if (!state.shoppingList || !state.shoppingList.categories) return 0;
     
     let totalItems = 0;
     let checkedItems = 0;
@@ -789,8 +823,7 @@ const addMealToCurrentPlan = (meal, dayIndex, mealType = 'repas') => {
       return false;
     }
   };
-  
-  // Recalculer les macros de tous les repas d'un plan
+// Recalculer les macros de tous les repas d'un plan
   const recalculatePlanNutrition = (planId) => {
     try {
       const plan = state.mealPlans.find(p => p.id === planId);
@@ -840,3 +873,5 @@ const addMealToCurrentPlan = (meal, dayIndex, mealType = 'repas') => {
     </MealPlanContext.Provider>
   );
 }
+
+export default MealPlanContext;
