@@ -13,6 +13,8 @@ import MealPlanOptions from '../components/meals/MealPlanOptions';
 import FastingScheduleDisplay from '../components/meals/FastingScheduleDisplay';
 import WeeklyMealPlanDisplay from '../components/meals/WeeklyMealPlanDisplay';
 import NutritionRecalculator from '../components/meals/NutritionRecalculator';
+// Importer les utilitaires de date
+import { generatePlanDates, getPreferredStartDay } from '../utils/dateUtils';
 import './MealPlannerPage.css';
 
 /**
@@ -47,42 +49,24 @@ const MealPlannerPage = () => {
   
   // Création d'un plan vide
   const handleCreateEmptyPlan = () => {
-    // Créer les dates pour cette semaine
-    const today = new Date();
-    const startOfWeek = new Date(today);
-    startOfWeek.setDate(today.getDate() - today.getDay() + 1); // Lundi de cette semaine
+    // Obtenir le jour de départ préféré ou utiliser lundi (1) par défaut
+    const startDayOfWeek = planOptions?.startDayOfWeek || getPreferredStartDay(1);
     
-    const endOfWeek = new Date(startOfWeek);
-    endOfWeek.setDate(startOfWeek.getDate() + 6); // Dimanche de cette semaine
-    
-    // Formater les dates au format YYYY-MM-DD
-    const formatDate = (date) => {
-      const year = date.getFullYear();
-      const month = String(date.getMonth() + 1).padStart(2, '0');
-      const day = String(date.getDate()).padStart(2, '0');
-      return `${year}-${month}-${day}`;
-    };
-    
-    const startDateStr = formatDate(startOfWeek);
-    const endDateStr = formatDate(endOfWeek);
-    
-    // Formater les dates pour l'affichage
-    const displayStartDate = `${startOfWeek.getDate()}/${startOfWeek.getMonth() + 1}`;
-    const displayEndDate = `${endOfWeek.getDate()}/${endOfWeek.getMonth() + 1}`;
-    const displayName = `Plan du ${displayStartDate} au ${displayEndDate}`;
+    // Générer les dates pour cette semaine en fonction du jour de départ choisi
+    const planDates = generatePlanDates(startDayOfWeek);
     
     // Créer le plan avec les options avancées si disponibles
     const planId = createEmptyPlan(
-      displayName,
-      startDateStr,
-      endDateStr,
+      planDates.displayName,
+      planDates.startDate,
+      planDates.endDate,
       dietType,
       planOptions // Passer les options avancées au plan
     );
     
     if (planId) {
       setPlanCreated(true);
-      setPlanName(displayName);
+      setPlanName(planDates.displayName);
       setGeneratorMode('none'); // Réinitialiser le mode de génération
     }
   };
