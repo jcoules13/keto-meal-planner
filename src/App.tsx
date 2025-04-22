@@ -12,6 +12,7 @@ import FoodsPage from './pages/FoodsPage';
 import WeightTrackerPage from './pages/WeightTrackerPage';
 import RecipesPage from './pages/RecipesPage';
 import MealPlannerPage from './pages/MealPlannerPage';
+import ShoppingListPage from './pages/ShoppingListPage';
 
 // Page placeholder
 const PlaceholderPage = ({ title }: { title: string }) => (
@@ -36,7 +37,7 @@ function App() {
                 <Route path="/recipes" element={<MainLayout><RecipesPage /></MainLayout>} />
                 {/* Utiliser le composant FoodsPage */}
                 <Route path="/foods" element={<MainLayout><FoodsPage /></MainLayout>} />
-                <Route path="/shopping-list" element={<MainLayout><PlaceholderPage title="Liste de courses" /></MainLayout>} />
+                <Route path="/shopping-list" element={<MainLayout><ShoppingListPage /></MainLayout>} />
                 {/* Utiliser le composant WeightTrackerPage */}
                 <Route path="/weight-tracker" element={<MainLayout><WeightTrackerPage /></MainLayout>} />
                 <Route path="/profile" element={<MainLayout><ProfilePage /></MainLayout>} />
