@@ -1,9 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet';
 import { Link } from 'react-router-dom';
-import { FaClipboardList, FaTrash, FaPrint, FaShoppingBasket, FaArrowLeft } from 'react-icons/fa';
+import { FaClipboardList, FaTrash, FaPrint, FaShoppingBasket, FaArrowLeft, FaExclamationTriangle } from 'react-icons/fa';
 import { useMealPlan } from '../../contexts/MealPlanContext';
-import { formatShoppingListForPrint } from '../../utils/shoppingListGenerator';
 import ShoppingCategorySection from './ShoppingCategorySection';
 import ShoppingProgressBar from './ShoppingProgressBar';
 import './ShoppingListPage.css';
@@ -23,15 +22,42 @@ const ShoppingListPage = () => {
   } = useMealPlan();
   
   const [isGenerating, setIsGenerating] = useState(false);
-  const [sortOrder, setSortOrder] = useState('default'); // 'default', 'name', 'unchecked'
+  const [error, setError] = useState(null);
+  // Garder sortOrder pour de futures améliorations
+  const [sortOrder] = useState('default'); // 'default', 'name', 'unchecked'
+
+  // Vérifier si un plan existe mais aucune liste de courses n'a été générée
+  const hasPlanButNoList = currentPlan && !shoppingList;
+
+  // Effet pour afficher un message d'erreur temporaire
+  useEffect(() => {
+    if (error) {
+      const timer = setTimeout(() => {
+        setError(null);
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [error]);
 
   // Générer une nouvelle liste à partir du plan actuel
   const handleGenerateList = async () => {
-    if (!currentPlan) return;
+    if (!currentPlan) {
+      setError("Aucun plan de repas sélectionné. Veuillez d'abord créer ou sélectionner un plan.");
+      return;
+    }
     
     setIsGenerating(true);
-    await generateShoppingListFromPlan(currentPlan.id);
-    setIsGenerating(false);
+    try {
+      const success = await generateShoppingListFromPlan(currentPlan.id);
+      if (!success) {
+        setError("Erreur lors de la génération de la liste de courses. Veuillez réessayer.");
+      }
+    } catch (err) {
+      console.error("Erreur lors de la génération:", err);
+      setError("Une erreur inattendue s'est produite. Veuillez réessayer.");
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
   // Effacer la liste de courses
@@ -44,8 +70,6 @@ const ShoppingListPage = () => {
   // Imprimer la liste de courses
   const handlePrintList = () => {
     if (!shoppingList) return;
-    
-    const formattedList = formatShoppingListForPrint(shoppingList);
     
     // Ouvrir une nouvelle fenêtre pour l'impression
     const printWindow = window.open('', '_blank');
@@ -111,7 +135,7 @@ const ShoppingListPage = () => {
 
   // Trier les catégories en fonction de l'ordre sélectionné
   const sortedCategories = () => {
-    if (!shoppingList) return [];
+    if (!shoppingList || !shoppingList.categories) return [];
 
     const categories = Object.entries(shoppingList.categories);
 
@@ -125,6 +149,11 @@ const ShoppingListPage = () => {
       return a[0].localeCompare(b[0]); // Fallback sur tri alphabétique
     });
   };
+
+  // Vérifier si les catégories sont vides
+  const hasCategoriesWithItems = shoppingList && 
+                               shoppingList.categories && 
+                               Object.values(shoppingList.categories).some(items => items.length > 0);
 
   return (
     <div className="shopping-list-page max-w-4xl mx-auto">
@@ -140,6 +169,29 @@ const ShoppingListPage = () => {
         </p>
       </header>
 
+      {/* Message d'erreur */}
+      {error && (
+        <div className="error-message bg-error bg-opacity-10 border-l-4 border-error text-error p-4 rounded mb-4">
+          <div className="flex items-center">
+            <FaExclamationTriangle className="mr-2" />
+            <span>{error}</span>
+          </div>
+        </div>
+      )}
+
+      {/* Notification de plan existant mais sans liste */}
+      {hasPlanButNoList && (
+        <div className="bg-warning bg-opacity-10 border-l-4 border-warning text-warning p-4 rounded mb-6">
+          <div className="flex items-center">
+            <FaExclamationTriangle className="mr-2" />
+            <span>
+              Vous avez un plan de repas actif mais aucune liste de courses n'a été générée.
+              Cliquez sur "Générer la liste" pour créer votre liste de courses.
+            </span>
+          </div>
+        </div>
+      )}
+
       {/* Actions principales */}
       <div className="shopping-list-actions mb-6 flex flex-wrap gap-3">
         <button
@@ -148,7 +200,10 @@ const ShoppingListPage = () => {
           disabled={isGenerating || !currentPlan}
         >
           <FaClipboardList className="mr-2" />
-          <span>{shoppingList ? 'Régénérer la liste' : 'Générer une liste'}</span>
+          <span>
+            {isGenerating ? 'Génération en cours...' : 
+             shoppingList ? 'Régénérer la liste' : 'Générer la liste'}
+          </span>
         </button>
         
         {shoppingList && (
@@ -173,7 +228,7 @@ const ShoppingListPage = () => {
       </div>
 
       {/* Contenu principal */}
-      {shoppingList ? (
+      {shoppingList && hasCategoriesWithItems ? (
         <div className="shopping-list-content animate-fadeIn">
           {/* En-tête de la liste avec informations sur le plan */}
           <div className="shopping-list-header card mb-6">
@@ -224,6 +279,17 @@ const ShoppingListPage = () => {
               <FaArrowLeft className="mr-2" />
               <span>Aller au planificateur</span>
             </Link>
+          )}
+
+          {currentPlan && (
+            <button 
+              className="btn-primary inline-flex items-center"
+              onClick={handleGenerateList}
+              disabled={isGenerating}
+            >
+              <FaClipboardList className="mr-2" />
+              <span>{isGenerating ? 'Génération en cours...' : 'Générer la liste maintenant'}</span>
+            </button>
           )}
         </div>
       )}
