@@ -14,16 +14,6 @@ import RecipesPage from './pages/RecipesPage';
 import MealPlannerPage from './pages/MealPlannerPage';
 import ShoppingListPage from './pages/ShoppingListPage';
 
-// Page placeholder
-const PlaceholderPage = ({ title }: { title: string }) => (
-  <div className="text-center py-12">
-    <h1 className="text-2xl font-title font-bold mb-4">{title}</h1>
-    <p className="text-neutral-600 dark:text-neutral-400">
-      Cette fonctionnalité est en cours de développement.
-    </p>
-  </div>
-);
-
 function App() {
   return (
     <ThemeProvider>
