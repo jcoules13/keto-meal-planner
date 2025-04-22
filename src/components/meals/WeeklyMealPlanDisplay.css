@@ -403,13 +403,18 @@
   color: #2ecc71;
 }
 
-.details-toggle {
+/* Styles pour les actions sur les repas (expansion et suppression) */
+.meal-actions {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.details-toggle, .delete-meal-button {
   background: none;
   border: none;
-  color: var(--text-secondary);
   font-size: 0.9rem;
   cursor: pointer;
-  margin-left: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -419,9 +424,22 @@
   transition: all 0.2s;
 }
 
+.details-toggle {
+  color: var(--text-secondary);
+}
+
+.delete-meal-button {
+  color: var(--error-color, #e74c3c);
+}
+
 .details-toggle:hover {
   background-color: var(--bg-tertiary);
   color: var(--text-primary);
+}
+
+.delete-meal-button:hover {
+  background-color: rgba(231, 76, 60, 0.1);
+  color: var(--error-color, #e74c3c);
 }
 
 /* Détails du repas */
