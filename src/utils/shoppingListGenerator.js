@@ -103,16 +103,44 @@ export function generateShoppingList(mealPlan, dependencies) {
         shoppingList.categories[category] = [];
       }
       
-      // Convertir en unités pratiques si possible
-      let quantity = foodItem.quantity;
+      // Liste d'aliments qui peuvent être comptés en unités
+      const countableItems = [
+        'aubergine', 'concombre', 'courgette', 'avocat', 'citron', 'orange', 
+        'pomme', 'poire', 'banane', 'kiwi', 'oeuf', 'œuf', 'sachet de thé'
+      ];
+      
+      // Déterminer si l'aliment est liquide
+      const isLiquid = food.isLiquid || 
+                       /huile|vinaigre|sauce|lait|crème|bouillon|jus/.test(food.name.toLowerCase());
+      
+      // Déterminer si l'aliment est comptable en unités
+      const isCountable = countableItems.some(item => 
+        food.name.toLowerCase().includes(item) || 
+        (food.category && food.category.toLowerCase().includes(item))
+      );
+      
+      // Arrondir à 5g près (toujours vers le haut)
+      const roundedQuantity = Math.ceil(foodItem.quantity / 5) * 5;
+      
+      // Déterminer l'unité de mesure la plus appropriée
+      let quantity = roundedQuantity;
       let unit = 'g';
       
-      if (food.commonUnitWeight && food.unitName) {
-        const unitsCount = quantity / food.commonUnitWeight;
-        // Si le nombre d'unités est assez grand, utiliser cette unité
+      if (isLiquid) {
+        // Convertir en ml/L pour les liquides
+        if (roundedQuantity >= 1000) {
+          quantity = Math.round(roundedQuantity / 10) / 100; // Arrondir à 0.01L près
+          unit = 'L';
+        } else {
+          unit = 'ml';
+        }
+      } else if (isCountable && food.commonUnitWeight) {
+        // Pour les aliments comptables, convertir en unités si le poids unitaire est défini
+        // et si le nombre d'unités est supérieur à 0.75 (pour éviter les fractions trop petites)
+        const unitsCount = roundedQuantity / food.commonUnitWeight;
         if (unitsCount >= 0.75) {
-          quantity = Math.round(unitsCount * 10) / 10; // Arrondir à 1 décimale
-          unit = food.unitName;
+          quantity = Math.round(unitsCount * 10) / 10; // Arrondir à 0.1 unité près
+          unit = 'unité';
         }
       }
       
@@ -164,14 +192,12 @@ function processFood(foodId, quantity, getFoodById, addedFoods) {
     return;
   }
   
-  // Arrondir à 5g près
-  const roundedQuantity = Math.ceil(quantity / 5) * 5;
-  
+  // Ajouter ou mettre à jour la quantité
   if (addedFoods[foodId]) {
-    addedFoods[foodId].quantity += roundedQuantity;
+    addedFoods[foodId].quantity += quantity;
   } else {
     addedFoods[foodId] = {
-      quantity: roundedQuantity
+      quantity: quantity
     };
   }
 }
