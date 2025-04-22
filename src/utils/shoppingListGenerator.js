@@ -103,21 +103,37 @@ export function generateShoppingList(mealPlan, dependencies) {
         shoppingList.categories[category] = [];
       }
       
-      // Liste d'aliments qui peuvent être comptés en unités
+      // Liste très stricte d'aliments qui peuvent être comptés en unités
+      // Uniquement des fruits et légumes entiers facilement comptables
       const countableItems = [
         'aubergine', 'concombre', 'courgette', 'avocat', 'citron', 'orange', 
         'pomme', 'poire', 'banane', 'kiwi', 'oeuf', 'œuf', 'sachet de thé'
       ];
       
+      // Liste d'aliments qui ne doivent jamais être en unités
+      // même s'ils ont commonUnitWeight défini
+      const neverInUnits = [
+        'steak', 'boeuf', 'bœuf', 'porc', 'poulet', 'dinde', 'agneau', 'veau',
+        'poisson', 'saumon', 'thon', 'cabillaud', 'fromage', 'filet', 'magret',
+        'jambon', 'viande', 'côte', 'cote', 'escalope', 'tranche', 'râpé', 'rapé'
+      ];
+      
       // Déterminer si l'aliment est liquide
       const isLiquid = food.isLiquid || 
-                       /huile|vinaigre|sauce|lait|crème|bouillon|jus/.test(food.name.toLowerCase());
+                     /huile|vinaigre|sauce|lait|crème|bouillon|jus/.test(food.name.toLowerCase());
+      
+      // Vérifier si c'est un aliment qui ne doit jamais être en unités
+      const isNeverInUnits = neverInUnits.some(term => 
+        food.name.toLowerCase().includes(term)
+      );
       
       // Déterminer si l'aliment est comptable en unités
-      const isCountable = countableItems.some(item => 
-        food.name.toLowerCase().includes(item) || 
-        (food.category && food.category.toLowerCase().includes(item))
-      );
+      // Doit être dans la liste des comptables ET ne pas être dans la liste des "jamais en unités"
+      const isCountable = !isNeverInUnits && 
+                         countableItems.some(item => 
+                           food.name.toLowerCase().includes(item) || 
+                           (food.category && food.category.toLowerCase().includes(item))
+                         );
       
       // Arrondir à 5g près (toujours vers le haut)
       const roundedQuantity = Math.ceil(foodItem.quantity / 5) * 5;
@@ -134,12 +150,12 @@ export function generateShoppingList(mealPlan, dependencies) {
         } else {
           unit = 'ml';
         }
-      } else if (isCountable && food.commonUnitWeight) {
+      } else if (isCountable && food.commonUnitWeight && !isNeverInUnits) {
         // Pour les aliments comptables, convertir en unités si le poids unitaire est défini
         // et si le nombre d'unités est supérieur à 0.75 (pour éviter les fractions trop petites)
         const unitsCount = roundedQuantity / food.commonUnitWeight;
         if (unitsCount >= 0.75) {
-          quantity = Math.round(unitsCount * 10) / 10; // Arrondir à 0.1 unité près
+          quantity = Math.ceil(unitsCount * 2) / 2; // Arrondir à 0.5 unité près (vers le haut)
           unit = 'unité';
         }
       }
