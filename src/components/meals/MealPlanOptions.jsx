@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { FaClock, FaUtensils, FaBalanceScale } from 'react-icons/fa';
+import { FaClock, FaUtensils, FaBalanceScale, FaCalendarAlt } from 'react-icons/fa';
 import { useUser } from '../../contexts/UserContext';
+import { getPreferredStartDay, savePreferredStartDay, getDayName } from '../../utils/dateUtils';
 import './MealPlanOptions.css';
 
 /**
@@ -9,6 +10,7 @@ import './MealPlanOptions.css';
  * - Types de repas (petit déjeuner, déjeuner, etc.)
  * - Configuration du jeûne intermittent
  * - Répartition calorique entre les repas
+ * - Jour de départ de la semaine
  */
 const MealPlanOptions = ({ onOptionsChange }) => {
   const { mealFrequency, intermittentFasting, updateFasting, setMealFrequency } = useUser();
@@ -22,6 +24,9 @@ const MealPlanOptions = ({ onOptionsChange }) => {
     collationMatin: false,
     collationApresMidi: false
   });
+  
+  // Option de jour de départ de la semaine (1 = lundi par défaut)
+  const [startDayOfWeek, setStartDayOfWeek] = useState(getPreferredStartDay(1));
   
   // Options de jeûne intermittent
   const [fastingEnabled, setFastingEnabled] = useState(intermittentFasting?.enabled || false);
@@ -65,6 +70,7 @@ const MealPlanOptions = ({ onOptionsChange }) => {
     const planOptions = {
       mealFrequency: selectedMealsCount,
       mealTypes: selectedMealTypes,
+      startDayOfWeek: startDayOfWeek, // Ajouter le jour de départ aux options
       intermittentFasting: {
         enabled: fastingEnabled,
         fastingWindow,
@@ -94,7 +100,10 @@ const MealPlanOptions = ({ onOptionsChange }) => {
       });
     }
     
-  }, [numMeals, selectedMealTypes, fastingEnabled, fastingPattern, fastingStartTime, calorieDistribution, customDistribution]);
+    // Sauvegarder le jour de départ préféré
+    savePreferredStartDay(startDayOfWeek);
+    
+  }, [numMeals, selectedMealTypes, fastingEnabled, fastingPattern, fastingStartTime, calorieDistribution, customDistribution, startDayOfWeek]);
   
   // Gestionnaire pour les changements de nombre de repas
   const handleNumMealsChange = (e) => {
@@ -360,6 +369,34 @@ const MealPlanOptions = ({ onOptionsChange }) => {
   return (
     <div className="meal-plan-options card mb-8">
       <h3 className="text-xl font-bold text-text-primary mb-4">Options avancées du plan</h3>
+      
+      {/* Section de planification */}
+      <div className="mb-6">
+        <div className="flex items-center mb-4">
+          <FaCalendarAlt className="text-primary-500 mr-2" />
+          <h4 className="text-lg font-medium text-text-primary">Planification</h4>
+        </div>
+        
+        <div className="mb-4">
+          <label className="block text-text-secondary mb-2">Jour de début de semaine</label>
+          <select 
+            className="form-select w-full md:w-auto"
+            value={startDayOfWeek}
+            onChange={(e) => setStartDayOfWeek(parseInt(e.target.value))}
+          >
+            <option value={1}>Lundi</option>
+            <option value={2}>Mardi</option>
+            <option value={3}>Mercredi</option>
+            <option value={4}>Jeudi</option>
+            <option value={5}>Vendredi</option>
+            <option value={6}>Samedi</option>
+            <option value={0}>Dimanche</option>
+          </select>
+          <p className="text-sm text-text-secondary mt-1">
+            Votre plan commencera le prochain {getDayName(startDayOfWeek)}
+          </p>
+        </div>
+      </div>
       
       {/* Section de configuration des repas */}
       <div className="mb-6">
