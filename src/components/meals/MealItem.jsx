@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FaUtensils, FaLeaf, FaChevronDown, FaChevronUp, FaMugHot, FaSun, FaMoon, FaCookie } from 'react-icons/fa';
+import { FaUtensils, FaLeaf, FaChevronDown, FaChevronUp, FaMugHot, FaSun, FaMoon, FaCookie, FaTimes } from 'react-icons/fa';
 import MacroProgressBar from './MacroProgressBar';
 import './WeeklyMealPlanDisplay.css';
 
@@ -7,7 +7,7 @@ import './WeeklyMealPlanDisplay.css';
  * Composant pour afficher un repas individuel
  * Déroulé par défaut et avec affichage amélioré des macros
  */
-const MealItem = ({ meal, getFoodById, getRecipeById }) => {
+const MealItem = ({ meal, getFoodById, getRecipeById, onDeleteMeal }) => {
   // État pour contrôler l'expansion, déroulé par défaut
   const [isExpanded, setIsExpanded] = useState(true);
   
@@ -69,6 +69,14 @@ const MealItem = ({ meal, getFoodById, getRecipeById }) => {
   
   const mealTypeInfo = getMealTypeInfo();
   
+  // Gestionnaire pour la suppression du repas
+  const handleDelete = (e) => {
+    e.stopPropagation(); // Empêcher la propagation au parent (toggle expansion)
+    if (onDeleteMeal && meal.id) {
+      onDeleteMeal(meal.id);
+    }
+  };
+  
   return (
     <div className="meal-item">
       <div className="meal-type-badge">
@@ -96,9 +104,18 @@ const MealItem = ({ meal, getFoodById, getRecipeById }) => {
             <span className="macro-pill carbs">G: {macros.netCarbs || 0}g</span>
           </div>
           
-          <button className="details-toggle">
-            {isExpanded ? <FaChevronUp /> : <FaChevronDown />}
-          </button>
+          <div className="meal-actions">
+            <button className="details-toggle">
+              {isExpanded ? <FaChevronUp /> : <FaChevronDown />}
+            </button>
+            <button 
+              className="delete-meal-button"
+              onClick={handleDelete}
+              title="Supprimer ce repas"
+            >
+              <FaTimes />
+            </button>
+          </div>
         </div>
       </div>
       
