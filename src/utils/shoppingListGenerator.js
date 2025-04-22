@@ -13,6 +13,8 @@
 export function generateShoppingList(mealPlan, dependencies) {
   const { getFoodById, getRecipeById } = dependencies;
   
+  console.log("Génération de liste de courses pour le plan:", mealPlan.id || "plan sans ID");
+  
   // Structure de base pour la liste de courses
   const shoppingList = {
     planId: mealPlan.id,
@@ -26,66 +28,126 @@ export function generateShoppingList(mealPlan, dependencies) {
   // Dictionnaire pour suivre les aliments déjà ajoutés
   const addedFoods = {};
   
-  // Parcourir tous les jours et repas du plan
-  mealPlan.days.forEach(day => {
-    if (!day.meals || day.meals.length === 0) return;
-    
-    day.meals.forEach(meal => {
-      if (!meal.items || meal.items.length === 0) return;
+  try {
+    // Vérifier que le plan a des jours
+    if (!mealPlan.days || !Array.isArray(mealPlan.days) || mealPlan.days.length === 0) {
+      console.warn("Le plan de repas n'a pas de jours définis ou days n'est pas un tableau");
+      return shoppingList;
+    }
+  
+    // Parcourir tous les jours et repas du plan
+    mealPlan.days.forEach((day, dayIndex) => {
+      if (!day) {
+        console.warn(`Jour ${dayIndex} est undefined ou null`);
+        return;
+      }
       
-      meal.items.forEach(item => {
-        if (item.type === 'food') {
-          // Aliment individuel
-          processFood(item.id, item.quantity, getFoodById, addedFoods);
-        } else if (item.type === 'recipe') {
-          // Recette: extraire tous les ingrédients
-          processRecipe(item.id, item.servings, getRecipeById, getFoodById, addedFoods);
+      if (!day.meals || !Array.isArray(day.meals) || day.meals.length === 0) {
+        console.warn(`Jour ${dayIndex} n'a pas de repas définis ou meals n'est pas un tableau`);
+        return;
+      }
+      
+      day.meals.forEach((meal, mealIndex) => {
+        if (!meal) {
+          console.warn(`Repas ${mealIndex} du jour ${dayIndex} est undefined ou null`);
+          return;
         }
+        
+        if (!meal.items || !Array.isArray(meal.items) || meal.items.length === 0) {
+          console.warn(`Repas ${mealIndex} du jour ${dayIndex} n'a pas d'items ou items n'est pas un tableau`);
+          return;
+        }
+        
+        meal.items.forEach(item => {
+          if (!item || !item.type) {
+            console.warn("Un item de repas est invalide ou n'a pas de type");
+            return;
+          }
+          
+          if (item.type === 'food') {
+            // Aliment individuel
+            if (!item.id) {
+              console.warn("Item de type 'food' sans ID");
+              return;
+            }
+            
+            const quantity = item.quantity || 0;
+            processFood(item.id, quantity, getFoodById, addedFoods);
+          } else if (item.type === 'recipe') {
+            // Recette: extraire tous les ingrédients
+            if (!item.id) {
+              console.warn("Item de type 'recipe' sans ID");
+              return;
+            }
+            
+            const servings = item.servings || 1;
+            processRecipe(item.id, servings, getRecipeById, getFoodById, addedFoods);
+          }
+        });
       });
     });
-  });
   
-  // Organiser les aliments par catégorie
-  for (const foodId in addedFoods) {
-    const foodItem = addedFoods[foodId];
-    const food = getFoodById(foodId);
-    
-    if (!food) continue;
-    
-    const category = food.category || 'Autres';
-    
-    if (!shoppingList.categories[category]) {
-      shoppingList.categories[category] = [];
+    // Organiser les aliments par catégorie
+    for (const foodId in addedFoods) {
+      const foodItem = addedFoods[foodId];
+      const food = getFoodById(foodId);
+      
+      if (!food) {
+        console.warn(`Aliment avec ID ${foodId} non trouvé dans la base de données`);
+        continue;
+      }
+      
+      const category = food.category || 'Autres';
+      
+      if (!shoppingList.categories[category]) {
+        shoppingList.categories[category] = [];
+      }
+      
+      // Convertir en unités pratiques si possible
+      let quantity = foodItem.quantity;
+      let unit = 'g';
+      
+      if (food.commonUnitWeight && food.unitName) {
+        const unitsCount = quantity / food.commonUnitWeight;
+        // Si le nombre d'unités est assez grand, utiliser cette unité
+        if (unitsCount >= 0.75) {
+          quantity = Math.round(unitsCount * 10) / 10; // Arrondir à 1 décimale
+          unit = food.unitName;
+        }
+      }
+      
+      shoppingList.categories[category].push({
+        id: foodId,
+        name: food.name,
+        quantity: quantity,
+        unit: unit,
+        checked: false
+      });
     }
     
-    // Convertir en unités pratiques si possible
-    let quantity = foodItem.quantity;
-    let unit = 'g';
-    
-    if (food.commonUnitWeight && food.unitName) {
-      const unitsCount = quantity / food.commonUnitWeight;
-      // Si le nombre d'unités est assez grand, utiliser cette unité
-      if (unitsCount >= 0.75) {
-        quantity = Math.round(unitsCount * 10) / 10; // Arrondir à 1 décimale
-        unit = food.unitName;
+    // Supprimer les catégories vides
+    for (const category in shoppingList.categories) {
+      if (shoppingList.categories[category].length === 0) {
+        delete shoppingList.categories[category];
+      } else {
+        // Trier chaque catégorie par nom
+        shoppingList.categories[category].sort((a, b) => a.name.localeCompare(b.name));
       }
     }
     
-    shoppingList.categories[category].push({
-      id: foodId,
-      name: food.name,
-      quantity: quantity,
-      unit: unit,
-      checked: false
-    });
+    console.log("Liste de courses générée avec succès:", 
+      Object.keys(shoppingList.categories).length, "catégories");
+    
+    return shoppingList;
+  } catch (error) {
+    console.error("Erreur lors de la génération de la liste de courses:", error);
+    
+    // Retourner quand même la liste vide en cas d'erreur
+    return {
+      ...shoppingList,
+      error: error.message
+    };
   }
-  
-  // Trier chaque catégorie par nom
-  for (const category in shoppingList.categories) {
-    shoppingList.categories[category].sort((a, b) => a.name.localeCompare(b.name));
-  }
-  
-  return shoppingList;
 }
 
 /**
@@ -97,7 +159,10 @@ export function generateShoppingList(mealPlan, dependencies) {
  */
 function processFood(foodId, quantity, getFoodById, addedFoods) {
   const food = getFoodById(foodId);
-  if (!food) return;
+  if (!food) {
+    console.warn(`Aliment avec ID ${foodId} non trouvé lors du traitement`);
+    return;
+  }
   
   // Arrondir à 5g près
   const roundedQuantity = Math.ceil(quantity / 5) * 5;
@@ -121,9 +186,22 @@ function processFood(foodId, quantity, getFoodById, addedFoods) {
  */
 function processRecipe(recipeId, servings, getRecipeById, getFoodById, addedFoods) {
   const recipe = getRecipeById(recipeId);
-  if (!recipe || !recipe.ingredients) return;
+  if (!recipe) {
+    console.warn(`Recette avec ID ${recipeId} non trouvée`);
+    return;
+  }
+  
+  if (!recipe.ingredients || !Array.isArray(recipe.ingredients)) {
+    console.warn(`Recette ${recipeId} n'a pas d'ingrédients ou ingredients n'est pas un tableau`);
+    return;
+  }
   
   recipe.ingredients.forEach(ingredient => {
+    if (!ingredient || !ingredient.foodId) {
+      console.warn(`Ingrédient invalide dans la recette ${recipeId}`);
+      return;
+    }
+    
     const foodId = ingredient.foodId;
     const ingredientQuantity = ingredient.quantity * servings;
     
@@ -158,17 +236,17 @@ export function calculateShoppingProgress(shoppingList) {
 export function formatShoppingListForPrint(shoppingList) {
   if (!shoppingList || !shoppingList.categories) return '';
   
-  let formattedList = `LISTE DE COURSES - ${shoppingList.planName}\n`;
-  formattedList += `Du ${formatDate(shoppingList.startDate)} au ${formatDate(shoppingList.endDate)}\n\n`;
+  let formattedList = `LISTE DE COURSES - ${shoppingList.planName}\\n`;
+  formattedList += `Du ${formatDate(shoppingList.startDate)} au ${formatDate(shoppingList.endDate)}\\n\\n`;
   
   for (const category in shoppingList.categories) {
-    formattedList += `=== ${category.toUpperCase()} ===\n`;
+    formattedList += `=== ${category.toUpperCase()} ===\\n`;
     
     shoppingList.categories[category].forEach(item => {
-      formattedList += `□ ${item.name} (${item.quantity} ${item.unit})\n`;
+      formattedList += `□ ${item.name} (${item.quantity} ${item.unit})\\n`;
     });
     
-    formattedList += '\n';
+    formattedList += '\\n';
   }
   
   return formattedList;
