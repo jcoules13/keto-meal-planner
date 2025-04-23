@@ -3,6 +3,7 @@ import { useMealPlan } from '../../contexts/MealPlanContext';
 import { useFood } from '../../contexts/FoodContext';
 import { useRecipe } from '../../contexts/RecipeContext';
 import { useUser } from '../../contexts/UserContext';
+import { getPreferredStartDay } from '../../utils/dateUtils';
 import DayMealsList from './DayMealsList';
 import MacroProgressBar from './MacroProgressBar';
 import './WeeklyMealPlanDisplay.css';
@@ -30,11 +31,13 @@ const WeeklyMealPlanDisplay = () => {
       const today = new Date();
       const dates = [];
       
-      // Calculer le premier jour de la semaine (lundi par défaut)
-      const currentDay = today.getDay(); // 0=dim, 1=lun, ...
-      const targetStartDay = 1; // 1=lundi par défaut
+      // Récupérer le jour de début préféré de l'utilisateur (0 = dimanche par défaut)
+      const targetStartDay = getPreferredStartDay(0); // 0 = dimanche par défaut
       
-      // Calculer le nombre de jours à ajouter/soustraire
+      // Calculer le premier jour de la semaine en fonction de la préférence
+      const currentDay = today.getDay(); // 0=dim, 1=lun, ...
+      
+      // Calculer le nombre de jours à ajouter/soustraire pour atteindre le jour de début
       let daysToAdd = 0;
       if (currentDay !== targetStartDay) {
         daysToAdd = (targetStartDay - currentDay + 7) % 7;
