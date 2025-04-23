@@ -8,9 +8,10 @@
  * @param {Date} referenceDate - Date de référence (par défaut: date actuelle)
  * @returns {Object} Dates de début et de fin formatées
  */
-export const generatePlanDates = (startDayOfWeek = 1, referenceDate = new Date()) => {
-  // Créer une copie de la date de référence pour ne pas la modifier
-  const today = new Date(referenceDate);
+export const generatePlanDates = (startDayOfWeek = 1, referenceDate = null) => {
+  // Utiliser la date actuelle comme référence si non spécifiée
+  // Cela évite le problème de capture de la date lors de la définition de la fonction
+  const today = referenceDate ? new Date(referenceDate) : new Date();
   
   // Trouver la date du prochain jour de départ spécifié
   const currentDayOfWeek = today.getDay(); // 0 = dimanche, 1 = lundi, etc.
