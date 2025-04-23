@@ -1158,10 +1158,21 @@ function finetuneQuantities(meal, targetMacros, ketoProfile) {
       let valueA, valueB;
       
       if (macro === 'protein') {
+        // Pour les protéines, prioriser les aliments avec un bon ratio protéines/calories
         valueA = a.food.nutritionPer100g.protein / a.food.nutritionPer100g.calories;
         valueB = b.food.nutritionPer100g.protein / b.food.nutritionPer100g.calories;
       } else if (macro === 'fat') {
+        // Pour les lipides, prioriser les aliments avec un bon ratio lipides/calories
         valueA = a.food.nutritionPer100g.fat / a.food.nutritionPer100g.calories;
+        valueB = b.food.nutritionPer100g.fat / b.food.nutritionPer100g.calories;
+      } else { // carbs
+        // Pour les glucides, prioriser les aliments avec un bon ratio glucides nets/calories
+        valueA = (a.food.nutritionPer100g.carbs - (a.food.nutritionPer100g.fiber || 0)) / a.food.nutritionPer100g.calories;
+        valueB = (b.food.nutritionPer100g.carbs - (b.food.nutritionPer100g.fiber || 0)) / b.food.nutritionPer100g.calories;
+      }
+      
+      return shouldIncrease ? (valueB - valueA) : (valueA - valueB);
+    });.fat / a.food.nutritionPer100g.calories;
         valueB = b.food.nutritionPer100g.fat / b.food.nutritionPer100g.calories;
       } else { // carbs
         valueA = (a.food.nutritionPer100g.carbs - (a.food.nutritionPer100g.fiber || 0)) / a.food.nutritionPer100g.calories;
@@ -1258,7 +1269,7 @@ function finetuneQuantities(meal, targetMacros, ketoProfile) {
       }
     }
   }
-}.protein / a.food.nutritionPer100g.calories;
+});.protein / a.food.nutritionPer100g.calories;
         valueB = b.food.nutritionPer100g.protein / b.food.nutritionPer100g.calories;
       } else if (macro === 'fat') {
         valueA = a.food.nutritionPer100g
