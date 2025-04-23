@@ -1,7 +1,12 @@
 import React, { createContext, useContext, useReducer, useEffect } from 'react';
 import { generateShoppingList } from '../utils/shoppingListGenerator';
 import { calculateDailyTotals, calculateMealNutrition, updateMealNutrition } from '../utils/mealNutritionCalculator';
-import { validateMealPlan } from '../utils/mealPlanUtils';
+import { 
+  validateMealPlan, 
+  validateNutritionalTargets, 
+  analyzePlanMacroAchievement, 
+  checkMacroTargets 
+} from '../utils/mealPlanUtils';
 import { useUser } from './UserContext';
 import { useFood } from './FoodContext';
 import { useRecipe } from './RecipeContext';
@@ -172,7 +177,8 @@ function mealPlanReducer(state, action) {
         })
       };
     }
-case actions.DELETE_MEAL: {
+    
+    case actions.DELETE_MEAL: {
       const { planId, dayIndex, mealId } = action.payload;
       
       return {
@@ -261,7 +267,6 @@ case actions.DELETE_MEAL: {
       return state;
   }
 }
-
 // Création du contexte
 const MealPlanContext = createContext();
 
@@ -273,10 +278,11 @@ export function useMealPlan() {
   }
   return context;
 }
+
 // Provider
 export function MealPlanProvider({ children }) {
   const [state, dispatch] = useReducer(mealPlanReducer, initialState);
-  const { calorieTarget, macroTargets, mealFrequency, dietType, intermittentFasting } = useUser();
+  const { calorieTarget, macroTargets, mealFrequency, dietType, ketoProfile, intermittentFasting } = useUser();
   const { foods, getFoodById } = useFood();
   const { recipes, getRecipeById } = useRecipe();
   
@@ -341,7 +347,7 @@ export function MealPlanProvider({ children }) {
     if (!state.currentPlanId) return null;
     return state.mealPlans.find(plan => plan.id === state.currentPlanId) || null;
   };
-// Créer un nouveau plan de repas
+// Créer un nouveau plan de repas avec validation améliorée des objectifs protéiques
   const createMealPlan = (planData) => {
     try {
       const newPlan = {
@@ -351,10 +357,32 @@ export function MealPlanProvider({ children }) {
         days: planData.days || []
       };
       
-      // Valider le plan
+      // Valider la structure du plan
       const validationResult = validateMealPlan(newPlan);
       if (!validationResult.valid) {
         throw new Error(`Plan de repas invalide: ${validationResult.error}`);
+      }
+      
+      // Si le plan contient des repas, vérifier les objectifs protéiques
+      if (newPlan.days && newPlan.days.some(day => day.meals && day.meals.length > 0)) {
+        for (let i = 0; i < newPlan.days.length; i++) {
+          const day = newPlan.days[i];
+          if (!day.meals || day.meals.length === 0) continue;
+          
+          // Calculer les totaux nutritionnels du jour
+          const dayTotals = calculateDailyTotals(day, { getFoodById, getRecipeById });
+          
+          // Vérifier si les objectifs de macros sont atteints, en particulier les protéines
+          const nutritionValidation = validateNutritionalTargets(
+            dayTotals, 
+            macroTargets, 
+            newPlan.ketoProfile || ketoProfile
+          );
+          
+          if (!nutritionValidation.valid) {
+            throw new Error(`Jour ${i+1}: ${nutritionValidation.error}`);
+          }
+        }
       }
       
       dispatch({ type: actions.CREATE_MEAL_PLAN, payload: newPlan });
@@ -365,7 +393,7 @@ export function MealPlanProvider({ children }) {
     }
   };
   
-  // Mettre à jour un plan existant
+  // Mettre à jour un plan existant avec validation des objectifs protéiques
   const updateMealPlan = (planId, updatedData) => {
     try {
       const existingPlan = state.mealPlans.find(plan => plan.id === planId);
@@ -379,10 +407,32 @@ export function MealPlanProvider({ children }) {
         updatedAt: new Date().toISOString()
       };
       
-      // Valider le plan
+      // Valider la structure du plan
       const validationResult = validateMealPlan(updatedPlan);
       if (!validationResult.valid) {
         throw new Error(`Plan de repas invalide: ${validationResult.error}`);
+      }
+      
+      // Si le plan contient des repas, vérifier les objectifs protéiques
+      if (updatedPlan.days && updatedPlan.days.some(day => day.meals && day.meals.length > 0)) {
+        for (let i = 0; i < updatedPlan.days.length; i++) {
+          const day = updatedPlan.days[i];
+          if (!day.meals || day.meals.length === 0) continue;
+          
+          // Calculer les totaux nutritionnels du jour
+          const dayTotals = calculateDailyTotals(day, { getFoodById, getRecipeById });
+          
+          // Vérifier si les objectifs de macros sont atteints, en particulier les protéines
+          const nutritionValidation = validateNutritionalTargets(
+            dayTotals, 
+            macroTargets, 
+            updatedPlan.ketoProfile || ketoProfile
+          );
+          
+          if (!nutritionValidation.valid) {
+            throw new Error(`Jour ${i+1}: ${nutritionValidation.error}`);
+          }
+        }
       }
       
       dispatch({ type: actions.UPDATE_MEAL_PLAN, payload: updatedPlan });
@@ -430,7 +480,7 @@ export function MealPlanProvider({ children }) {
       return false;
     }
   };
-// Ajouter un repas à un jour du plan
+// Ajouter un repas à un jour du plan avec validation des objectifs protéiques
   const addMeal = (planId, dayIndex, meal) => {
     try {
       const existingPlan = state.mealPlans.find(plan => plan.id === planId);
@@ -448,6 +498,28 @@ export function MealPlanProvider({ children }) {
         id: meal.id || `meal-${Date.now()}-${Math.round(Math.random() * 1000)}`
       };
       
+      // Vérifier si l'ajout de ce repas respecte toujours les objectifs protéiques
+      const updatedMeals = [...existingPlan.days[dayIndex].meals, mealWithId];
+      const simulatedDay = {
+        ...existingPlan.days[dayIndex],
+        meals: updatedMeals
+      };
+      
+      // Calculer les totaux nutritionnels du jour simulé
+      const dayTotals = calculateDailyTotals(simulatedDay, { getFoodById, getRecipeById });
+      
+      // Vérifier si les objectifs de macros sont atteints, en particulier les protéines
+      const nutritionValidation = validateNutritionalTargets(
+        dayTotals, 
+        macroTargets, 
+        existingPlan.ketoProfile || ketoProfile
+      );
+      
+      if (!nutritionValidation.valid) {
+        // Au lieu de bloquer l'ajout, simplement avertir
+        console.warn(`Attention: ${nutritionValidation.error}`);
+      }
+      
       dispatch({ 
         type: actions.ADD_MEAL, 
         payload: { planId, dayIndex, meal: mealWithId } 
@@ -460,7 +532,7 @@ export function MealPlanProvider({ children }) {
     }
   };
   
-  // Mettre à jour un repas
+  // Mettre à jour un repas avec validation des objectifs protéiques
   const updateMeal = (planId, dayIndex, mealId, updatedMeal) => {
     try {
       const existingPlan = state.mealPlans.find(plan => plan.id === planId);
@@ -475,6 +547,31 @@ export function MealPlanProvider({ children }) {
       const mealExists = existingPlan.days[dayIndex].meals.some(m => m.id === mealId);
       if (!mealExists) {
         throw new Error(`Le repas avec l'ID ${mealId} n'existe pas dans ce jour`);
+      }
+      
+      // Vérifier si la mise à jour du repas respecte toujours les objectifs protéiques
+      const updatedMeals = existingPlan.days[dayIndex].meals.map(meal => 
+        meal.id === mealId ? { ...updatedMeal, id: mealId } : meal
+      );
+      
+      const simulatedDay = {
+        ...existingPlan.days[dayIndex],
+        meals: updatedMeals
+      };
+      
+      // Calculer les totaux nutritionnels du jour simulé
+      const dayTotals = calculateDailyTotals(simulatedDay, { getFoodById, getRecipeById });
+      
+      // Vérifier si les objectifs de macros sont atteints, en particulier les protéines
+      const nutritionValidation = validateNutritionalTargets(
+        dayTotals, 
+        macroTargets, 
+        existingPlan.ketoProfile || ketoProfile
+      );
+      
+      if (!nutritionValidation.valid) {
+        // Au lieu de bloquer la mise à jour, simplement avertir
+        console.warn(`Attention: ${nutritionValidation.error}`);
       }
       
       dispatch({ 
@@ -523,12 +620,12 @@ export function MealPlanProvider({ children }) {
     }
   };
 /**
-   * Ajoute un repas au plan actuellement sélectionné
-   * @param {Object} meal - Le repas à ajouter (structure complète du repas)
-   * @param {number} dayIndex - Index du jour dans le plan (0-6 pour une semaine)
-   * @param {string} mealType - Type de repas (déjeuner, dîner, etc.)
-   * @returns {string|null} ID du repas ajouté ou null en cas d'erreur
-   */
+ * Ajoute un repas au plan actuellement sélectionné
+ * @param {Object} meal - Le repas à ajouter (structure complète du repas)
+ * @param {number} dayIndex - Index du jour dans le plan (0-6 pour une semaine)
+ * @param {string} mealType - Type de repas (déjeuner, dîner, etc.)
+ * @returns {string|null} ID du repas ajouté ou null en cas d'erreur
+ */
   const addMealToCurrentPlan = (meal, dayIndex, mealType = 'repas') => {
     try {
       // Vérifier qu'un plan est sélectionné
@@ -623,7 +720,8 @@ export function MealPlanProvider({ children }) {
         daysCount: plan.days.length,
         daysWithMeals: plan.days.filter(d => d && d.meals && d.meals.length > 0).length
       }));
-// Générer la liste de courses
+      
+      // Générer la liste de courses
       const shoppingList = generateShoppingList(plan, { 
         foods, 
         getFoodById, 
@@ -660,6 +758,33 @@ export function MealPlanProvider({ children }) {
     }
   };
   
+  // Vérifier les objectifs nutritionnels du plan, en particulier les protéines
+  const validatePlanNutrition = (planId) => {
+    try {
+      const plan = state.mealPlans.find(p => p.id === planId);
+      if (!plan) return { valid: false, error: "Plan introuvable" };
+      
+      // Analyser le plan complet
+      const analysis = analyzePlanMacroAchievement(plan, macroTargets, { getFoodById, getRecipeById });
+      
+      // Log de l'analyse pour débogage
+      console.log("Analyse du plan:", analysis);
+      
+      return {
+        valid: analysis.verdict.proteinsSatisfactory && analysis.verdict.carbsWithinLimit,
+        analysis: analysis,
+        error: !analysis.verdict.proteinsSatisfactory 
+          ? "Les objectifs protéiques ne sont pas atteints" 
+          : !analysis.verdict.carbsWithinLimit 
+            ? "La limite de glucides est dépassée" 
+            : null
+      };
+    } catch (error) {
+      console.error("Erreur lors de la validation du plan:", error);
+      return { valid: false, error: error.message };
+    }
+  };
+  
   // Mettre à jour un élément de la liste de courses (cocher/décocher)
   const updateShoppingItem = (categoryKey, foodId, checked) => {
     dispatch({ 
@@ -677,7 +802,8 @@ export function MealPlanProvider({ children }) {
   const clearError = () => {
     dispatch({ type: actions.CLEAR_ERROR });
   };
-// Calculer les totaux nutritionnels pour un jour du plan
+  
+  // Calculer les totaux nutritionnels pour un jour du plan
   const getDayNutritionTotals = (planId, dayIndex) => {
     try {
       const plan = state.mealPlans.find(p => p.id === planId);
@@ -693,8 +819,7 @@ export function MealPlanProvider({ children }) {
       return null;
     }
   };
-  
-  // Créer un nouveau plan de repas vide pour une période donnée
+// Créer un nouveau plan de repas vide pour une période donnée
   const createEmptyPlan = (name, startDate, endDate, dietType = 'keto_standard', advancedOptions = null) => {
     const start = new Date(startDate);
     const end = new Date(endDate);
@@ -728,6 +853,7 @@ export function MealPlanProvider({ children }) {
       startDate,
       endDate,
       dietType,
+      ketoProfile: advancedOptions?.ketoProfile || ketoProfile, // Utiliser le ketoProfile fourni ou celui de l'utilisateur
       days
     };
     
@@ -752,7 +878,8 @@ export function MealPlanProvider({ children }) {
     
     return plan.days[dayIndex].meals.length > 0;
   };
-// Obtenir le progrès de la liste de courses (pourcentage d'éléments cochés)
+  
+  // Obtenir le progrès de la liste de courses (pourcentage d'éléments cochés)
   const getShoppingListProgress = () => {
     if (!state.shoppingList || !state.shoppingList.categories) return 0;
     
@@ -823,7 +950,8 @@ export function MealPlanProvider({ children }) {
       return false;
     }
   };
-// Recalculer les macros de tous les repas d'un plan
+  
+  // Recalculer les macros de tous les repas d'un plan
   const recalculatePlanNutrition = (planId) => {
     try {
       const plan = state.mealPlans.find(p => p.id === planId);
@@ -864,7 +992,8 @@ export function MealPlanProvider({ children }) {
     shoppingListProgress: getShoppingListProgress(),
     recalculateMealNutrition,
     recalculateDayNutrition,
-    recalculatePlanNutrition
+    recalculatePlanNutrition,
+    validatePlanNutrition // Nouvelle fonction pour valider les objectifs nutritionnels
   };
   
   return (
