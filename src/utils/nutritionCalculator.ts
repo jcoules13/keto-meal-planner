@@ -17,6 +17,7 @@ export interface UserData {
   activityLevel: ActivityLevel;
   targetWeight: number; // en kg
   weightGoal?: WeightGoal; // objectif de poids
+  ketoProfile?: KetoProfile; // profil céto spécifique
 }
 
 export interface NutritionalNeeds {
@@ -150,11 +151,30 @@ export function calculateMacroNeeds(calories: number, dietType: DietType, ketoPr
       break;
   }
   
+  // Calcul avec une précision accrue pour les protéines
+  // Pour garantir les objectifs de protéines sont prioritaires
+  const proteinG = Math.max(
+    Math.round((calories * proteinPercentage) / 4), 
+    // Minimum de protéines en fonction du profil
+    ketoProfile === 'prise_masse' ? 150 : 
+    ketoProfile === 'hyperproteine' ? 200 : 100
+  );
+  
+  // Calories pour protéines
+  const proteinCalories = proteinG * 4;
+  
+  // Calories restantes pour lipides et glucides
+  const remainingCalories = calories - proteinCalories;
+  
+  // Réajuster les pourcentages sur les calories restantes
+  const remainingFatRatio = fatPercentage / (fatPercentage + carbsPercentage);
+  const remainingCarbsRatio = carbsPercentage / (fatPercentage + carbsPercentage);
+  
   // Calories par gramme: Lipides = 9 kcal/g, Protéines = 4 kcal/g, Glucides = 4 kcal/g
   return {
-    fat: Math.round((calories * fatPercentage) / 9),
-    protein: Math.round((calories * proteinPercentage) / 4),
-    carbs: Math.round((calories * carbsPercentage) / 4)
+    fat: Math.round((remainingCalories * remainingFatRatio) / 9),
+    protein: proteinG,
+    carbs: Math.round((remainingCalories * remainingCarbsRatio) / 4)
   };
 }
 
@@ -163,7 +183,18 @@ export function calculateMacroNeeds(calories: number, dietType: DietType, ketoPr
  */
 export function calculateNutritionalNeeds(userData: UserData, dietType: DietType, ketoProfile: KetoProfile = 'standard'): NutritionalNeeds {
   const calories = calculateCalorieNeeds(userData);
-  const macros = calculateMacroNeeds(calories, dietType, ketoProfile);
+  const macros = calculateMacroNeeds(calories, dietType, ketoProfile || userData.ketoProfile);
+  
+  // Journaliser pour débogage
+  console.log(`Besoins calculés pour profil ${ketoProfile || userData.ketoProfile || 'standard'}:`, {
+    calories, 
+    macros,
+    percentages: {
+      protein: Math.round((macros.protein * 4 / calories) * 100),
+      fat: Math.round((macros.fat * 9 / calories) * 100),
+      carbs: Math.round((macros.carbs * 4 / calories) * 100)
+    }
+  });
   
   return {
     calories,
@@ -196,5 +227,43 @@ export function interpretBMI(bmi: number): string {
     return 'Obésité sévère (Classe II)';
   } else {
     return 'Obésité morbide (Classe III)';
+  }
+}
+
+/**
+ * Obtient la description du profil keto
+ */
+export function getKetoProfileDescription(profile: KetoProfile): string {
+  switch (profile) {
+    case 'perte_poids':
+      return 'Régime cétogène optimisé pour la perte de poids avec un ratio lipides/protéines élevé';
+    case 'prise_masse':
+      return 'Régime cétogène avec un apport protéique plus élevé pour favoriser la prise de masse musculaire';
+    case 'cyclique':
+      return 'Régime cétogène cyclique alternant des périodes strictes et des recharges en glucides';
+    case 'hyperproteine':
+      return 'Version très protéinée du régime cétogène pour les sportifs et la musculation';
+    case 'standard':
+    default:
+      return 'Régime cétogène standard équilibré pour le maintien';
+  }
+}
+
+/**
+ * Obtient la répartition recommandée des macronutriments pour un profil keto
+ */
+export function getKetoProfileMacroDistribution(profile: KetoProfile): string {
+  switch (profile) {
+    case 'perte_poids':
+      return 'Lipides: 75%, Protéines: 20%, Glucides: 5%';
+    case 'prise_masse':
+      return 'Lipides: 65%, Protéines: 30%, Glucides: 5%';
+    case 'cyclique':
+      return 'Lipides: 70%, Protéines: 20%, Glucides: 10%';
+    case 'hyperproteine':
+      return 'Lipides: 40%, Protéines: 50%, Glucides: 10%';
+    case 'standard':
+    default:
+      return 'Lipides: 75%, Protéines: 20%, Glucides: 5%';
   }
 }
