@@ -102,6 +102,7 @@ export function calculateCalorieNeeds(userData: UserData): number {
 
 /**
  * Calcule les besoins en macronutriments pour un régime keto selon le profil sélectionné
+ * Version améliorée pour garantir les objectifs protéiques
  */
 export function calculateMacroNeeds(calories: number, dietType: DietType, ketoProfile: KetoProfile = 'standard'): NutritionalNeeds['macros'] {
   let fatPercentage: number;
@@ -151,30 +152,30 @@ export function calculateMacroNeeds(calories: number, dietType: DietType, ketoPr
       break;
   }
   
-  // Calcul avec une précision accrue pour les protéines
-  // Pour garantir les objectifs de protéines sont prioritaires
-  const proteinG = Math.max(
-    Math.round((calories * proteinPercentage) / 4), 
-    // Minimum de protéines en fonction du profil
-    ketoProfile === 'prise_masse' ? 150 : 
-    ketoProfile === 'hyperproteine' ? 200 : 100
-  );
+  // Calculer les protéines directement en fonction du profil keto
+  // Sans ajustement, pour respecter strictement la répartition définie
+  const proteinG = Math.round((calories * proteinPercentage) / 4);
+  const fatG = Math.round((calories * fatPercentage) / 9);
+  const carbsG = Math.round((calories * carbsPercentage) / 4);
   
-  // Calories pour protéines
-  const proteinCalories = proteinG * 4;
+  // Vérifier que les besoins minimaux en protéines sont respectés selon le profil
+  const minProteinByProfile = {
+    'standard': 100,
+    'perte_poids': 120,
+    'prise_masse': 150,
+    'cyclique': 100,
+    'hyperproteine': 200
+  };
   
-  // Calories restantes pour lipides et glucides
-  const remainingCalories = calories - proteinCalories;
+  // Utiliser le maximum entre le calcul par pourcentage et le minimum recommandé
+  const finalProteinG = Math.max(proteinG, minProteinByProfile[ketoProfile] || 100);
   
-  // Réajuster les pourcentages sur les calories restantes
-  const remainingFatRatio = fatPercentage / (fatPercentage + carbsPercentage);
-  const remainingCarbsRatio = carbsPercentage / (fatPercentage + carbsPercentage);
+  console.log(`Besoins en macros calculés (${ketoProfile}): Protéines=${finalProteinG}g, Lipides=${fatG}g, Glucides=${carbsG}g`);
   
-  // Calories par gramme: Lipides = 9 kcal/g, Protéines = 4 kcal/g, Glucides = 4 kcal/g
   return {
-    fat: Math.round((remainingCalories * remainingFatRatio) / 9),
-    protein: proteinG,
-    carbs: Math.round((remainingCalories * remainingCarbsRatio) / 4)
+    protein: finalProteinG,
+    fat: fatG,
+    carbs: carbsG
   };
 }
 
