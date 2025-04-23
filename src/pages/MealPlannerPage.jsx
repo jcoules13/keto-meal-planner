@@ -32,16 +32,18 @@ const MealPlannerPage = () => {
   const [planOptions, setPlanOptions] = useState(null);
   const [generatorMode, setGeneratorMode] = useState('weekly'); // 'weekly', 'individual', 'none'
   const [fridgeStep, setFridgeStep] = useState(1); // 1: Sélection frigo, 2: Génération repas
+  // État pour suivre la création de plan en cours (débug)
+  const [debugInfo, setDebugInfo] = useState(null);
   
   // Contextes
   const { dietType, ketoProfile, calorieTarget, macroTargets, intermittentFasting } = useUser();
-  const { createEmptyPlan, currentPlan } = useMealPlan();
-  
-  // Réinitialiser le message de succès après un certain temps
+  const { createEmptyPlan, currentPlan, deleteMealPlan, mealPlans } = useMealPlan();
+// Réinitialiser le message de succès après un certain temps
   useEffect(() => {
     if (planCreated) {
       const timer = setTimeout(() => {
         setPlanCreated(false);
+        setDebugInfo(null); // Effacer les infos de debug
       }, 5000);
       return () => clearTimeout(timer);
     }
@@ -49,25 +51,54 @@ const MealPlannerPage = () => {
   
   // Création d'un plan vide
   const handleCreateEmptyPlan = () => {
-    // Obtenir le jour de départ préféré ou utiliser lundi (1) par défaut
-    const startDayOfWeek = planOptions?.startDayOfWeek || getPreferredStartDay(1);
-    
-    // Générer les dates pour cette semaine en fonction du jour de départ choisi
-    const planDates = generatePlanDates(startDayOfWeek);
-    
-    // Créer le plan avec les options avancées si disponibles
-    const planId = createEmptyPlan(
-      planDates.displayName,
-      planDates.startDate,
-      planDates.endDate,
-      dietType,
-      planOptions // Passer les options avancées au plan
-    );
-    
-    if (planId) {
-      setPlanCreated(true);
-      setPlanName(planDates.displayName);
-      setGeneratorMode('none'); // Réinitialiser le mode de génération
+    // Récupérer tous les plans existants pour effacer les plans avec dates fixes
+    try {
+      // Si un plan existe déjà, le supprimer pour éviter les problèmes
+      if (currentPlan) {
+        deleteMealPlan(currentPlan.id);
+      }
+      
+      // Nettoyer le localStorage pour s'assurer qu'il n'y a pas de plans "fantômes"
+      localStorage.removeItem('keto-meal-planner-meal-plans');
+      localStorage.removeItem('keto-meal-planner-current-plan-id');
+      
+      // Obtenir le jour de départ préféré ou utiliser lundi (1) par défaut
+      const startDayOfWeek = planOptions?.startDayOfWeek || getPreferredStartDay(1);
+      
+      // Forcer l'utilisation de la date actuelle en passant null comme référence
+      // Note: La fonction corrigée dans dateUtils.js créera une nouvelle Date() à l'intérieur
+      const planDates = generatePlanDates(startDayOfWeek, null);
+      
+      // Afficher la date actuelle pour débug
+      const debugDate = new Date();
+      setDebugInfo({
+        currentDate: debugDate.toISOString(),
+        formattedDate: debugDate.toLocaleDateString('fr-FR'),
+        planStart: planDates.startDate,
+        planEnd: planDates.endDate,
+        displayName: planDates.displayName
+      });
+      
+      // Créer le plan avec les options avancées si disponibles
+      const planId = createEmptyPlan(
+        planDates.displayName,
+        planDates.startDate,
+        planDates.endDate,
+        dietType,
+        planOptions // Passer les options avancées au plan
+      );
+      
+      if (planId) {
+        setPlanCreated(true);
+        setPlanName(planDates.displayName);
+        setGeneratorMode('none'); // Réinitialiser le mode de génération
+      }
+    } catch (error) {
+      console.error("Erreur lors de la création du plan:", error);
+      setDebugInfo({
+        error: error.message,
+        stack: error.stack
+      });
     }
   };
   
@@ -109,8 +140,7 @@ const MealPlannerPage = () => {
   const showWeeklyGenerator = () => {
     setGeneratorMode('weekly');
   };
-  
-  return (
+return (
     <div className="max-w-7xl mx-auto p-4 md:p-8">
       <Helmet>
         <title>Planificateur de repas | Keto Meal Planner</title>
@@ -207,7 +237,14 @@ const MealPlannerPage = () => {
               )}
             </div>
             
-            {/* Boutons de création de plan si aucun plan n'existe encore */}
+            {/* Affichage des infos de débug si disponibles */}
+            {debugInfo && (
+              <div className="bg-gray-100 border border-gray-300 p-4 rounded mb-4 text-sm font-mono">
+                <h4 className="font-bold mb-2">Informations de débogage:</h4>
+                <pre>{JSON.stringify(debugInfo, null, 2)}</pre>
+              </div>
+            )}
+{/* Boutons de création de plan si aucun plan n'existe encore */}
             {!currentPlan && (
               <div className="grid md:grid-cols-2 gap-8 mb-8">
                 <div className="card hover:shadow-lg transition-shadow duration-300">
@@ -294,8 +331,7 @@ const MealPlannerPage = () => {
                 </div>
               </div>
             )}
-            
-            {/* Afficher le générateur hebdomadaire automatique si sélectionné */}
+{/* Afficher le générateur hebdomadaire automatique si sélectionné */}
             {currentPlan && generatorMode === 'weekly' && (
               <div className="meal-generator-container mb-8">
                 <div className="flex justify-between items-center mb-2">
