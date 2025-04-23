@@ -8,7 +8,7 @@
  * @param {Date} referenceDate - Date de référence (par défaut: date actuelle)
  * @returns {Object} Dates de début et de fin formatées
  */
-export const generatePlanDates = (startDayOfWeek = 1, referenceDate = null) => {
+export const generatePlanDates = (startDayOfWeek = 0, referenceDate = null) => {
   // Utiliser la date actuelle comme référence si non spécifiée
   // Cela évite le problème de capture de la date lors de la définition de la fonction
   const today = referenceDate ? new Date(referenceDate) : new Date();
@@ -58,10 +58,10 @@ export const generatePlanDates = (startDayOfWeek = 1, referenceDate = null) => {
 
 /**
  * Récupère la préférence du jour de départ depuis le localStorage ou utilise la valeur par défaut
- * @param {number} defaultDay - Jour par défaut si aucune préférence n'est trouvée (1 = lundi)
+ * @param {number} defaultDay - Jour par défaut si aucune préférence n'est trouvée (0 = dimanche)
  * @returns {number} Jour de départ (0-6)
  */
-export const getPreferredStartDay = (defaultDay = 1) => {
+export const getPreferredStartDay = (defaultDay = 0) => {
   const saved = localStorage.getItem('keto-meal-planner-start-day');
   return saved !== null ? parseInt(saved, 10) : defaultDay;
 };
