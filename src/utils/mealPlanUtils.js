@@ -5,6 +5,7 @@
 
 /**
  * Valide un plan de repas pour s'assurer qu'il contient toutes les propriétés requises
+ * et que les objectifs nutritionnels minimaux sont atteints
  * @param {Object} mealPlan - Plan de repas à valider
  * @returns {Object} Résultat de la validation {valid: boolean, error: string}
  */
@@ -43,6 +44,50 @@ export function validateMealPlan(mealPlan) {
     return { valid: false, error: "Profil keto invalide" };
   }
 
+  // Validation réussie
+  return { valid: true, error: null };
+}
+
+/**
+ * Valide les objectifs nutritionnels d'un plan de repas, notamment les protéines
+ * @param {Object} dayTotals - Totaux nutritionnels d'un jour
+ * @param {Object} targetMacros - Objectifs de macronutriments
+ * @param {string} ketoProfile - Profil keto utilisé
+ * @returns {Object} Résultat de la validation {valid: boolean, error: string}
+ */
+export function validateNutritionalTargets(dayTotals, targetMacros, ketoProfile = 'standard') {
+  // Définir le seuil minimum pour les protéines selon le profil (95% par défaut)
+  const minProteinAchievement = 0.95;
+  
+  // Calculer le pourcentage d'atteinte pour les protéines
+  const proteinAchievement = dayTotals.protein / targetMacros.protein;
+  
+  // Vérifier si les protéines atteignent au moins le pourcentage minimal
+  if (proteinAchievement < minProteinAchievement) {
+    return {
+      valid: false,
+      error: `Objectif protéique non atteint (${Math.round(proteinAchievement * 100)}% < ${Math.round(minProteinAchievement * 100)}%)`,
+      details: {
+        target: targetMacros.protein,
+        actual: dayTotals.protein,
+        achievement: proteinAchievement
+      }
+    };
+  }
+  
+  // Vérifier que les glucides ne dépassent pas la limite
+  if (dayTotals.netCarbs > targetMacros.carbs * 1.05) { // 5% de marge
+    return {
+      valid: false,
+      error: `Limite de glucides dépassée (${dayTotals.netCarbs}g > ${targetMacros.carbs * 1.05}g)`,
+      details: {
+        target: targetMacros.carbs,
+        actual: dayTotals.netCarbs,
+        deviation: dayTotals.netCarbs / targetMacros.carbs
+      }
+    };
+  }
+  
   // Validation réussie
   return { valid: true, error: null };
 }
@@ -311,6 +356,94 @@ export function calculateNutritionalNeeds(userProfile) {
 }
 
 /**
+ * Analyse l'adéquation d'un plan de repas par rapport aux objectifs 
+ * et met l'accent sur les protéines pour les profils hyperprotéinés.
+ * 
+ * @param {Object} plan - Plan de repas complet
+ * @param {Object} targetMacros - Objectifs de macronutriments
+ * @param {Object} utils - Utilitaires {getFoodById, getRecipeById}
+ * @returns {Object} Résultat de l'analyse avec des statistiques détaillées sur les atteintes d'objectifs
+ */
+export function analyzePlanMacroAchievement(plan, targetMacros, utils) {
+  // Initialiser les compteurs
+  const analysis = {
+    totalDays: plan.days.length,
+    daysWithMeals: 0,
+    proteinAchievement: {
+      total: 0,
+      min: Infinity,
+      max: 0,
+      daysAbove95Percent: 0
+    },
+    carbsLimit: {
+      total: 0,
+      daysWithinLimit: 0,
+      daysExceeded: 0
+    },
+    dailyStats: []
+  };
+  
+  // Analyse jour par jour
+  plan.days.forEach((day, index) => {
+    if (!hasMeals(day)) return;
+    
+    analysis.daysWithMeals++;
+    
+    // Calculer les totaux nutritionnels du jour
+    const dayTotals = calculateDailyTotals(day, utils);
+    
+    // Calculer les pourcentages d'atteinte
+    const proteinAchievement = dayTotals.protein / targetMacros.protein;
+    const carbsRatio = dayTotals.netCarbs / targetMacros.carbs;
+    
+    // Mettre à jour les statistiques sur les protéines
+    analysis.proteinAchievement.total += proteinAchievement;
+    analysis.proteinAchievement.min = Math.min(analysis.proteinAchievement.min, proteinAchievement);
+    analysis.proteinAchievement.max = Math.max(analysis.proteinAchievement.max, proteinAchievement);
+    
+    if (proteinAchievement >= 0.95) {
+      analysis.proteinAchievement.daysAbove95Percent++;
+    }
+    
+    // Mettre à jour les statistiques sur les glucides
+    analysis.carbsLimit.total += carbsRatio;
+    
+    if (carbsRatio <= 1.05) {
+      analysis.carbsLimit.daysWithinLimit++;
+    } else {
+      analysis.carbsLimit.daysExceeded++;
+    }
+    
+    // Enregistrer les statistiques pour ce jour
+    analysis.dailyStats.push({
+      day: index,
+      date: day.date,
+      totals: dayTotals,
+      achievements: {
+        protein: proteinAchievement,
+        carbs: carbsRatio
+      }
+    });
+  });
+  
+  // Calculer les moyennes
+  if (analysis.daysWithMeals > 0) {
+    analysis.proteinAchievement.average = analysis.proteinAchievement.total / analysis.daysWithMeals;
+    analysis.carbsLimit.average = analysis.carbsLimit.total / analysis.daysWithMeals;
+  }
+  
+  // Verdict global
+  analysis.verdict = {
+    proteinsSatisfactory: analysis.proteinAchievement.daysAbove95Percent === analysis.daysWithMeals,
+    carbsWithinLimit: analysis.carbsLimit.daysExceeded === 0,
+    overallValid: (analysis.proteinAchievement.daysAbove95Percent === analysis.daysWithMeals) && 
+                  (analysis.carbsLimit.daysExceeded === 0)
+  };
+  
+  return analysis;
+}
+
+/**
  * Vérifie si les objectifs de macronutriments sont atteints selon le profil keto
  * @param {Object} totals - Totaux nutritionnels calculés
  * @param {Object} targets - Objectifs nutritionnels
@@ -346,17 +479,21 @@ export function checkMacroTargets(totals, targets, ketoProfile = 'standard') {
   };
   
   // Définir les tolérances selon le profil keto
-  let proteinTolerance = 15; // Tolérance par défaut: ±15%
+  let proteinTolerance = 5; // Tolérance réduite à ±5% (était à 15%)
   
   if (ketoProfile === 'prise_masse' || ketoProfile === 'hyperproteine') {
-    proteinTolerance = 10; // Plus restrictif sur les protéines pour ces profils
+    proteinTolerance = 5; // Plus restrictif sur les protéines pour ces profils
   }
+  
+  // Assurer que les protéines ne sont pas sous l'objectif (tolérance uniquement pour les valeurs au-dessus)
+  result.proteinReached = totals.protein >= targets.protein * 0.95;
   
   // Vérifier si les objectifs sont atteints
   result.caloriesReached = calorieDeviation <= 15; // ±15% de tolérance sur les calories
-  result.proteinReached = proteinDeviation <= proteinTolerance; 
   result.fatReached = fatDeviation <= 20; // ±20% de tolérance sur les lipides
-  result.carbsReached = carbsDeviation <= 25; // ±25% de tolérance sur les glucides
+  
+  // Pour les glucides, ne pas dépasser l'objectif
+  result.carbsReached = totals.netCarbs <= targets.carbs * 1.05;
   
   return result;
 }
