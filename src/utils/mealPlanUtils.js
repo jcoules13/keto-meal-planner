@@ -38,6 +38,11 @@ export function validateMealPlan(mealPlan) {
     return { valid: false, error: "Le tableau des jours est manquant ou invalide" };
   }
 
+  // Vérifier le profil keto s'il est spécifié
+  if (mealPlan.ketoProfile && !["standard", "perte_poids", "prise_masse", "cyclique", "hyperproteine"].includes(mealPlan.ketoProfile)) {
+    return { valid: false, error: "Profil keto invalide" };
+  }
+
   // Validation réussie
   return { valid: true, error: null };
 }
@@ -182,9 +187,10 @@ export function generatePlanName(startDate, endDate) {
  * @param {string} startDate - Date de début (format YYYY-MM-DD)
  * @param {string} endDate - Date de fin (format YYYY-MM-DD)
  * @param {string} dietType - Type de régime ('keto_standard' ou 'keto_alcalin')
+ * @param {string} ketoProfile - Profil keto ('standard', 'perte_poids', 'prise_masse', etc.)
  * @returns {Object} Structure de plan de repas vide
  */
-export function createEmptyPlanStructure(name, startDate, endDate, dietType = 'keto_standard') {
+export function createEmptyPlanStructure(name, startDate, endDate, dietType = 'keto_standard', ketoProfile = 'standard') {
   const id = `plan-${Date.now()}`;
   
   // Créer un tableau de jours entre startDate et endDate
@@ -211,6 +217,7 @@ export function createEmptyPlanStructure(name, startDate, endDate, dietType = 'k
     startDate,
     endDate,
     dietType,
+    ketoProfile,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
     days
@@ -235,25 +242,121 @@ export function formatDate(dateString) {
  * @returns {Object} Besoins caloriques et macronutritionnels
  */
 export function calculateNutritionalNeeds(userProfile) {
-  // Implémentation basée sur le contexte UserContext
-  // Simulons un calcul simplifié ici
+  // Récupérer les besoins caloriques du profil utilisateur
   const calories = userProfile.calorieTarget || 2000;
   
-  // Distribution typique keto
-  const fatPercentage = 0.75; // 75% des calories proviennent des lipides
-  const proteinPercentage = 0.20; // 20% des calories proviennent des protéines
-  const carbsPercentage = 0.05; // 5% des calories proviennent des glucides
+  // Récupérer le profil keto de l'utilisateur
+  const ketoProfile = userProfile.ketoProfile || 'standard';
+  
+  // Distribution selon le profil keto
+  let fatPercentage, proteinPercentage, carbsPercentage;
+  
+  switch (ketoProfile) {
+    case 'perte_poids':
+      fatPercentage = 0.75; // 75%
+      proteinPercentage = 0.20; // 20%
+      carbsPercentage = 0.05; // 5%
+      break;
+    case 'prise_masse':
+      fatPercentage = 0.65; // 65%
+      proteinPercentage = 0.30; // 30%
+      carbsPercentage = 0.05; // 5%
+      break;
+    case 'cyclique':
+      fatPercentage = 0.70; // 70%
+      proteinPercentage = 0.20; // 20%
+      carbsPercentage = 0.10; // 10%
+      break;
+    case 'hyperproteine':
+      fatPercentage = 0.40; // 40%
+      proteinPercentage = 0.50; // 50%
+      carbsPercentage = 0.10; // 10%
+      break;
+    case 'standard':
+    default:
+      fatPercentage = 0.75; // 75%
+      proteinPercentage = 0.20; // 20%
+      carbsPercentage = 0.05; // 5%
+      break;
+  }
+  
+  // Calcul des protéines avec plancher selon le profil
+  const proteinG = Math.max(
+    Math.round((calories * proteinPercentage) / 4),
+    ketoProfile === 'prise_masse' ? 150 :
+    ketoProfile === 'hyperproteine' ? 200 : 100
+  );
+  
+  // Calories pour protéines
+  const proteinCalories = proteinG * 4;
+  
+  // Calories restantes pour lipides et glucides
+  const remainingCalories = calories - proteinCalories;
+  
+  // Réajuster les pourcentages sur les calories restantes
+  const remainingFatRatio = fatPercentage / (fatPercentage + carbsPercentage);
+  const remainingCarbsRatio = carbsPercentage / (fatPercentage + carbsPercentage);
   
   // Conversion en grammes
-  const fat = Math.round((calories * fatPercentage) / 9); // 9 kcal/g pour les lipides
-  const protein = Math.round((calories * proteinPercentage) / 4); // 4 kcal/g pour les protéines
-  const carbs = Math.round((calories * carbsPercentage) / 4); // 4 kcal/g pour les glucides
+  const fat = Math.round((remainingCalories * remainingFatRatio) / 9);
+  const carbs = Math.round((remainingCalories * remainingCarbsRatio) / 4);
   
   return {
     calories,
     fat,
-    protein,
+    protein: proteinG,
     carbs,
     netCarbs: carbs // Équivalent dans ce contexte simplifié
   };
+}
+
+/**
+ * Vérifie si les objectifs de macronutriments sont atteints selon le profil keto
+ * @param {Object} totals - Totaux nutritionnels calculés
+ * @param {Object} targets - Objectifs nutritionnels
+ * @param {string} ketoProfile - Profil keto utilisé
+ * @returns {Object} Résultat de la vérification avec écarts
+ */
+export function checkMacroTargets(totals, targets, ketoProfile = 'standard') {
+  const result = {
+    caloriesReached: false,
+    proteinReached: false,
+    fatReached: false,
+    carbsReached: false,
+    deviations: {
+      calories: 0,
+      protein: 0,
+      fat: 0,
+      carbs: 0
+    }
+  };
+  
+  // Calculer les pourcentages d'écart
+  const calorieDeviation = Math.abs((totals.calories - targets.calories) / targets.calories * 100);
+  const proteinDeviation = Math.abs((totals.protein - targets.protein) / targets.protein * 100);
+  const fatDeviation = Math.abs((totals.fat - targets.fat) / targets.fat * 100);
+  const carbsDeviation = Math.abs((totals.netCarbs - targets.carbs) / targets.carbs * 100);
+  
+  // Stocker les déviations
+  result.deviations = {
+    calories: Math.round(calorieDeviation),
+    protein: Math.round(proteinDeviation),
+    fat: Math.round(fatDeviation),
+    carbs: Math.round(carbsDeviation)
+  };
+  
+  // Définir les tolérances selon le profil keto
+  let proteinTolerance = 15; // Tolérance par défaut: ±15%
+  
+  if (ketoProfile === 'prise_masse' || ketoProfile === 'hyperproteine') {
+    proteinTolerance = 10; // Plus restrictif sur les protéines pour ces profils
+  }
+  
+  // Vérifier si les objectifs sont atteints
+  result.caloriesReached = calorieDeviation <= 15; // ±15% de tolérance sur les calories
+  result.proteinReached = proteinDeviation <= proteinTolerance; 
+  result.fatReached = fatDeviation <= 20; // ±20% de tolérance sur les lipides
+  result.carbsReached = carbsDeviation <= 25; // ±25% de tolérance sur les glucides
+  
+  return result;
 }
