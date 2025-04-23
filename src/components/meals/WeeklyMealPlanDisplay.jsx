@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useMealPlan } from '../../contexts/MealPlanContext';
 import { useFood } from '../../contexts/FoodContext';
 import { useRecipe } from '../../contexts/RecipeContext';
@@ -11,6 +11,7 @@ import './WeeklyMealPlanDisplay.css';
  * Composant d'affichage du plan de repas hebdomadaire
  * Permet de visualiser et naviguer entre les jours du plan
  * Version améliorée avec barres de progression pour les macros
+ * et correction de l'affichage des dates
  */
 const WeeklyMealPlanDisplay = () => {
   const { currentPlan, getDayNutritionTotals } = useMealPlan();
@@ -20,6 +21,49 @@ const WeeklyMealPlanDisplay = () => {
   
   // État pour le jour sélectionné (index)
   const [selectedDayIndex, setSelectedDayIndex] = useState(0);
+  // État pour les dates corrigées
+  const [correctedDates, setCorrectedDates] = useState(null);
+  
+  // Générer des dates corrigées basées sur la date actuelle
+  useEffect(() => {
+    if (currentPlan && currentPlan.days && currentPlan.days.length > 0) {
+      const today = new Date();
+      const dates = [];
+      
+      // Calculer le premier jour de la semaine (lundi par défaut)
+      const currentDay = today.getDay(); // 0=dim, 1=lun, ...
+      const targetStartDay = 1; // 1=lundi par défaut
+      
+      // Calculer le nombre de jours à ajouter/soustraire
+      let daysToAdd = 0;
+      if (currentDay !== targetStartDay) {
+        daysToAdd = (targetStartDay - currentDay + 7) % 7;
+      }
+      
+      // Créer la date de début
+      const startDate = new Date(today);
+      startDate.setDate(today.getDate() + daysToAdd);
+      
+      // Générer toutes les dates de la semaine
+      for (let i = 0; i < 7; i++) {
+        const date = new Date(startDate);
+        date.setDate(startDate.getDate() + i);
+        dates.push({
+          date: date.toISOString().split('T')[0],
+          displayDate: date.toLocaleDateString('fr-FR', {day: 'numeric', month: 'numeric'}),
+          weekday: date.toLocaleDateString('fr-FR', {weekday: 'short'}),
+          fullDate: date.toLocaleDateString('fr-FR', {weekday: 'long', day: 'numeric', month: 'long'})
+        });
+      }
+      
+      setCorrectedDates({
+        startDate: dates[0].date,
+        endDate: dates[6].date,
+        displayName: `Plan du ${dates[0].displayDate} au ${dates[6].displayDate}`,
+        days: dates
+      });
+    }
+  }, [currentPlan]);
   
   // Si aucun plan n'est actif, afficher un message
   if (!currentPlan) {
@@ -65,20 +109,23 @@ const WeeklyMealPlanDisplay = () => {
   
   return (
     <div className="weekly-meal-plan">
-      {/* Informations sur le plan */}
+      {/* Informations sur le plan - avec dates corrigées si disponibles */}
       <div className="plan-info mb-4">
-        <h3 className="font-medium">{currentPlan.name}</h3>
+        <h3 className="font-medium">{correctedDates ? correctedDates.displayName : currentPlan.name}</h3>
         <p className="text-text-secondary text-sm">
-          {currentPlan.startDate && currentPlan.endDate 
-            ? `Du ${new Date(currentPlan.startDate).toLocaleDateString('fr-FR')} au ${new Date(currentPlan.endDate).toLocaleDateString('fr-FR')}` 
-            : 'Dates non définies'}
+          {correctedDates 
+            ? `Du ${new Date(correctedDates.startDate).toLocaleDateString('fr-FR')} au ${new Date(correctedDates.endDate).toLocaleDateString('fr-FR')}` 
+            : (currentPlan.startDate && currentPlan.endDate 
+                ? `Du ${new Date(currentPlan.startDate).toLocaleDateString('fr-FR')} au ${new Date(currentPlan.endDate).toLocaleDateString('fr-FR')}` 
+                : 'Dates non définies')
+          }
         </p>
       </div>
       
-      {/* Navigation par jour - nouvelle UI */}
+      {/* Navigation par jour - nouvelle UI avec dates corrigées */}
       <div className="day-tabs-container">
         <div className="day-tabs">
-          {currentPlan.days.map((day, index) => (
+          {(correctedDates ? correctedDates.days : currentPlan.days).map((day, index) => (
             <button
               key={index}
               className={`day-tab ${selectedDayIndex === index ? 'active' : ''}`}
@@ -86,8 +133,12 @@ const WeeklyMealPlanDisplay = () => {
               aria-selected={selectedDayIndex === index}
               aria-controls={`day-panel-${index}`}
             >
-              <div className="day-name">{getDayOfWeek(day.date)}</div>
-              <div className="day-date">{formatDate(day.date)}</div>
+              <div className="day-name">
+                {correctedDates ? day.weekday : getDayOfWeek(day.date)}
+              </div>
+              <div className="day-date">
+                {correctedDates ? day.displayDate : formatDate(day.date)}
+              </div>
             </button>
           ))}
         </div>
@@ -97,7 +148,10 @@ const WeeklyMealPlanDisplay = () => {
       <div className="day-panel" id={`day-panel-${selectedDayIndex}`}>
         <div className="day-header">
           <h3 className="day-title">
-            {new Date(selectedDay.date).toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })}
+            {correctedDates 
+              ? correctedDates.days[selectedDayIndex].fullDate
+              : new Date(selectedDay.date).toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })
+            }
           </h3>
         </div>
         
