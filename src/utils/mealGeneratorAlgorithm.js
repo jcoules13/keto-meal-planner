@@ -1423,5 +1423,12 @@ export {
   calculateKetoCompatibilityScore,
   validateMealMacros,
   adaptRecipe,
-  balanceMealMacros
+  balanceMealMacros,
+  generateMealsFromFridge // Ajouter cet export
 };
+
+// Et ajouter la fonction manquante:
+function generateMealsFromFridge(availableFoods, nutritionNeeds, options) {
+  // Vous pouvez simplement créer un alias pour la nouvelle fonction generateMealPlan
+  return generateMealPlan(availableFoods, [], nutritionNeeds, options);
+}
