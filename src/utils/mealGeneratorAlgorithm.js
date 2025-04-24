@@ -1,14 +1,8 @@
 /**
- * Algorithme de génération de repas basé sur les aliments disponibles dans le frigo
+ * Algorithme de génération de repas keto amélioré
  * 
- * Cet algorithme prend en compte:
- * - Les aliments disponibles et leurs quantités
- * - Les besoins nutritionnels de l'utilisateur
- * - Les préférences (faible en glucides, riche en protéines, équilibré)
- * - Le profil keto sélectionné (standard, prise de masse, perte de poids, etc.)
- * 
- * Il génère des repas qui respectent les contraintes keto tout en utilisant les aliments disponibles.
- * IMPORTANT: Priorité de 95% minimum pour les protéines, jamais plus de 100% pour les lipides et glucides.
+ * Cet algorithme respecte strictement les objectifs de macronutriments de l'utilisateur
+ * en suivant une approche méthodique de construction des repas.
  */
 
 // Facteurs caloriques des macronutriments
@@ -26,59 +20,32 @@ const FOOD_TYPES = {
   OTHER: 'other', // Autres aliments
 };
 
-// Profils keto disponibles avec leurs ratios de macronutriments
-const KETO_PROFILES = {
-  'standard': {
-    FAT_PERCENTAGE: 0.75, // 75% des calories proviennent des lipides
-    PROTEIN_PERCENTAGE: 0.20, // 20% des calories proviennent des protéines
-    CARBS_PERCENTAGE: 0.05, // 5% des calories proviennent des glucides
-    MAX_NET_CARBS_PER_MEAL: 15, // Maximum de glucides nets par repas
-    PROTEIN_PRIORITY: 1.5, // Priorité augmentée pour les protéines (était 1)
-    MAX_PROTEIN_QUANTITY: 250, // Quantité maximale d'aliment protéiné augmentée (était 200g)
-    MIN_PROTEIN_TARGET_PERCENTAGE: 0.95, // Minimum 95% de l'objectif protéique
-  },
-  'perte_poids': {
-    FAT_PERCENTAGE: 0.75, // 75% des calories proviennent des lipides
-    PROTEIN_PERCENTAGE: 0.20, // 20% des calories proviennent des protéines
-    CARBS_PERCENTAGE: 0.05, // 5% des calories proviennent des glucides
-    MAX_NET_CARBS_PER_MEAL: 10, // Maximum réduit de glucides nets par repas
-    PROTEIN_PRIORITY: 1.6, // Priorité plus élevée pour les protéines (était 1.2)
-    MAX_PROTEIN_QUANTITY: 280, // Quantité maximale d'aliment protéiné augmentée (était 250g)
-    MIN_PROTEIN_TARGET_PERCENTAGE: 0.95, // Minimum 95% de l'objectif protéique
-  },
-  'prise_masse': {
-    FAT_PERCENTAGE: 0.65, // 65% des calories proviennent des lipides
-    PROTEIN_PERCENTAGE: 0.30, // 30% des calories proviennent des protéines
-    CARBS_PERCENTAGE: 0.05, // 5% des calories proviennent des glucides
-    MAX_NET_CARBS_PER_MEAL: 15, // Maximum de glucides nets par repas
-    PROTEIN_PRIORITY: 2.0, // Priorité très élevée pour les protéines (était 1.5)
-    MAX_PROTEIN_QUANTITY: 400, // Quantité maximale d'aliment protéiné augmentée (était 350g)
-    MIN_PROTEIN_TARGET_PERCENTAGE: 0.97, // Minimum 97% de l'objectif protéique
-  },
-  'cyclique': {
-    FAT_PERCENTAGE: 0.70, // 70% des calories proviennent des lipides
-    PROTEIN_PERCENTAGE: 0.20, // 20% des calories proviennent des protéines
-    CARBS_PERCENTAGE: 0.10, // 10% des calories proviennent des glucides
-    MAX_NET_CARBS_PER_MEAL: 25, // Maximum plus élevé de glucides nets par repas
-    PROTEIN_PRIORITY: 1.5, // Priorité augmentée pour les protéines (était 1)
-    MAX_PROTEIN_QUANTITY: 250, // Quantité maximale d'aliment protéiné augmentée (était 200g)
-    MIN_PROTEIN_TARGET_PERCENTAGE: 0.95, // Minimum 95% de l'objectif protéique
-  },
-  'hyperproteine': {
-    FAT_PERCENTAGE: 0.40, // 40% des calories proviennent des lipides
-    PROTEIN_PERCENTAGE: 0.50, // 50% des calories proviennent des protéines
-    CARBS_PERCENTAGE: 0.10, // 10% des calories proviennent des glucides
-    MAX_NET_CARBS_PER_MEAL: 20, // Maximum de glucides nets par repas
-    PROTEIN_PRIORITY: 2.5, // Priorité extrêmement élevée pour les protéines (était 2)
-    MAX_PROTEIN_QUANTITY: 450, // Quantité maximale d'aliment protéiné très augmentée (était 400g)
-    MIN_PROTEIN_TARGET_PERCENTAGE: 0.98, // Minimum 98% de l'objectif protéique
-  }
+// Tolérances pour la validation des repas - plus strictes qu'avant
+const MACRO_TOLERANCES = {
+  PROTEIN_MIN: 0.97, // 97% minimum de l'objectif protéique doit être atteint (était 0.95)
+  FAT_MAX: 1.02, // Maximum 102% de l'objectif de lipides (était indéfini)
+  CARBS_MAX: 1.00, // Maximum 100% de l'objectif de glucides (était 1.05)
 };
 
-// Fonction pour obtenir les ratios keto en fonction du profil sélectionné
-function getKetoRatios(ketoProfile = 'standard') {
-  return KETO_PROFILES[ketoProfile] || KETO_PROFILES.standard;
-}
+// Paramètres pour les différents types d'aliments
+const FOOD_PARAMETERS = {
+  PROTEIN: {
+    MIN_QUANTITY: 50, // Minimum 50g d'aliment protéiné
+    MAX_QUANTITY: 300, // Maximum 300g d'aliment protéiné
+    PRIORITY_FACTOR: 2.0, // Facteur de priorité lors de la sélection
+  },
+  VEGETABLE: {
+    MIN_QUANTITY: 50, // Minimum 50g de légumes
+    MAX_QUANTITY: 300, // Maximum 300g de légumes
+    MAX_COUNT: 2, // Maximum 2 légumes différents par repas
+  },
+  FAT: {
+    MIN_QUANTITY_OIL: 5, // Minimum 5g pour les huiles
+    MIN_QUANTITY_OTHER: 15, // Minimum 15g pour les autres sources
+    MAX_QUANTITY_OIL: 30, // Maximum 30g pour les huiles
+    MAX_QUANTITY_OTHER: 100, // Maximum 100g pour les autres sources
+  },
+};
 
 /**
  * Détermine le type principal d'un aliment en fonction de sa composition
@@ -121,18 +88,16 @@ function calculateCalories(protein, fat, carbs) {
     carbs * CALORIC_FACTORS.CARBS
   );
 }
-
 /**
  * Calcule le score de compatibilité keto d'un aliment
  * Plus le score est élevé, plus l'aliment est compatible avec le régime keto
  * @param {Object} food - L'aliment à évaluer
- * @param {string} ketoProfile - Le profil keto sélectionné
+ * @param {Object} targetMacros - Objectifs de macronutriments pour le repas
  * @returns {number} Score de compatibilité keto (0-10)
  */
-function calculateKetoCompatibilityScore(food, ketoProfile = 'standard') {
+function calculateKetoCompatibilityScore(food, targetMacros) {
   const { protein, fat, carbs, fiber = 0 } = food.nutritionPer100g;
   const netCarbs = Math.max(0, carbs - fiber);
-  const ketoRatios = getKetoRatios(ketoProfile);
   
   // Calcul des calories de chaque macronutriment
   const proteinCalories = protein * CALORIC_FACTORS.PROTEIN;
@@ -149,110 +114,69 @@ function calculateKetoCompatibilityScore(food, ketoProfile = 'standard') {
   const proteinRatio = proteinCalories / totalCalories;
   const carbsRatio = carbsCalories / totalCalories;
   
+  // Calculer les ratios cibles
+  const targetCalories = targetMacros.protein * CALORIC_FACTORS.PROTEIN + 
+                         targetMacros.fat * CALORIC_FACTORS.FAT + 
+                         targetMacros.carbs * CALORIC_FACTORS.CARBS;
+  
+  const targetFatRatio = (targetMacros.fat * CALORIC_FACTORS.FAT) / targetCalories;
+  const targetProteinRatio = (targetMacros.protein * CALORIC_FACTORS.PROTEIN) / targetCalories;
+  const targetCarbsRatio = (targetMacros.carbs * CALORIC_FACTORS.CARBS) / targetCalories;
+  
   // Calculer l'écart par rapport aux ratios keto idéaux (pondéré)
-  const fatDeviation = Math.abs(fatRatio - ketoRatios.FAT_PERCENTAGE) * 1.5; // Réduit de 2 à 1.5
-  const proteinDeviation = Math.abs(proteinRatio - ketoRatios.PROTEIN_PERCENTAGE) * 0.8; // Réduit de 1 à 0.8 (moins pénalisant)
-  // Pénaliser davantage les glucides élevés
-  const carbsDeviation = Math.abs(carbsRatio - ketoRatios.CARBS_PERCENTAGE) * 4; // Augmenté de 3 à 4
+  const fatDeviation = Math.abs(fatRatio - targetFatRatio) * 1.5;
+  const proteinDeviation = Math.abs(proteinRatio - targetProteinRatio) * 0.8; // Moins pénalisant
+  const carbsDeviation = Math.abs(carbsRatio - targetCarbsRatio) * 4; // Plus pénalisant
   
   // Calculer le score (10 - déviations)
   let score = 10 - (fatDeviation + proteinDeviation + carbsDeviation) * 10;
   
   // Pénaliser fortement les aliments à teneur élevée en glucides nets
-  if (netCarbs > 8) { // Réduit de 10 à 8 pour être plus strict sur les glucides
-    score -= (netCarbs - 8) * 0.7; // Augmenté de 0.5 à 0.7
+  if (netCarbs > 5) { // Plus strict qu'avant (était 8)
+    score -= (netCarbs - 5) * 0.8; // Plus pénalisant qu'avant (était 0.7)
   }
   
-  // Bonifier les aliments riches en protéines en fonction du profil
-  const proteinBonus = (protein / 100) * ketoRatios.PROTEIN_PRIORITY;
+  // Bonifier les aliments riches en protéines
+  const proteinBonus = (protein / 100) * FOOD_PARAMETERS.PROTEIN.PRIORITY_FACTOR;
   score += proteinBonus;
   
   // Borner le score entre 0 et 10
   return Math.max(0, Math.min(10, score));
 }
-/**
- * Génère un nom pour le repas en fonction de ses ingrédients principaux et du profil keto
- * @param {string} ketoProfile - Le profil keto utilisé
- * @returns {string} Nom du repas
- */
-function generateMealName(ketoProfile = 'standard') {
-  const mealTypes = [
-    'Assiette', 'Plat', 'Bowl', 'Cocotte', 'Poêlée', 'Salade'
-  ];
-  
-  const mealType = mealTypes[Math.floor(Math.random() * mealTypes.length)];
-  
-  let prefix = 'Keto';
-  if (ketoProfile === 'prise_masse') {
-    prefix = 'Keto Protéiné';
-  } else if (ketoProfile === 'hyperproteine') {
-    prefix = 'Keto Hyperprotéiné';
-  } else if (ketoProfile === 'perte_poids') {
-    prefix = 'Keto Minceur';
-  }
-  
-  return `${mealType} ${prefix} du frigo`;
-}
 
 /**
- * Vérifie si un repas respecte les objectifs de macros à un seuil minimum (notamment protéines)
- * @param {Object} mealNutrition - Nutrition totale du repas
- * @param {Object} targetMacros - Objectifs de macros pour le repas
- * @param {string} ketoProfile - Le profil keto utilisé
- * @returns {Object} Résultat de la validation avec statut et messages
+ * Filtre et trie les aliments en fonction des préférences de l'utilisateur
+ * @param {Array} availableFoods - Liste des aliments disponibles
+ * @param {Array} favoriteFoodIds - IDs des aliments favoris de l'utilisateur
+ * @param {Object} targetMacros - Objectifs de macronutriments
+ * @returns {Object} Aliments triés par type et avec les favoris priorisés
  */
-function validateMealMacros(mealNutrition, targetMacros, ketoProfile = 'standard') {
-  const ketoRatios = getKetoRatios(ketoProfile);
-  const minProteinPercentage = ketoRatios.MIN_PROTEIN_TARGET_PERCENTAGE;
-  
-  // Calculer les pourcentages d'atteinte des objectifs
-  const proteinPercentage = mealNutrition.protein / targetMacros.protein;
-  const fatPercentage = mealNutrition.fat / targetMacros.fat;
-  const carbsPercentage = mealNutrition.netCarbs / targetMacros.carbs;
-  
-  const issues = [];
-  
-  // Vérifier l'objectif protéique (exigence très stricte)
-  if (proteinPercentage < minProteinPercentage) {
-    issues.push(`Protéines insuffisantes: ${Math.round(proteinPercentage * 100)}% de l'objectif (minimum ${Math.round(minProteinPercentage * 100)}% requis)`);
+function organizeAndPrioritizeFoods(availableFoods, favoriteFoodIds, targetMacros) {
+  if (!availableFoods || availableFoods.length === 0) {
+    return {
+      [FOOD_TYPES.PROTEIN]: [],
+      [FOOD_TYPES.FAT]: [],
+      [FOOD_TYPES.VEGETABLE]: [],
+      [FOOD_TYPES.OTHER]: [],
+    };
   }
   
-  // Vérifier que les lipides ne dépassent pas 100%
-  if (fatPercentage > 1.0) {
-    issues.push(`Excès de lipides: ${Math.round(fatPercentage * 100)}% de l'objectif`);
-  }
+  // Convertir la liste d'IDs favoris en Set pour une recherche plus rapide
+  const favoriteSet = new Set(favoriteFoodIds || []);
   
-  // Vérifier que les glucides ne dépassent pas 100%
-  if (carbsPercentage > 1.0) {
-    issues.push(`Excès de glucides: ${Math.round(carbsPercentage * 100)}% de l'objectif`);
-  }
-  
-  return {
-    isValid: issues.length === 0,
-    issues: issues,
-    macroPercentages: {
-      protein: proteinPercentage,
-      fat: fatPercentage,
-      carbs: carbsPercentage
-    }
-  };
-}
-
-/**
- * Trouve les combinaisons d'aliments qui forment un repas équilibré keto
- * @param {Array} availableFoods - Liste des aliments disponibles avec quantités
- * @param {Object} targetNutrition - Objectifs nutritionnels pour le repas
- * @param {Object} options - Options de génération, incluant le profil keto
- * @returns {Array} Repas générés respectant les contraintes
- */
-function findFoodCombinations(availableFoods, targetNutrition, options) {
-  const ketoProfile = options.ketoProfile || 'standard';
-  const ketoRatios = getKetoRatios(ketoProfile);
-  
-  // Trier les aliments par score de compatibilité keto
+  // Trier les aliments par score de compatibilité keto et favoris
   const sortedFoods = [...availableFoods].sort((a, b) => {
-    const scoreA = calculateKetoCompatibilityScore(a.food, ketoProfile);
-    const scoreB = calculateKetoCompatibilityScore(b.food, ketoProfile);
+    // Les favoris ont toujours la priorité
+    const aIsFavorite = favoriteSet.has(a.foodId);
+    const bIsFavorite = favoriteSet.has(b.foodId);
+    
+    if (aIsFavorite && !bIsFavorite) return -1;
+    if (!aIsFavorite && bIsFavorite) return 1;
+    
+    // Si les deux sont favoris ou aucun n'est favori, 
+    // utiliser le score de compatibilité keto
+    const scoreA = calculateKetoCompatibilityScore(a.food, targetMacros);
+    const scoreB = calculateKetoCompatibilityScore(b.food, targetMacros);
     return scoreB - scoreA; // Du plus compatible au moins compatible
   });
   
@@ -267,276 +191,215 @@ function findFoodCombinations(availableFoods, targetNutrition, options) {
   // Catégoriser les aliments
   sortedFoods.forEach(item => {
     const type = determineFoodType(item.food);
-    foodsByType[type].push(item);
+    // Ajouter un marqueur indiquant si c'est un favori
+    foodsByType[type].push({
+      ...item,
+      isFavorite: favoriteSet.has(item.foodId)
+    });
   });
   
-  // Calculer les besoins caloriques par repas
-  const mealsPerDay = options.mealCount || 3; // Valeur par défaut si non spécifiée
-  const caloriesPerMeal = targetNutrition.calories / mealsPerDay;
-  
-  // Limites pour chaque macronutriment par repas (en grammes)
-  const targetMacros = {
-    protein: (targetNutrition.protein || 100) / mealsPerDay,
-    fat: (targetNutrition.fat || 150) / mealsPerDay,
-    carbs: (targetNutrition.carbs || 25) / mealsPerDay,
-  };
-  
-  const generatedMeals = [];
-  let generationAttempts = 0;
-  const maxGenerationAttempts = 5; // Maximum de tentatives par repas
-  
-  // Essayer de générer le nombre requis de repas
-  for (let i = 0; i < options.mealCount; i++) {
-    let meal = null;
-    generationAttempts = 0;
-    
-    // Essayer plusieurs fois de générer un repas valide
-    while (!meal && generationAttempts < maxGenerationAttempts) {
-      generationAttempts++;
-      
-      meal = generateSingleMeal(
-        foodsByType,
-        caloriesPerMeal,
-        targetMacros,
-        { ...options, ketoProfile }
-      );
-      
-      // Vérifier si le repas respecte les contraintes de macros
-      if (meal) {
-        const validation = validateMealMacros(meal.totalNutrition, targetMacros, ketoProfile);
-        if (!validation.isValid) {
-          console.log(`Repas rejeté (tentative ${generationAttempts}): ${validation.issues.join(', ')}`);
-          meal = null; // Rejeter le repas et réessayer
-        }
-      }
-    }
-    
-    if (meal) {
-      generatedMeals.push(meal);
-      
-      // Mettre à jour les quantités disponibles après chaque repas généré
-      meal.items.forEach(mealItem => {
-        const foodIndex = availableFoods.findIndex(
-          item => item.foodId === mealItem.foodId
-        );
-        
-        if (foodIndex !== -1) {
-          availableFoods[foodIndex].quantity -= mealItem.quantity;
-          // Si la quantité tombe à zéro ou moins, supprimer l'aliment
-          if (availableFoods[foodIndex].quantity <= 0) {
-            availableFoods.splice(foodIndex, 1);
-          }
-        }
-      });
-      
-      // Recatégoriser les aliments restants
-      Object.keys(foodsByType).forEach(type => {
-        foodsByType[type] = foodsByType[type].filter(item => {
-          return availableFoods.some(food => food.foodId === item.foodId && food.quantity > 0);
-        });
-      });
-    } else {
-      console.warn(`Impossible de générer un repas valide après ${maxGenerationAttempts} tentatives`);
-    }
-  }
-  
-  return generatedMeals;
+  return foodsByType;
 }
 
 /**
- * Génère un seul repas équilibré à partir des aliments disponibles
- * @param {Object} foodsByType - Aliments disponibles organisés par type
- * @param {number} targetCalories - Calories cibles pour le repas
- * @param {Object} targetMacros - Macronutriments cibles pour le repas
- * @param {Object} options - Options de génération, incluant le profil keto
- * @returns {Object|null} Repas généré ou null si impossible
+ * Trie les recettes pour prioriser les favorites et les plus compatibles
+ * @param {Array} availableRecipes - Liste des recettes disponibles
+ * @param {Array} favoriteRecipeIds - IDs des recettes favorites
+ * @param {Object} targetMacros - Objectifs de macronutriments pour le repas
+ * @returns {Array} Recettes triées
  */
-function generateSingleMeal(foodsByType, targetCalories, targetMacros, options) {
-  const ketoProfile = options.ketoProfile || 'standard';
-  const ketoRatios = getKetoRatios(ketoProfile);
+function prioritizeRecipes(availableRecipes, favoriteRecipeIds, targetMacros) {
+  if (!availableRecipes || availableRecipes.length === 0) {
+    return [];
+  }
   
-  // Structure de base du repas
-  const meal = {
-    name: generateMealName(ketoProfile),
-    items: [],
-    totalNutrition: {
-      calories: 0,
-      protein: 0,
-      fat: 0,
-      netCarbs: 0,
-    },
+  // Convertir la liste d'IDs favoris en Set pour une recherche plus rapide
+  const favoriteSet = new Set(favoriteRecipeIds || []);
+  
+  // Fonction pour calculer l'écart entre les macros de la recette et les cibles
+  function calculateMacroDeviation(recipe, targetMacros) {
+    if (!recipe.nutritionPerServing) return Infinity;
+    
+    const { protein, fat, netCarbs } = recipe.nutritionPerServing;
+    
+    // Calcul de l'écart normalisé (pourcentage d'écart)
+    const proteinDeviation = Math.abs(protein - targetMacros.protein) / targetMacros.protein;
+    const fatDeviation = Math.abs(fat - targetMacros.fat) / targetMacros.fat;
+    const carbsDeviation = Math.abs(netCarbs - targetMacros.carbs) / targetMacros.carbs;
+    
+    // Les dépassements de glucides sont plus pénalisés
+    const carbsPenalty = netCarbs > targetMacros.carbs ? 2 : 1;
+    
+    // Score combiné (plus petit = meilleur)
+    return proteinDeviation * 0.5 + fatDeviation * 0.3 + (carbsDeviation * carbsPenalty) * 1.2;
+  }
+  
+  // Trier les recettes
+  return [...availableRecipes].sort((a, b) => {
+    // Les favoris ont toujours la priorité
+    const aIsFavorite = favoriteSet.has(a.id);
+    const bIsFavorite = favoriteSet.has(b.id);
+    
+    if (aIsFavorite && !bIsFavorite) return -1;
+    if (!aIsFavorite && bIsFavorite) return 1;
+    
+    // Si keto standard est requis, prioriser les recettes keto
+    if (a.isKeto && !b.isKeto) return -1;
+    if (!a.isKeto && b.isKeto) return 1;
+    
+    // Comparer l'écart par rapport aux macros cibles
+    const aDeviation = calculateMacroDeviation(a, targetMacros);
+    const bDeviation = calculateMacroDeviation(b, targetMacros);
+    
+    return aDeviation - bDeviation; // Du plus proche de l'objectif au plus éloigné
+  });
+}
+/**
+ * Vérifie si un repas respecte les objectifs de macros au seuil minimum requis
+ * @param {Object} mealNutrition - Nutrition totale du repas
+ * @param {Object} targetMacros - Objectifs de macros pour le repas
+ * @returns {Object} Résultat de la validation avec statut et messages
+ */
+function validateMealMacros(mealNutrition, targetMacros) {
+  // Calculer les pourcentages d'atteinte des objectifs
+  const proteinPercentage = mealNutrition.protein / targetMacros.protein;
+  const fatPercentage = mealNutrition.fat / targetMacros.fat;
+  const carbsPercentage = mealNutrition.netCarbs / targetMacros.carbs;
+  
+  const issues = [];
+  
+  // Vérifier l'objectif protéique (exigence très stricte)
+  if (proteinPercentage < MACRO_TOLERANCES.PROTEIN_MIN) {
+    issues.push(`Protéines insuffisantes: ${Math.round(proteinPercentage * 100)}% de l'objectif (minimum ${Math.round(MACRO_TOLERANCES.PROTEIN_MIN * 100)}% requis)`);
+  }
+  
+  // Vérifier que les lipides ne dépassent pas la limite
+  if (fatPercentage > MACRO_TOLERANCES.FAT_MAX) {
+    issues.push(`Excès de lipides: ${Math.round(fatPercentage * 100)}% de l'objectif (maximum ${Math.round(MACRO_TOLERANCES.FAT_MAX * 100)}% autorisé)`);
+  }
+  
+  // Vérifier que les glucides ne dépassent pas la limite
+  if (carbsPercentage > MACRO_TOLERANCES.CARBS_MAX) {
+    issues.push(`Excès de glucides: ${Math.round(carbsPercentage * 100)}% de l'objectif (maximum ${Math.round(MACRO_TOLERANCES.CARBS_MAX * 100)}% autorisé)`);
+  }
+  
+  return {
+    isValid: issues.length === 0,
+    issues: issues,
+    macroPercentages: {
+      protein: proteinPercentage,
+      fat: fatPercentage,
+      carbs: carbsPercentage
+    }
   };
-// Calculer la répartition des calories selon le profil keto
-  const proteinCalories = targetCalories * ketoRatios.PROTEIN_PERCENTAGE;
-  const fatCalories = targetCalories * ketoRatios.FAT_PERCENTAGE;
-  const carbsCalories = targetCalories * ketoRatios.CARBS_PERCENTAGE;
-  
-  // NOUVEAU: Approche améliorée pour s'assurer d'atteindre les objectifs protéiques
-  
-  // 1. PHASE PROTÉINES: Priorité absolue aux protéines
-  // Utiliser un facteur plus élevé pour garantir l'atteinte de l'objectif protéique
-  // On vise 120% de l'objectif, puis on ajustera lors de la validation finale
-  const proteinTargetCalories = proteinCalories * 1.5; // Facteur 1.5x pour s'assurer d'atteindre l'objectif
-  
-  // Essayer d'ajouter suffisamment d'aliments protéinés pour atteindre l'objectif
-  let proteinSuccess = addProteinFoods(meal, foodsByType[FOOD_TYPES.PROTEIN], proteinTargetCalories, targetMacros, options);
-  
-  if (!proteinSuccess) {
-    return null; // Impossible de créer un repas avec suffisamment de protéines
-  }
-  
-  // Vérifier si nous avons atteint au moins le minimum requis de protéines
-  const proteinPercentage = meal.totalNutrition.protein / targetMacros.protein;
-  if (proteinPercentage < ketoRatios.MIN_PROTEIN_TARGET_PERCENTAGE) {
-    return null; // Échec: impossible d'atteindre l'objectif protéique minimum
-  }
-  
-  // 2. PHASE LÉGUMES: Ajouter des légumes en respectant la limite de glucides
-  // Calculer les glucides restants disponibles
-  const currentNetCarbs = meal.totalNutrition.netCarbs;
-  const maxAllowedNetCarbs = Math.min(targetMacros.carbs, ketoRatios.MAX_NET_CARBS_PER_MEAL);
-  const remainingNetCarbs = maxAllowedNetCarbs - currentNetCarbs;
-  
-  if (remainingNetCarbs > 1 && foodsByType[FOOD_TYPES.VEGETABLE].length > 0) {
-    // Objectif de calories pour les légumes (limité par les glucides restants)
-    const vegetableTargetCalories = Math.min(
-      carbsCalories * 1.5, // Facteur 1.5x pour permettre suffisamment de légumes
-      remainingNetCarbs * 10 // Approximation: environ 10 calories par gramme de glucides nets
-    );
-    
-    addVegetableFoods(meal, foodsByType[FOOD_TYPES.VEGETABLE], vegetableTargetCalories, 
-                     remainingNetCarbs, targetMacros, options);
-  }
-  
-  // 3. PHASE LIPIDES: Compléter avec des sources de graisse
-  // Ne pas dépasser l'objectif de lipides (maximum 100%)
-  const fatRemaining = targetMacros.fat - meal.totalNutrition.fat;
-  
-  if (fatRemaining > 0 && foodsByType[FOOD_TYPES.FAT].length > 0) {
-    // Calculer les calories correspondant aux lipides restants
-    const fatRemainingCalories = fatRemaining * CALORIC_FACTORS.FAT;
-    
-    addFatFoods(meal, foodsByType[FOOD_TYPES.FAT], fatRemainingCalories, targetMacros, options);
-  }
-  
-  // 4. PHASE ÉQUILIBRAGE: Si nécessaire, compléter avec d'autres aliments appropriés
-  if (meal.totalNutrition.calories < targetCalories * 0.85) {
-    // Déterminer quels macros doivent être complétés
-    const macrosNeeded = {
-      protein: targetMacros.protein - meal.totalNutrition.protein,
-      fat: targetMacros.fat - meal.totalNutrition.fat,
-      carbs: targetMacros.carbs - meal.totalNutrition.netCarbs
-    };
-    
-    // Priorité aux macros à compléter selon le profil
-    let priorityMacro = 'protein';
-    
-    if (macrosNeeded.protein <= 0) {
-      // Si objectif protéique atteint, prioriser les lipides ou les glucides selon ce qui manque le plus
-      priorityMacro = (macrosNeeded.fat > macrosNeeded.carbs * 5) ? 'fat' : 'carbs';
-    }
-    
-    // Fusionner tous les aliments restants
-    const remainingFoods = [
-      ...foodsByType[FOOD_TYPES.PROTEIN], 
-      ...foodsByType[FOOD_TYPES.FAT], 
-      ...foodsByType[FOOD_TYPES.VEGETABLE],
-      ...foodsByType[FOOD_TYPES.OTHER]
-    ];
-    
-    // Filtrer les aliments déjà utilisés et trier selon le besoin prioritaire
-    const existingFoodIds = meal.items.map(item => item.foodId);
-    const filteredFoods = remainingFoods
-      .filter(item => !existingFoodIds.includes(item.foodId))
-      .sort((a, b) => {
-        // Triez selon le macro prioritaire
-        if (priorityMacro === 'protein') {
-          return b.food.nutritionPer100g.protein - a.food.nutritionPer100g.protein;
-        } else if (priorityMacro === 'fat') {
-          return b.food.nutritionPer100g.fat - a.food.nutritionPer100g.fat;
-        } else {
-          // Pour les glucides, préférer les aliments à faible teneur
-          const netCarbsA = a.food.nutritionPer100g.carbs - (a.food.nutritionPer100g.fiber || 0);
-          const netCarbsB = b.food.nutritionPer100g.carbs - (b.food.nutritionPer100g.fiber || 0);
-          return netCarbsA - netCarbsB;
-        }
-      });
-    
-    const remainingCalories = targetCalories * 0.95 - meal.totalNutrition.calories;
-    
-    if (remainingCalories > 0 && filteredFoods.length > 0) {
-      addFoodOfType(meal, filteredFoods, remainingCalories, targetMacros, {
-        ...options,
-        prioritizeMacro: priorityMacro
-      });
-    }
-  }
-  
-  // Vérifier si le repas est viable (minimum de calories et au moins 2 aliments)
-  if (meal.totalNutrition.calories < targetCalories * 0.5 || meal.items.length < 2) {
-    return null;
-  }
-  
-  // Ajuster les quantités finales pour équilibrer les macros si nécessaire
-  balanceMealMacros(meal, targetMacros, ketoProfile);
-  
-  // Vérification finale des objectifs protéiques
-  const finalProteinPercentage = meal.totalNutrition.protein / targetMacros.protein;
-  if (finalProteinPercentage < ketoRatios.MIN_PROTEIN_TARGET_PERCENTAGE) {
-    console.log(`Repas rejeté: objectif protéique non atteint (${Math.round(finalProteinPercentage * 100)}%)`);
-    return null;
-  }
-  
-  // Vérification finale pour s'assurer que les limites de lipides et glucides ne sont pas dépassées
-  if (meal.totalNutrition.fat > targetMacros.fat || meal.totalNutrition.netCarbs > targetMacros.carbs) {
-    console.log(`Repas rejeté: limites de lipides ou glucides dépassées (Lipides: ${Math.round(meal.totalNutrition.fat)}g, Glucides: ${Math.round(meal.totalNutrition.netCarbs)}g)`);
-    return null;
-  }
-  
-  return meal;
 }
 
 /**
- * Ajoute spécifiquement des aliments protéinés pour atteindre l'objectif de protéines
- * @param {Object} meal - Le repas en cours de construction
- * @param {Array} proteinFoods - Aliments protéinés disponibles
- * @param {number} targetProteinCalories - Calories protéiques cibles
- * @param {Object} targetMacros - Objectifs de macronutriments
- * @param {Object} options - Options de génération
- * @returns {boolean} True si suffisamment de protéines ajoutées, false sinon
+ * Génère un nom pour le repas en fonction de ses ingrédients principaux
+ * @param {Array} items - Éléments du repas
+ * @returns {string} Nom du repas
  */
-function addProteinFoods(meal, proteinFoods, targetProteinCalories, targetMacros, options) {
-  if (proteinFoods.length === 0) return false;
+function generateMealName(items) {
+  // S'il n'y a pas d'éléments, retourner un nom générique
+  if (!items || items.length === 0) {
+    return "Repas keto du jour";
+  }
   
-  const ketoProfile = options.ketoProfile || 'standard';
-  const ketoRatios = getKetoRatios(ketoProfile);
+  // Types de repas possibles
+  const mealTypes = [
+    'Assiette', 'Plat', 'Bowl', 'Cocotte', 'Poêlée', 'Salade'
+  ];
   
-  // Trier les aliments protéinés par teneur en protéines (du plus riche au moins riche)
-  proteinFoods.sort((a, b) => 
-    b.food.nutritionPer100g.protein - a.food.nutritionPer100g.protein
+  // Sélectionner un type de repas aléatoire
+  const mealType = mealTypes[Math.floor(Math.random() * mealTypes.length)];
+  
+  // Trouver l'ingrédient principal (source de protéines)
+  const proteinItems = items.filter(item => 
+    determineFoodType(item.food) === FOOD_TYPES.PROTEIN
   );
   
-  // Sélectionner plusieurs sources de protéines pour assurer la diversité et l'atteinte des objectifs
-  const proteinGoal = targetMacros.protein * ketoRatios.MIN_PROTEIN_TARGET_PERCENTAGE;
+  if (proteinItems.length > 0) {
+    // Trier par quantité décroissante pour trouver la protéine principale
+    const mainProtein = [...proteinItems].sort((a, b) => b.quantity - a.quantity)[0];
+    return `${mealType} ${mainProtein.food.name}`;
+  }
+  
+  // Si pas de protéine principale, utiliser l'aliment avec la plus grande quantité
+  const sortedByQuantity = [...items].sort((a, b) => b.quantity - a.quantity);
+  if (sortedByQuantity.length > 0) {
+    return `${mealType} ${sortedByQuantity[0].food.name}`;
+  }
+  
+  return "Repas keto du jour";
+}
+
+/**
+ * Génère un nom de repas pour une recette
+ * @param {Object} recipe - La recette utilisée
+ * @returns {string} Nom du repas
+ */
+function generateRecipeMealName(recipe) {
+  if (!recipe || !recipe.name) {
+    return "Recette keto du jour";
+  }
+  
+  // Variantes pour éviter la monotonie
+  const prefixes = ["", "Délicieux ", "Savoureux "];
+  const suffix = Math.random() > 0.7 ? " (recette)" : "";
+  
+  const prefix = prefixes[Math.floor(Math.random() * prefixes.length)];
+  
+  return `${prefix}${recipe.name}${suffix}`;
+}
+
+/**
+ * Arrondit une quantité d'aliment à une valeur pratique
+ * @param {number} quantity - Quantité à arrondir en grammes
+ * @param {number} minQuantity - Quantité minimale acceptable
+ * @returns {number} Quantité arrondie
+ */
+function roundFoodQuantity(quantity, minQuantity = 5) {
+  // Arrondir à 5g près
+  const rounded = Math.round(quantity / 5) * 5;
+  
+  // Assurer un minimum
+  return Math.max(minQuantity, rounded);
+}
+/**
+ * Ajoute des aliments protéinés pour atteindre l'objectif de protéines
+ * @param {Object} meal - Le repas en cours de construction
+ * @param {Array} proteinFoods - Aliments protéinés disponibles
+ * @param {Object} targetMacros - Objectifs de macronutriments
+ * @returns {boolean} True si suffisamment de protéines ajoutées, false sinon
+ */
+function addProteinFoods(meal, proteinFoods, targetMacros) {
+  if (proteinFoods.length === 0) return false;
+  
+  // Trier les aliments protéinés d'abord par favoris, puis par teneur en protéines
+  proteinFoods.sort((a, b) => {
+    // Favoris en premier
+    if (a.isFavorite && !b.isFavorite) return -1;
+    if (!a.isFavorite && b.isFavorite) return 1;
+    
+    // Ensuite par teneur en protéines (du plus riche au moins riche)
+    return b.food.nutritionPer100g.protein - a.food.nutritionPer100g.protein;
+  });
+  
+  // Objectif protéique avec seuil minimum requis
+  const proteinGoal = targetMacros.protein * MACRO_TOLERANCES.PROTEIN_MIN;
   let currentProtein = meal.totalNutrition.protein;
-  let attemptsLeft = Math.min(3, proteinFoods.length); // Maximum 3 aliments protéinés différents
+  let attemptsLeft = Math.min(2, proteinFoods.length); // Maximum 2 aliments protéinés différents
   
   while (currentProtein < proteinGoal && attemptsLeft > 0 && proteinFoods.length > 0) {
     attemptsLeft--;
     
-    // Sélectionner une source protéinée parmi les meilleures disponibles
-    // Plus l'objectif est loin d'être atteint, plus on prend des aliments riches en protéines
-    const selectionIndex = Math.min(
-      Math.floor((proteinGoal - currentProtein) / 10), // Plus le déficit est grand, plus on prend en haut de la liste
-      proteinFoods.length - 1
-    );
-    
-    const selectedFood = proteinFoods[selectionIndex];
+    // Sélectionner la meilleure source protéinée disponible
+    const selectedFood = proteinFoods[0];
     
     // Éviter les doublons
     if (meal.items.some(item => item.foodId === selectedFood.foodId)) {
       // Supprimer cet aliment et continuer
-      proteinFoods.splice(selectionIndex, 1);
+      proteinFoods.splice(0, 1);
       continue;
     }
     
@@ -547,7 +410,7 @@ function addProteinFoods(meal, proteinFoods, targetProteinCalories, targetMacros
     
     // Limiter la quantité à une valeur raisonnable et à la disponibilité
     const maxQuantity = Math.min(
-      ketoRatios.MAX_PROTEIN_QUANTITY,
+      FOOD_PARAMETERS.PROTEIN.MAX_QUANTITY,
       selectedFood.quantity
     );
     
@@ -555,44 +418,44 @@ function addProteinFoods(meal, proteinFoods, targetProteinCalories, targetMacros
     const finalQuantity = Math.min(quantityForProtein, maxQuantity);
     
     // Arrondir à 5g près
-    const roundedQuantity = Math.max(10, Math.round(finalQuantity / 5) * 5);
+    const roundedQuantity = roundFoodQuantity(finalQuantity, FOOD_PARAMETERS.PROTEIN.MIN_QUANTITY);
     
     // Calculer les nutriments pour cette quantité
     const ratio = roundedQuantity / 100;
-    const itemNutrition = {
+    let itemNutrition = {
       calories: selectedFood.food.nutritionPer100g.calories * ratio,
       protein: selectedFood.food.nutritionPer100g.protein * ratio,
       fat: selectedFood.food.nutritionPer100g.fat * ratio,
       carbs: selectedFood.food.nutritionPer100g.carbs * ratio,
-      netCarbs: (
-        selectedFood.food.nutritionPer100g.carbs - (selectedFood.food.nutritionPer100g.fiber || 0)
-      ) * ratio,
+      netCarbs: (selectedFood.food.nutritionPer100g.carbs - (selectedFood.food.nutritionPer100g.fiber || 0)) * ratio
     };
     
     // Vérifier que l'ajout de cet aliment ne dépasse pas la limite de glucides
     if (meal.totalNutrition.netCarbs + itemNutrition.netCarbs > targetMacros.carbs) {
       // Essayer de réduire la quantité pour respecter la limite de glucides
-      const maxAllowedForCarbs = ((targetMacros.carbs - meal.totalNutrition.netCarbs) / 
-                               (selectedFood.food.nutritionPer100g.carbs - (selectedFood.food.nutritionPer100g.fiber || 0))) * 100;
+      const netCarbsPer100g = selectedFood.food.nutritionPer100g.carbs - (selectedFood.food.nutritionPer100g.fiber || 0);
+      if (netCarbsPer100g <= 0) netCarbsPer100g = 0.1; // Éviter division par zéro
       
-      if (maxAllowedForCarbs < 10) {
+      const maxAllowedForCarbs = ((targetMacros.carbs - meal.totalNutrition.netCarbs) / netCarbsPer100g) * 100;
+      
+      if (maxAllowedForCarbs < FOOD_PARAMETERS.PROTEIN.MIN_QUANTITY) {
         // Trop peu pour être utile, essayer un autre aliment
-        proteinFoods.splice(selectionIndex, 1);
+        proteinFoods.splice(0, 1);
         continue;
       }
       
       // Ajuster la quantité pour respecter la limite de glucides
-      const newQuantity = Math.floor(maxAllowedForCarbs / 5) * 5;
+      const newQuantity = roundFoodQuantity(maxAllowedForCarbs, FOOD_PARAMETERS.PROTEIN.MIN_QUANTITY);
       const newRatio = newQuantity / 100;
       
       // Recalculer les nutriments
-      itemNutrition.calories = selectedFood.food.nutritionPer100g.calories * newRatio;
-      itemNutrition.protein = selectedFood.food.nutritionPer100g.protein * newRatio;
-      itemNutrition.fat = selectedFood.food.nutritionPer100g.fat * newRatio;
-      itemNutrition.carbs = selectedFood.food.nutritionPer100g.carbs * newRatio;
-      itemNutrition.netCarbs = (
-        selectedFood.food.nutritionPer100g.carbs - (selectedFood.food.nutritionPer100g.fiber || 0)
-      ) * newRatio;
+      itemNutrition = {
+        calories: selectedFood.food.nutritionPer100g.calories * newRatio,
+        protein: selectedFood.food.nutritionPer100g.protein * newRatio,
+        fat: selectedFood.food.nutritionPer100g.fat * newRatio,
+        carbs: selectedFood.food.nutritionPer100g.carbs * newRatio,
+        netCarbs: (selectedFood.food.nutritionPer100g.carbs - (selectedFood.food.nutritionPer100g.fiber || 0)) * newRatio
+      };
     }
     
     // Ajouter l'aliment au repas
@@ -600,6 +463,7 @@ function addProteinFoods(meal, proteinFoods, targetProteinCalories, targetMacros
       food: selectedFood.food,
       foodId: selectedFood.foodId,
       quantity: roundedQuantity,
+      isFavorite: selectedFood.isFavorite
     });
     
     // Mettre à jour les totaux nutritionnels du repas
@@ -612,38 +476,50 @@ function addProteinFoods(meal, proteinFoods, targetProteinCalories, targetMacros
     currentProtein = meal.totalNutrition.protein;
     
     // Supprimer cet aliment de la liste pour éviter de le réutiliser
-    proteinFoods.splice(selectionIndex, 1);
+    proteinFoods.splice(0, 1);
   }
   
   // Vérifier si nous avons atteint l'objectif minimal de protéines
-  return meal.totalNutrition.protein >= targetMacros.protein * ketoRatios.MIN_PROTEIN_TARGET_PERCENTAGE;
+  return meal.totalNutrition.protein >= targetMacros.protein * MACRO_TOLERANCES.PROTEIN_MIN;
 }
+
 /**
- * Ajoute spécifiquement des légumes en respectant la limite de glucides
+ * Ajoute des légumes au repas en respectant la limite de glucides
  * @param {Object} meal - Le repas en cours de construction
  * @param {Array} vegetableFoods - Légumes disponibles
- * @param {number} targetCalories - Calories cibles pour les légumes
- * @param {number} maxNetCarbs - Maximum de glucides nets disponibles
  * @param {Object} targetMacros - Objectifs de macronutriments
- * @param {Object} options - Options de génération
  */
-function addVegetableFoods(meal, vegetableFoods, targetCalories, maxNetCarbs, targetMacros, options) {
-  if (vegetableFoods.length === 0 || maxNetCarbs <= 0) return;
+function addVegetableFoods(meal, vegetableFoods, targetMacros) {
+  if (vegetableFoods.length === 0) return;
   
-  // Trier les légumes par teneur en glucides nets (du moins au plus)
+  // Calculer les glucides nets restants disponibles
+  const currentNetCarbs = meal.totalNutrition.netCarbs;
+  const remainingNetCarbs = targetMacros.carbs - currentNetCarbs;
+  
+  if (remainingNetCarbs <= 0) return; // Pas de marge pour les glucides
+  
+  // Trier les légumes d'abord par favoris, puis par teneur en glucides nets (du moins au plus)
   vegetableFoods.sort((a, b) => {
+    // Favoris en premier
+    if (a.isFavorite && !b.isFavorite) return -1;
+    if (!a.isFavorite && b.isFavorite) return 1;
+    
+    // Ensuite par teneur en glucides nets
     const netCarbsA = a.food.nutritionPer100g.carbs - (a.food.nutritionPer100g.fiber || 0);
     const netCarbsB = b.food.nutritionPer100g.carbs - (b.food.nutritionPer100g.fiber || 0);
     return netCarbsA - netCarbsB;
   });
   
-  // Sélectionner 1-2 légumes différents
-  const vegetableCount = Math.min(2, vegetableFoods.length);
-  let currentNetCarbs = 0;
-  let caloriesAdded = 0;
+  // Sélectionner max 2 légumes différents
+  const vegetableCount = Math.min(FOOD_PARAMETERS.VEGETABLE.MAX_COUNT, vegetableFoods.length);
+  
+  // Calculer les ressources disponibles pour tous les légumes
+  const totalRemainingNetCarbs = remainingNetCarbs;
+  const carbsPerVegetable = totalRemainingNetCarbs / vegetableCount;
+  let carbsRemaining = totalRemainingNetCarbs;
   
   for (let i = 0; i < vegetableCount; i++) {
-    // Choisir un légume qui n'est pas déjà dans le repas
+    // Éviter de choisir un légume déjà dans le repas
     let selectedVegetable = null;
     for (const vegetable of vegetableFoods) {
       if (!meal.items.some(item => item.foodId === vegetable.foodId)) {
@@ -652,37 +528,31 @@ function addVegetableFoods(meal, vegetableFoods, targetCalories, maxNetCarbs, ta
       }
     }
     
-    if (!selectedVegetable) continue; // Pas de légume disponible
+    if (!selectedVegetable) break; // Pas de légume disponible
     
-    // Calculer combien de ce légume nous pouvons ajouter sans dépasser la limite de glucides
+    // Calculer le contenu en glucides nets pour 100g
     const netCarbsPer100g = selectedVegetable.food.nutritionPer100g.carbs - 
                           (selectedVegetable.food.nutritionPer100g.fiber || 0);
     
-    if (netCarbsPer100g <= 0) netCarbsPer100g = 0.1; // Éviter division par zéro
+    // Si le légume n'a pas de glucides, utiliser une petite valeur pour éviter division par zéro
+    const effectiveNetCarbsPer100g = Math.max(0.1, netCarbsPer100g);
     
-    const caloriesPer100g = selectedVegetable.food.nutritionPer100g.calories;
-    const remainingNetCarbs = maxNetCarbs - currentNetCarbs;
-    const remainingCalories = targetCalories - caloriesAdded;
-    
-    // Calculer la quantité maximale selon les contraintes
-    const maxQuantityByCarbs = Math.floor((remainingNetCarbs / netCarbsPer100g) * 100);
-    const maxQuantityByCalories = caloriesPer100g > 0 ? 
-                               Math.floor((remainingCalories / caloriesPer100g) * 100) : 300;
+    // Calculer la quantité maximale selon les contraintes de glucides
+    const maxQuantityByCarbs = Math.floor((carbsPerVegetable / effectiveNetCarbsPer100g) * 100);
     const availableQuantity = selectedVegetable.quantity;
     
     // Choisir la quantité la plus contraignante
     let quantity = Math.min(
       maxQuantityByCarbs,
-      maxQuantityByCalories,
       availableQuantity,
-      300 // Maximum raisonnable pour un légume
+      FOOD_PARAMETERS.VEGETABLE.MAX_QUANTITY // Maximum raisonnable pour un légume
     );
     
     // Minimum 50g de légumes si possible
-    quantity = Math.max(Math.min(50, availableQuantity), quantity);
+    quantity = Math.max(Math.min(FOOD_PARAMETERS.VEGETABLE.MIN_QUANTITY, availableQuantity), quantity);
     
     // Arrondir à 5g près
-    quantity = Math.round(quantity / 5) * 5;
+    quantity = roundFoodQuantity(quantity, FOOD_PARAMETERS.VEGETABLE.MIN_QUANTITY);
     
     if (quantity <= 0) continue; // Quantité trop faible, passer au légume suivant
     
@@ -693,14 +563,18 @@ function addVegetableFoods(meal, vegetableFoods, targetCalories, maxNetCarbs, ta
       protein: selectedVegetable.food.nutritionPer100g.protein * ratio,
       fat: selectedVegetable.food.nutritionPer100g.fat * ratio,
       carbs: selectedVegetable.food.nutritionPer100g.carbs * ratio,
-      netCarbs: netCarbsPer100g * ratio,
+      netCarbs: netCarbsPer100g * ratio
     };
+    
+    // Mettre à jour carbsRemaining
+    carbsRemaining -= itemNutrition.netCarbs;
     
     // Ajouter le légume au repas
     meal.items.push({
       food: selectedVegetable.food,
       foodId: selectedVegetable.foodId,
       quantity: quantity,
+      isFavorite: selectedVegetable.isFavorite
     });
     
     // Mettre à jour les totaux nutritionnels
@@ -709,43 +583,41 @@ function addVegetableFoods(meal, vegetableFoods, targetCalories, maxNetCarbs, ta
     meal.totalNutrition.fat += itemNutrition.fat;
     meal.totalNutrition.netCarbs += itemNutrition.netCarbs;
     
-    // Mettre à jour les compteurs
-    currentNetCarbs += itemNutrition.netCarbs;
-    caloriesAdded += itemNutrition.calories;
-    
     // Supprimer ce légume des options disponibles
     vegetableFoods = vegetableFoods.filter(veg => veg.foodId !== selectedVegetable.foodId);
     
     // Arrêter si nous avons atteint la limite de glucides
-    if (currentNetCarbs >= maxNetCarbs || vegetableFoods.length === 0) {
+    if (carbsRemaining <= 0 || vegetableFoods.length === 0) {
       break;
     }
   }
 }
 
 /**
- * Ajoute spécifiquement des sources de graisses sans dépasser l'objectif
+ * Ajoute des sources de graisses au repas
  * @param {Object} meal - Le repas en cours de construction
  * @param {Array} fatFoods - Sources de graisses disponibles
- * @param {number} targetCalories - Calories cibles pour les graisses
  * @param {Object} targetMacros - Objectifs de macronutriments
- * @param {Object} options - Options de génération
  */
-function addFatFoods(meal, fatFoods, targetCalories, targetMacros, options) {
-  if (fatFoods.length === 0 || targetCalories <= 0) return;
+function addFatFoods(meal, fatFoods, targetMacros) {
+  if (fatFoods.length === 0) return;
   
   // Ne pas dépasser l'objectif de lipides
   const fatRemaining = targetMacros.fat - meal.totalNutrition.fat;
   if (fatRemaining <= 0) return;
   
-  // Trier les sources de graisses par teneur en lipides (du plus au moins)
-  fatFoods.sort((a, b) => 
-    b.food.nutritionPer100g.fat - a.food.nutritionPer100g.fat
-  );
+  // Trier les sources de graisses par favoris, puis teneur en lipides
+  fatFoods.sort((a, b) => {
+    // Favoris en premier
+    if (a.isFavorite && !b.isFavorite) return -1;
+    if (!a.isFavorite && b.isFavorite) return 1;
+    
+    // Ensuite par teneur en lipides (du plus au moins)
+    return b.food.nutritionPer100g.fat - a.food.nutritionPer100g.fat;
+  });
   
   // Sélectionner 1-2 sources de graisses différentes
   const fatCount = Math.min(2, fatFoods.length);
-  let caloriesAdded = 0;
   let fatAdded = 0;
   
   for (let i = 0; i < fatCount; i++) {
@@ -760,65 +632,69 @@ function addFatFoods(meal, fatFoods, targetCalories, targetMacros, options) {
     
     if (!selectedFat) continue; // Pas de source de graisse disponible
     
+    // Détecter s'il s'agit d'une huile (ou source très riche en graisses)
+    const isHighFatSource = selectedFat.food.nutritionPer100g.fat > 80;
+    
     // Calculer combien nous pouvons ajouter sans dépasser l'objectif
     const fatPer100g = selectedFat.food.nutritionPer100g.fat;
-    const caloriesPer100g = selectedFat.food.nutritionPer100g.calories;
-    const netCarbsPer100g = selectedFat.food.nutritionPer100g.carbs - 
-                          (selectedFat.food.nutritionPer100g.fiber || 0);
+    const remainingFatNeeded = fatRemaining - fatAdded;
+    const quantityForFat = Math.ceil((remainingFatNeeded / fatPer100g) * 100);
     
     // Vérifier si l'ajout n'entraînerait pas un dépassement des glucides
+    const netCarbsPer100g = selectedFat.food.nutritionPer100g.carbs - 
+                          (selectedFat.food.nutritionPer100g.fiber || 0);
     const carbsRemaining = targetMacros.carbs - meal.totalNutrition.netCarbs;
-    if (netCarbsPer100g > 0 && carbsRemaining < 1) {
+    
+    if (netCarbsPer100g > 0 && carbsRemaining < netCarbsPer100g) {
       continue; // Passer à une autre source de graisse
     }
     
-    const remainingFat = fatRemaining - fatAdded;
-    const remainingCalories = targetCalories - caloriesAdded;
-    
-    // Calculer la quantité maximale selon les contraintes
-    const maxQuantityByFat = Math.floor((remainingFat / fatPer100g) * 100);
-    const maxQuantityByCalories = Math.floor((remainingCalories / caloriesPer100g) * 100);
-    const maxQuantityByCarbs = netCarbsPer100g > 0 ? 
-                            Math.floor((carbsRemaining / netCarbsPer100g) * 100) : 1000;
-    const availableQuantity = selectedFat.quantity;
-    
     // Pour les huiles et sources très riches en graisses, limiter davantage
-    const isHighFatSource = fatPer100g > 80;
-    const maxReasonableQuantity = isHighFatSource ? 30 : 100;
+    const maxReasonableQuantity = isHighFatSource ? 
+                               FOOD_PARAMETERS.FAT.MAX_QUANTITY_OIL : 
+                               FOOD_PARAMETERS.FAT.MAX_QUANTITY_OTHER;
     
     // Choisir la quantité la plus contraignante
+    const availableQuantity = selectedFat.quantity;
     let quantity = Math.min(
-      maxQuantityByFat,
-      maxQuantityByCalories,
-      maxQuantityByCarbs,
+      quantityForFat,
       availableQuantity,
       maxReasonableQuantity
     );
     
-    // Minimum 5g pour les huiles, 15g pour les autres sources
-    const minQuantity = isHighFatSource ? 5 : 15;
+    // Minimum différent selon le type
+    const minQuantity = isHighFatSource ? 
+                      FOOD_PARAMETERS.FAT.MIN_QUANTITY_OIL : 
+                      FOOD_PARAMETERS.FAT.MIN_QUANTITY_OTHER;
+    
     quantity = Math.max(Math.min(minQuantity, availableQuantity), quantity);
     
     // Arrondir à 5g près
-    quantity = Math.round(quantity / 5) * 5;
+    quantity = roundFoodQuantity(quantity, minQuantity);
     
     if (quantity <= 0) continue; // Quantité trop faible, passer à la suivante
     
     // Calculer les nutriments pour cette quantité
     const ratio = quantity / 100;
     const itemNutrition = {
-      calories: caloriesPer100g * ratio,
+      calories: selectedFat.food.nutritionPer100g.calories * ratio,
       protein: selectedFat.food.nutritionPer100g.protein * ratio,
       fat: fatPer100g * ratio,
       carbs: selectedFat.food.nutritionPer100g.carbs * ratio,
-      netCarbs: netCarbsPer100g * ratio,
+      netCarbs: netCarbsPer100g * ratio
     };
+    
+    // Vérifier que l'ajout ne fait pas dépasser les glucides
+    if (meal.totalNutrition.netCarbs + itemNutrition.netCarbs > targetMacros.carbs) {
+      continue; // Essayer une autre source
+    }
     
     // Ajouter la source de graisse au repas
     meal.items.push({
       food: selectedFat.food,
       foodId: selectedFat.foodId,
       quantity: quantity,
+      isFavorite: selectedFat.isFavorite
     });
     
     // Mettre à jour les totaux nutritionnels
@@ -827,12 +703,11 @@ function addFatFoods(meal, fatFoods, targetCalories, targetMacros, options) {
     meal.totalNutrition.fat += itemNutrition.fat;
     meal.totalNutrition.netCarbs += itemNutrition.netCarbs;
     
-    // Mettre à jour les compteurs
+    // Mettre à jour le compteur
     fatAdded += itemNutrition.fat;
-    caloriesAdded += itemNutrition.calories;
     
     // Si nous avons atteint 95% de l'objectif de lipides, arrêter
-    if (fatAdded >= fatRemaining * 0.95) {
+    if (fatAdded >= remainingFatNeeded * 0.95) {
       break;
     }
     
@@ -845,179 +720,13 @@ function addFatFoods(meal, fatFoods, targetCalories, targetMacros, options) {
     }
   }
 }
-
-/**
- * Ajoute un aliment du type spécifié au repas
- * @param {Object} meal - Le repas en cours de construction
- * @param {Array} foodsOfType - Aliments disponibles du type spécifié
- * @param {number} targetCalories - Calories cibles à ajouter
- * @param {Object} targetMacros - Objectifs de macronutriments
- * @param {Object} options - Options de génération, incluant prioritizeMacro
- * @returns {boolean} True si un aliment a été ajouté, false sinon
- */
-function addFoodOfType(meal, foodsOfType, targetCalories, targetMacros, options) {
-  if (foodsOfType.length === 0) return false;
-  
-  const ketoProfile = options.ketoProfile || 'standard';
-  const ketoRatios = getKetoRatios(ketoProfile);
-  const priorityMacro = options.prioritizeMacro || null;
-  
-  // Filtrer les aliments déjà présents dans le repas
-  const availableFoods = foodsOfType.filter(food => 
-    !meal.items.some(item => item.foodId === food.foodId)
-  );
-  
-  if (availableFoods.length === 0) return false;
-  
-  // Priorité selon le macro si spécifié
-  if (priorityMacro) {
-    availableFoods.sort((a, b) => {
-      if (priorityMacro === 'protein') {
-        return b.food.nutritionPer100g.protein - a.food.nutritionPer100g.protein;
-      } else if (priorityMacro === 'fat') {
-        return b.food.nutritionPer100g.fat - a.food.nutritionPer100g.fat;
-      } else {
-        // Pour carbs, on trie du moins au plus
-        const netCarbsA = a.food.nutritionPer100g.carbs - (a.food.nutritionPer100g.fiber || 0);
-        const netCarbsB = b.food.nutritionPer100g.carbs - (b.food.nutritionPer100g.fiber || 0);
-        return netCarbsA - netCarbsB;
-      }
-    });
-  }
-  
-  // Choisir un aliment au hasard parmi les plus appropriés
-  const topCount = Math.min(3, availableFoods.length);
-  const selectedFoodItem = availableFoods[Math.floor(Math.random() * topCount)];
-  
-  if (!selectedFoodItem) return false;
-  
-  const { food, quantity: availableQuantity, foodId } = selectedFoodItem;
-  
-  // Déterminer le type de l'aliment
-  const foodType = determineFoodType(food);
-  
-  // Vérifier si l'ajout n'entraînerait pas un dépassement des glucides
-  const netCarbsPer100g = food.nutritionPer100g.carbs - (food.nutritionPer100g.fiber || 0);
-  const carbsRemaining = targetMacros.carbs - meal.totalNutrition.netCarbs;
-  
-  if (netCarbsPer100g > 0 && carbsRemaining < 1) {
-    return false; // Pas assez de marge pour les glucides
-  }
-  
-  // Calculer la quantité nécessaire pour atteindre les calories cibles
-  const caloriesPer100g = food.nutritionPer100g.calories;
-  
-  if (caloriesPer100g <= 0) return false; // Éviter division par zéro
-  
-  // Définir des limites en fonction du type d'aliment
-  let maxQuantity;
-  
-  if (foodType === FOOD_TYPES.PROTEIN) {
-    maxQuantity = ketoRatios.MAX_PROTEIN_QUANTITY;
-  } else if (foodType === FOOD_TYPES.FAT) {
-    // Limiter les graisses pures
-    maxQuantity = food.nutritionPer100g.fat > 80 ? 30 : 100;
-  } else if (foodType === FOOD_TYPES.VEGETABLE) {
-    maxQuantity = 300;
-  } else {
-    maxQuantity = 200;
-  }
-  
-  // Calculer la quantité maximale selon les contraintes
-  const maxQuantityByCalories = Math.floor((targetCalories / caloriesPer100g) * 100);
-  const maxQuantityByCarbs = netCarbsPer100g > 0 ? 
-                          Math.floor((carbsRemaining / netCarbsPer100g) * 100) : 1000;
-  
-  // Choisir la quantité la plus contraignante
-  let quantity = Math.min(
-    maxQuantityByCalories,
-    maxQuantityByCarbs,
-    availableQuantity,
-    maxQuantity
-  );
-  
-  // Minimum raisonnable selon le type d'aliment
-  let minQuantity;
-  if (foodType === FOOD_TYPES.PROTEIN) {
-    minQuantity = 50;
-  } else if (foodType === FOOD_TYPES.FAT && food.nutritionPer100g.fat > 80) {
-    minQuantity = 5;
-  } else if (foodType === FOOD_TYPES.VEGETABLE) {
-    minQuantity = 50;
-  } else {
-    minQuantity = 15;
-  }
-  
-  quantity = Math.max(Math.min(minQuantity, availableQuantity), quantity);
-  
-  // Arrondir à 5g près
-  quantity = Math.round(quantity / 5) * 5;
-  
-  if (quantity <= 0) return false; // Quantité trop faible
-  
-  // Calculer les nutriments pour cette quantité
-  const ratio = quantity / 100;
-  const itemNutrition = {
-    calories: food.nutritionPer100g.calories * ratio,
-    protein: food.nutritionPer100g.protein * ratio,
-    fat: food.nutritionPer100g.fat * ratio,
-    carbs: food.nutritionPer100g.carbs * ratio,
-    netCarbs: netCarbsPer100g * ratio,
-  };
-  
-  // Vérifier si l'ajout ne ferait pas dépasser les objectifs de lipides ou de glucides
-  if (meal.totalNutrition.fat + itemNutrition.fat > targetMacros.fat ||
-      meal.totalNutrition.netCarbs + itemNutrition.netCarbs > targetMacros.carbs) {
-    // Essayer de réduire la quantité pour respecter les limites
-    const maxByFat = targetMacros.fat > meal.totalNutrition.fat ? 
-                    Math.floor(((targetMacros.fat - meal.totalNutrition.fat) / food.nutritionPer100g.fat) * 100) : 0;
-    
-    const maxByCarbs = targetMacros.carbs > meal.totalNutrition.netCarbs && netCarbsPer100g > 0 ? 
-                      Math.floor(((targetMacros.carbs - meal.totalNutrition.netCarbs) / netCarbsPer100g) * 100) : 1000;
-    
-    // Nouvelle quantité ajustée
-    const adjustedQuantity = Math.min(maxByFat, maxByCarbs);
-    
-    if (adjustedQuantity < minQuantity) {
-      return false; // Quantité trop faible après ajustement
-    }
-    
-    // Recalculer avec la quantité ajustée
-    quantity = Math.round(adjustedQuantity / 5) * 5;
-    const newRatio = quantity / 100;
-    
-    // Recalculer les nutriments
-    itemNutrition.calories = food.nutritionPer100g.calories * newRatio;
-    itemNutrition.protein = food.nutritionPer100g.protein * newRatio;
-    itemNutrition.fat = food.nutritionPer100g.fat * newRatio;
-    itemNutrition.carbs = food.nutritionPer100g.carbs * newRatio;
-    itemNutrition.netCarbs = netCarbsPer100g * newRatio;
-  }
-  
-  // Ajouter l'aliment au repas
-  meal.items.push({
-    food,
-    foodId,
-    quantity,
-  });
-  
-  // Mettre à jour les totaux nutritionnels du repas
-  meal.totalNutrition.calories += itemNutrition.calories;
-  meal.totalNutrition.protein += itemNutrition.protein;
-  meal.totalNutrition.fat += itemNutrition.fat;
-  meal.totalNutrition.netCarbs += itemNutrition.netCarbs;
-  
-  return true;
-}
 /**
  * Ajuste les quantités d'aliments pour équilibrer les macronutriments
  * @param {Object} meal - Le repas à équilibrer
  * @param {Object} targetMacros - Objectifs de macronutriments
- * @param {string} ketoProfile - Le profil keto utilisé
  */
-function balanceMealMacros(meal, targetMacros, ketoProfile = 'standard') {
-  // Obtenir les seuils du profil keto
-  const ketoRatios = getKetoRatios(ketoProfile);
+function balanceMealMacros(meal, targetMacros) {
+  if (!meal.items || meal.items.length === 0) return;
   
   // Calculer les ratios actuels par rapport aux cibles
   const currentRatios = {
@@ -1027,41 +736,39 @@ function balanceMealMacros(meal, targetMacros, ketoProfile = 'standard') {
   };
   
   // Si tous les ratios sont proches des cibles, pas besoin d'ajuster
-  // Seuil réduit à 0.05 (5%) pour être plus strict (était 0.15)
-  if (Math.abs(1 - currentRatios.protein) < 0.05 && 
-      Math.abs(1 - currentRatios.fat) < 0.05 && 
-      Math.abs(1 - currentRatios.carbs) < 0.05) {
+  if (currentRatios.protein >= MACRO_TOLERANCES.PROTEIN_MIN && 
+      currentRatios.fat <= MACRO_TOLERANCES.FAT_MAX && 
+      currentRatios.carbs <= MACRO_TOLERANCES.CARBS_MAX) {
     return;
   }
-  
-  // Définir l'ordre de priorité en fonction du profil
-  let priorityOrder = ['protein', 'fat', 'carbs'];
   
   // Identifier les problèmes à résoudre
   const issues = [];
   
   // Vérifier si les objectifs protéiques ne sont pas atteints
-  if (currentRatios.protein < ketoRatios.MIN_PROTEIN_TARGET_PERCENTAGE) {
+  if (currentRatios.protein < MACRO_TOLERANCES.PROTEIN_MIN) {
     issues.push({
       macro: 'protein',
       direction: 'increase',
-      severity: (ketoRatios.MIN_PROTEIN_TARGET_PERCENTAGE - currentRatios.protein)
+      severity: (MACRO_TOLERANCES.PROTEIN_MIN - currentRatios.protein)
     });
   }
+  
   // Vérifier si les lipides dépassent l'objectif
-  if (currentRatios.fat > 1.0) {
+  if (currentRatios.fat > MACRO_TOLERANCES.FAT_MAX) {
     issues.push({
       macro: 'fat',
       direction: 'decrease',
-      severity: (currentRatios.fat - 1.0)
+      severity: (currentRatios.fat - MACRO_TOLERANCES.FAT_MAX)
     });
   }
+  
   // Vérifier si les glucides dépassent l'objectif
-  if (currentRatios.carbs > 1.0) {
+  if (currentRatios.carbs > MACRO_TOLERANCES.CARBS_MAX) {
     issues.push({
       macro: 'carbs',
       direction: 'decrease',
-      severity: (currentRatios.carbs - 1.0)
+      severity: (currentRatios.carbs - MACRO_TOLERANCES.CARBS_MAX)
     });
   }
   
@@ -1074,196 +781,228 @@ function balanceMealMacros(meal, targetMacros, ketoProfile = 'standard') {
   // Problème principal à régler
   const mainIssue = issues[0];
   
-  // Régler le problème en ajustant les quantités
-  if (mainIssue.macro === 'protein' && mainIssue.direction === 'increase') {
-    // Augmenter les protéines en priorité
-    const proteinItems = meal.items.filter(item => 
-      item.food.nutritionPer100g.protein / 
-      (item.food.nutritionPer100g.protein + item.food.nutritionPer100g.fat + item.food.nutritionPer100g.carbs) > 0.25
-    );
-    
-    if (proteinItems.length > 0) {
-      // Augmenter les quantités des aliments protéinés
-      proteinItems.sort((a, b) => 
-        b.food.nutritionPer100g.protein - a.food.nutritionPer100g.protein
-      );
-      
-      // Calculer combien de protéines doivent encore être ajoutées
-      const proteinNeeded = (targetMacros.protein * ketoRatios.MIN_PROTEIN_TARGET_PERCENTAGE) - meal.totalNutrition.protein;
-      
-      if (proteinNeeded > 0) {
-        // Commencer par l'aliment avec la meilleure teneur en protéines
-        for (const item of proteinItems) {
-          const currentQuantity = item.quantity;
-          const proteinPer100g = item.food.nutritionPer100g.protein;
-          
-          // Calculer la quantité nécessaire pour obtenir les protéines manquantes
-          const additionalGrams = Math.ceil((proteinNeeded / proteinPer100g) * 100);
-          
-          // Limiter l'augmentation à une valeur raisonnable
-          const maxIncrease = Math.min(additionalGrams, 100);
-          
-          // Calculer la nouvelle quantité
-          const newQuantity = Math.min(
-            currentQuantity + maxIncrease,
-            ketoRatios.MAX_PROTEIN_QUANTITY // Limite maximale selon le profil
+  switch (mainIssue.macro) {
+    case 'protein':
+      if (mainIssue.direction === 'increase') {
+        // Identifier les aliments protéinés
+        const proteinItems = meal.items.filter(item => 
+          determineFoodType(item.food) === FOOD_TYPES.PROTEIN
+        );
+        
+        if (proteinItems.length > 0) {
+          // Trier par concentration en protéines
+          proteinItems.sort((a, b) => 
+            b.food.nutritionPer100g.protein - a.food.nutritionPer100g.protein
           );
           
-          // Mettre à jour la nutrition totale du repas avec la différence
-          const diffQuantity = newQuantity - currentQuantity;
-          const diffRatio = diffQuantity / 100;
+          // Calculer combien de protéines manquent
+          const proteinNeeded = (targetMacros.protein * MACRO_TOLERANCES.PROTEIN_MIN) - meal.totalNutrition.protein;
           
-          meal.totalNutrition.calories += item.food.nutritionPer100g.calories * diffRatio;
-          meal.totalNutrition.protein += item.food.nutritionPer100g.protein * diffRatio;
-          meal.totalNutrition.fat += item.food.nutritionPer100g.fat * diffRatio;
-          meal.totalNutrition.netCarbs += (
-            item.food.nutritionPer100g.carbs - (item.food.nutritionPer100g.fiber || 0)
-          ) * diffRatio;
-          
-          // Mettre à jour la quantité
-          item.quantity = newQuantity;
-          
-          // Vérifier si nous avons atteint l'objectif
-          if (meal.totalNutrition.protein >= targetMacros.protein * ketoRatios.MIN_PROTEIN_TARGET_PERCENTAGE) {
-            break;
+          // Augmenter les aliments protéinés les plus efficaces
+          for (const item of proteinItems) {
+            const currentQuantity = item.quantity;
+            const proteinPer100g = item.food.nutritionPer100g.protein;
+            
+            // Calculer l'augmentation nécessaire
+            const additionalQty = Math.ceil((proteinNeeded / proteinPer100g) * 100);
+            
+            // Limiter l'augmentation
+            const maxIncrease = Math.min(additionalQty, 50);
+            const newQuantity = Math.min(
+              currentQuantity + maxIncrease,
+              FOOD_PARAMETERS.PROTEIN.MAX_QUANTITY
+            );
+            
+            // Si pas d'augmentation significative, passer au suivant
+            if (newQuantity - currentQuantity < 5) continue;
+            
+            // Mettre à jour la quantité et les totaux nutritionnels
+            const diffQty = newQuantity - currentQuantity;
+            const diffRatio = diffQty / 100;
+            
+            // Calculer l'impact nutritionnel
+            const additionalNutrition = {
+              calories: item.food.nutritionPer100g.calories * diffRatio,
+              protein: item.food.nutritionPer100g.protein * diffRatio,
+              fat: item.food.nutritionPer100g.fat * diffRatio,
+              netCarbs: (item.food.nutritionPer100g.carbs - (item.food.nutritionPer100g.fiber || 0)) * diffRatio
+            };
+            
+            // Vérifier si cela ne ferait pas dépasser les autres objectifs (notamment glucides)
+            if (meal.totalNutrition.netCarbs + additionalNutrition.netCarbs > targetMacros.carbs) {
+              continue; // Essayer un autre aliment
+            }
+            
+            // Mettre à jour la quantité
+            item.quantity = newQuantity;
+            
+            // Mettre à jour les totaux nutritionnels
+            meal.totalNutrition.calories += additionalNutrition.calories;
+            meal.totalNutrition.protein += additionalNutrition.protein;
+            meal.totalNutrition.fat += additionalNutrition.fat;
+            meal.totalNutrition.netCarbs += additionalNutrition.netCarbs;
+            
+            // Vérifier si on a atteint l'objectif
+            if (meal.totalNutrition.protein >= targetMacros.protein * MACRO_TOLERANCES.PROTEIN_MIN) {
+              break;
+            }
           }
         }
       }
-    }
-  } else if (mainIssue.macro === 'fat' && mainIssue.direction === 'decrease') {
-    // Réduire les lipides en excès
-    const fatItems = meal.items.filter(item => 
-      item.food.nutritionPer100g.fat / 
-      (item.food.nutritionPer100g.protein + item.food.nutritionPer100g.fat + item.food.nutritionPer100g.carbs) > 0.3
-    );
-    
-    if (fatItems.length > 0) {
-      // Trier les éléments par contribution absolue aux lipides
-      fatItems.sort((a, b) => 
-        (b.food.nutritionPer100g.fat * b.quantity / 100) - 
-        (a.food.nutritionPer100g.fat * a.quantity / 100)
-      );
+      break;
       
-      // Calculer l'excès de lipides
-      const excessFat = meal.totalNutrition.fat - targetMacros.fat;
-      
-      if (excessFat > 0) {
-        let fatReduced = 0;
+    case 'fat':
+      if (mainIssue.direction === 'decrease') {
+        // Identifier les aliments gras
+        const fatItems = meal.items.filter(item => 
+          item.food.nutritionPer100g.fat / 
+          (item.food.nutritionPer100g.protein + item.food.nutritionPer100g.fat + item.food.nutritionPer100g.carbs) > 0.3
+        );
         
-        // Réduire progressivement en commençant par les plus gros contributeurs
-        for (const item of fatItems) {
-          const currentQuantity = item.quantity;
-          const fatPer100g = item.food.nutritionPer100g.fat;
-          const currentFatContribution = fatPer100g * currentQuantity / 100;
+        if (fatItems.length > 0) {
+          // Trier par contribution totale aux lipides
+          fatItems.sort((a, b) => 
+            (b.food.nutritionPer100g.fat * b.quantity) - 
+            (a.food.nutritionPer100g.fat * a.quantity)
+          );
           
-          // Ne jamais réduire en dessous d'une quantité minimale
-          const minQuantity = 5; // 5g minimum
+          // Calculer l'excès de lipides à réduire
+          const excessFat = meal.totalNutrition.fat - targetMacros.fat;
           
-          // Calculer de combien on peut réduire cet aliment
-          const fatToReduce = Math.min(excessFat - fatReduced, currentFatContribution);
-          const gramsToReduce = Math.floor((fatToReduce / fatPer100g) * 100);
-          
-          // Limiter la réduction
-          const maxReduction = Math.min(gramsToReduce, currentQuantity - minQuantity);
-          
-          if (maxReduction <= 0) continue; // Impossibilité de réduire davantage
-          
-          // Calculer la nouvelle quantité (arrondie à 5g près)
-          const newQuantity = Math.max(minQuantity, Math.round((currentQuantity - maxReduction) / 5) * 5);
-          
-          // Mettre à jour la nutrition totale du repas avec la différence
-          const diffQuantity = newQuantity - currentQuantity; // Négatif car réduction
-          const diffRatio = diffQuantity / 100;
-          
-          meal.totalNutrition.calories += item.food.nutritionPer100g.calories * diffRatio;
-          meal.totalNutrition.protein += item.food.nutritionPer100g.protein * diffRatio;
-          meal.totalNutrition.fat += item.food.nutritionPer100g.fat * diffRatio;
-          meal.totalNutrition.netCarbs += (
-            item.food.nutritionPer100g.carbs - (item.food.nutritionPer100g.fiber || 0)
-          ) * diffRatio;
-          
-          // Mettre à jour la quantité
-          item.quantity = newQuantity;
-          
-          // Mettre à jour le compteur de graisses réduites
-          fatReduced += item.food.nutritionPer100g.fat * (-diffRatio);
-          
-          // Vérifier si nous avons suffisamment réduit
-          if (fatReduced >= excessFat * 0.9) { // 90% de l'excès suffit
-            break;
+          // Réduire les aliments gras en commençant par les plus contributeurs
+          for (const item of fatItems) {
+            const currentQuantity = item.quantity;
+            const fatPer100g = item.food.nutritionPer100g.fat;
+            
+            // Éviter de réduire en dessous d'un minimum raisonnable
+            const isHighFatSource = fatPer100g > 80;
+            const minQuantity = isHighFatSource ? 
+                              FOOD_PARAMETERS.FAT.MIN_QUANTITY_OIL : 
+                              FOOD_PARAMETERS.FAT.MIN_QUANTITY_OTHER;
+            
+            // Si déjà au minimum, passer au suivant
+            if (currentQuantity <= minQuantity) continue;
+            
+            // Calculer la réduction nécessaire
+            const fatToReduce = excessFat;
+            const qtyToReduce = Math.ceil((fatToReduce / fatPer100g) * 100);
+            
+            // Limiter la réduction pour ne pas descendre sous le minimum
+            const maxReduction = Math.min(qtyToReduce, currentQuantity - minQuantity);
+            
+            // Si pas de réduction significative possible, passer au suivant
+            if (maxReduction < 5) continue;
+            
+            // Nouvelle quantité (arrondie à 5g près)
+            const newQuantity = roundFoodQuantity(currentQuantity - maxReduction, minQuantity);
+            
+            // Mettre à jour la quantité et les totaux nutritionnels
+            const diffQty = newQuantity - currentQuantity; // Négatif
+            const diffRatio = diffQty / 100;
+            
+            // Calculer l'impact nutritionnel
+            const reducedNutrition = {
+              calories: item.food.nutritionPer100g.calories * diffRatio,
+              protein: item.food.nutritionPer100g.protein * diffRatio,
+              fat: item.food.nutritionPer100g.fat * diffRatio,
+              netCarbs: (item.food.nutritionPer100g.carbs - (item.food.nutritionPer100g.fiber || 0)) * diffRatio
+            };
+            
+            // Mettre à jour la quantité
+            item.quantity = newQuantity;
+            
+            // Mettre à jour les totaux nutritionnels
+            meal.totalNutrition.calories += reducedNutrition.calories; // Réduction donc addition de valeurs négatives
+            meal.totalNutrition.protein += reducedNutrition.protein;
+            meal.totalNutrition.fat += reducedNutrition.fat;
+            meal.totalNutrition.netCarbs += reducedNutrition.netCarbs;
+            
+            // Vérifier si on est sous la limite
+            if (meal.totalNutrition.fat <= targetMacros.fat * MACRO_TOLERANCES.FAT_MAX) {
+              break;
+            }
           }
         }
       }
-    }
-  } else if (mainIssue.macro === 'carbs' && mainIssue.direction === 'decrease') {
-    // Réduire les glucides en excès
-    const carbItems = meal.items.filter(item => {
-      const netCarbsPer100g = item.food.nutritionPer100g.carbs - (item.food.nutritionPer100g.fiber || 0);
-      return netCarbsPer100g > 1; // Au moins 1g de glucides nets pour 100g
-    });
-    
-    if (carbItems.length > 0) {
-      // Trier les éléments par contribution absolue aux glucides
-      carbItems.sort((a, b) => {
-        const netCarbsA = a.food.nutritionPer100g.carbs - (a.food.nutritionPer100g.fiber || 0);
-        const netCarbsB = b.food.nutritionPer100g.carbs - (b.food.nutritionPer100g.fiber || 0);
-        return (netCarbsB * b.quantity / 100) - (netCarbsA * a.quantity / 100);
-      });
+      break;
       
-      // Calculer l'excès de glucides
-      const excessCarbs = meal.totalNutrition.netCarbs - targetMacros.carbs;
-      
-      if (excessCarbs > 0) {
-        let carbsReduced = 0;
-        
-        // Réduire progressivement en commençant par les plus gros contributeurs
-        for (const item of carbItems) {
-          const currentQuantity = item.quantity;
+    case 'carbs':
+      if (mainIssue.direction === 'decrease') {
+        // Identifier les aliments glucidiques
+        const carbItems = meal.items.filter(item => {
           const netCarbsPer100g = item.food.nutritionPer100g.carbs - (item.food.nutritionPer100g.fiber || 0);
-          const currentCarbsContribution = netCarbsPer100g * currentQuantity / 100;
+          return netCarbsPer100g > 1; // Au moins 1g de glucides nets pour 100g
+        });
+        
+        if (carbItems.length > 0) {
+          // Trier par contribution totale aux glucides
+          carbItems.sort((a, b) => {
+            const netCarbsA = a.food.nutritionPer100g.carbs - (a.food.nutritionPer100g.fiber || 0);
+            const netCarbsB = b.food.nutritionPer100g.carbs - (b.food.nutritionPer100g.fiber || 0);
+            return (netCarbsB * b.quantity) - (netCarbsA * a.quantity);
+          });
           
-          // Ne jamais réduire en dessous d'une quantité minimale
-          let minQuantity;
-          if (determineFoodType(item.food) === FOOD_TYPES.VEGETABLE) {
-            minQuantity = 25; // 25g minimum pour les légumes
-          } else {
-            minQuantity = 5; // 5g minimum pour les autres
-          }
+          // Calculer l'excès de glucides à réduire
+          const excessCarbs = meal.totalNutrition.netCarbs - targetMacros.carbs;
           
-          // Calculer de combien on peut réduire cet aliment
-          const carbsToReduce = Math.min(excessCarbs - carbsReduced, currentCarbsContribution);
-          const gramsToReduce = Math.floor((carbsToReduce / netCarbsPer100g) * 100);
-          
-          // Limiter la réduction
-          const maxReduction = Math.min(gramsToReduce, currentQuantity - minQuantity);
-          
-          if (maxReduction <= 0) continue; // Impossibilité de réduire davantage
-          
-          // Calculer la nouvelle quantité (arrondie à 5g près)
-          const newQuantity = Math.max(minQuantity, Math.round((currentQuantity - maxReduction) / 5) * 5);
-          
-          // Mettre à jour la nutrition totale du repas avec la différence
-          const diffQuantity = newQuantity - currentQuantity; // Négatif car réduction
-          const diffRatio = diffQuantity / 100;
-          
-          meal.totalNutrition.calories += item.food.nutritionPer100g.calories * diffRatio;
-          meal.totalNutrition.protein += item.food.nutritionPer100g.protein * diffRatio;
-          meal.totalNutrition.fat += item.food.nutritionPer100g.fat * diffRatio;
-          meal.totalNutrition.netCarbs += netCarbsPer100g * diffRatio;
-          
-          // Mettre à jour la quantité
-          item.quantity = newQuantity;
-          
-          // Mettre à jour le compteur de glucides réduits
-          carbsReduced += netCarbsPer100g * (-diffRatio);
-          
-          // Vérifier si nous avons suffisamment réduit
-          if (carbsReduced >= excessCarbs) {
-            break;
+          // Réduire les aliments glucidiques en commençant par les plus contributeurs
+          for (const item of carbItems) {
+            const currentQuantity = item.quantity;
+            const netCarbsPer100g = item.food.nutritionPer100g.carbs - (item.food.nutritionPer100g.fiber || 0);
+            
+            // Éviter de réduire en dessous d'un minimum raisonnable
+            let minQuantity;
+            if (determineFoodType(item.food) === FOOD_TYPES.VEGETABLE) {
+              minQuantity = FOOD_PARAMETERS.VEGETABLE.MIN_QUANTITY;
+            } else {
+              minQuantity = 5; // Minimum général
+            }
+            
+            // Si déjà au minimum, passer au suivant
+            if (currentQuantity <= minQuantity) continue;
+            
+            // Calculer la réduction nécessaire
+            const carbsToReduce = excessCarbs;
+            const qtyToReduce = Math.ceil((carbsToReduce / netCarbsPer100g) * 100);
+            
+            // Limiter la réduction pour ne pas descendre sous le minimum
+            const maxReduction = Math.min(qtyToReduce, currentQuantity - minQuantity);
+            
+            // Si pas de réduction significative possible, passer au suivant
+            if (maxReduction < 5) continue;
+            
+            // Nouvelle quantité (arrondie à 5g près)
+            const newQuantity = roundFoodQuantity(currentQuantity - maxReduction, minQuantity);
+            
+            // Mettre à jour la quantité et les totaux nutritionnels
+            const diffQty = newQuantity - currentQuantity; // Négatif
+            const diffRatio = diffQty / 100;
+            
+            // Calculer l'impact nutritionnel
+            const reducedNutrition = {
+              calories: item.food.nutritionPer100g.calories * diffRatio,
+              protein: item.food.nutritionPer100g.protein * diffRatio,
+              fat: item.food.nutritionPer100g.fat * diffRatio,
+              netCarbs: netCarbsPer100g * diffRatio
+            };
+            
+            // Mettre à jour la quantité
+            item.quantity = newQuantity;
+            
+            // Mettre à jour les totaux nutritionnels
+            meal.totalNutrition.calories += reducedNutrition.calories;
+            meal.totalNutrition.protein += reducedNutrition.protein;
+            meal.totalNutrition.fat += reducedNutrition.fat;
+            meal.totalNutrition.netCarbs += reducedNutrition.netCarbs;
+            
+            // Vérifier si on est sous la limite
+            if (meal.totalNutrition.netCarbs <= targetMacros.carbs * MACRO_TOLERANCES.CARBS_MAX) {
+              break;
+            }
           }
         }
       }
-    }
+      break;
   }
   
   // Arrondir toutes les valeurs nutritionnelles pour éviter les nombres bizarres
@@ -1274,99 +1013,415 @@ function balanceMealMacros(meal, targetMacros, ketoProfile = 'standard') {
 }
 
 /**
- * Fonction principale pour générer des repas à partir des aliments du frigo
- * @param {Array} availableFoods - Aliments disponibles avec leurs quantités
- * @param {Object} nutritionNeeds - Besoins nutritionnels journaliers
- * @param {Object} options - Options de génération incluant le profil keto
+ * Adapte une recette pour qu'elle correspond mieux aux objectifs de macros
+ * @param {Object} recipe - La recette à adapter
+ * @param {Object} targetMacros - Objectifs de macronutriments
+ * @param {Number} servings - Nombre de portions souhaité
+ * @returns {Object} Informations adaptées pour la recette
+ */
+function adaptRecipe(recipe, targetMacros, servings = 1) {
+  if (!recipe || !recipe.nutritionPerServing) {
+    return null;
+  }
+  
+  // Calculer les macros pour la recette avec le nombre de portions demandé
+  const baseNutrition = {
+    calories: recipe.nutritionPerServing.calories * servings,
+    protein: recipe.nutritionPerServing.protein * servings,
+    fat: recipe.nutritionPerServing.fat * servings,
+    netCarbs: recipe.nutritionPerServing.netCarbs * servings
+  };
+  
+  // Calculer le facteur d'adaptation idéal pour s'approcher au mieux des objectifs
+  // Priorité aux protéines et aux glucides (limiter)
+  const proteinFactor = targetMacros.protein / baseNutrition.protein;
+  const carbsFactor = targetMacros.carbs / baseNutrition.netCarbs;
+  
+  // Facteur final - prioriser le respect strict des glucides et un minimum de protéines
+  let adaptationFactor;
+  
+  if (baseNutrition.netCarbs > targetMacros.carbs) {
+    // Si trop de glucides, prioriser la réduction des glucides
+    adaptationFactor = Math.min(carbsFactor, 1.0); // Ne jamais augmenter si les glucides dépassent
+  } else if (baseNutrition.protein < targetMacros.protein * MACRO_TOLERANCES.PROTEIN_MIN) {
+    // Si pas assez de protéines, prioriser l'augmentation de protéines
+    adaptationFactor = Math.min(proteinFactor, 2.0); // Limiter le facteur à 2x
+  } else {
+    // Sinon, ajuster globalement
+    adaptationFactor = (targetMacros.calories / baseNutrition.calories + proteinFactor) / 2;
+    adaptationFactor = Math.min(Math.max(adaptationFactor, 0.5), 2.0); // Limiter entre 0.5x et 2x
+  }
+  
+  // Arrondir le facteur à 0.25 près pour des portions plus naturelles
+  const roundedFactor = Math.round(adaptationFactor * 4) / 4;
+  
+  // Calculer le nombre de portions adapté
+  const adaptedServings = Math.max(0.5, roundedFactor * servings);
+  
+  // Calculer les macros adaptées
+  return {
+    servings: Math.round(adaptedServings * 10) / 10, // Arrondi à 0.1 près
+    nutrition: {
+      calories: Math.round(recipe.nutritionPerServing.calories * adaptedServings),
+      protein: Math.round(recipe.nutritionPerServing.protein * adaptedServings * 10) / 10,
+      fat: Math.round(recipe.nutritionPerServing.fat * adaptedServings * 10) / 10,
+      netCarbs: Math.round(recipe.nutritionPerServing.netCarbs * adaptedServings * 10) / 10
+    }
+  };
+}
+
+/**
+ * Crée un repas à partir d'une recette
+ * @param {Object} recipe - La recette à utiliser
+ * @param {Object} targetMacros - Objectifs de macronutriments
+ * @param {Boolean} isFavorite - Si la recette est un favori
+ * @returns {Object} Le repas créé
+ */
+function createMealFromRecipe(recipe, targetMacros, isFavorite = false) {
+  // Adapter la recette aux objectifs de macros
+  const adaptedRecipe = adaptRecipe(recipe, targetMacros);
+  
+  if (!adaptedRecipe) return null;
+  
+  // Créer la structure du repas
+  const meal = {
+    name: generateRecipeMealName(recipe),
+    items: [{
+      type: 'recipe',
+      recipe: recipe,
+      recipeId: recipe.id,
+      servings: adaptedRecipe.servings,
+      isFavorite: isFavorite
+    }],
+    totalNutrition: {
+      calories: adaptedRecipe.nutrition.calories,
+      protein: adaptedRecipe.nutrition.protein,
+      fat: adaptedRecipe.nutrition.fat,
+      netCarbs: adaptedRecipe.nutrition.netCarbs
+    }
+  };
+  
+  // Vérifier si le repas respecte les limites de glucides
+  if (meal.totalNutrition.netCarbs > targetMacros.carbs) {
+    return null; // Rejeter si trop de glucides
+  }
+  
+  // Vérifier si le repas fournit suffisamment de protéines
+  if (meal.totalNutrition.protein < targetMacros.protein * MACRO_TOLERANCES.PROTEIN_MIN) {
+    // On pourrait essayer de compléter avec des aliments protéinés,
+    // mais pour simplifier on retourne null pour l'instant
+    return null;
+  }
+  
+  return meal;
+}
+/**
+ * Génère un repas individuel à partir d'aliments et/ou recettes
+ * @param {Array} availableFoods - Aliments disponibles
+ * @param {Array} availableRecipes - Recettes disponibles
+ * @param {Object} targetMacros - Objectifs de macronutriments pour le repas
+ * @param {Object} options - Options de génération
+ * @returns {Object} Repas généré ou null si impossible
+ */
+function generateSingleMeal(availableFoods, availableRecipes, targetMacros, options = {}) {
+  // Options par défaut
+  const defaultOptions = {
+    favoriteRecipeIds: [],
+    favoriteFoodIds: [],
+    useFavorites: true,
+    useRecipes: true,
+    seasonFilter: null
+  };
+  
+  const mergedOptions = { ...defaultOptions, ...options };
+  
+  // Structure de base du repas
+  const meal = {
+    name: "",
+    items: [],
+    totalNutrition: {
+      calories: 0,
+      protein: 0,
+      fat: 0,
+      netCarbs: 0,
+    }
+  };
+  
+  let recipeUsed = false;
+  
+  // ÉTAPE 1: Essayer d'utiliser une recette favorite si demandé
+  if (mergedOptions.useRecipes && mergedOptions.useFavorites && 
+      mergedOptions.favoriteRecipeIds && mergedOptions.favoriteRecipeIds.length > 0) {
+    
+    // Filtrer les recettes favorites disponibles
+    const favoriteRecipes = availableRecipes.filter(recipe => 
+      mergedOptions.favoriteRecipeIds.includes(recipe.id)
+    );
+    
+    if (favoriteRecipes.length > 0) {
+      // Prioriser les recettes pour trouver la plus adaptée aux objectifs
+      const sortedRecipes = prioritizeRecipes(favoriteRecipes, [], targetMacros);
+      
+      // Essayer de créer un repas avec la meilleure recette
+      for (const recipe of sortedRecipes) {
+        const mealFromRecipe = createMealFromRecipe(recipe, targetMacros, true);
+        if (mealFromRecipe) {
+          recipeUsed = true;
+          meal.name = mealFromRecipe.name;
+          meal.items = mealFromRecipe.items;
+          meal.totalNutrition = mealFromRecipe.totalNutrition;
+          break;
+        }
+      }
+    }
+  }
+  
+  // ÉTAPE 2: Si pas de recette favorite utilisée, essayer une recette non-favorite
+  if (!recipeUsed && mergedOptions.useRecipes && availableRecipes && availableRecipes.length > 0) {
+    // Prioriser les recettes
+    const sortedRecipes = prioritizeRecipes(availableRecipes, mergedOptions.favoriteRecipeIds, targetMacros);
+    
+    // Prendre les 3 meilleures recettes et en choisir une au hasard pour la variété
+    const topRecipeCount = Math.min(3, sortedRecipes.length);
+    const selectedRecipes = sortedRecipes.slice(0, topRecipeCount);
+    const randomRecipe = selectedRecipes[Math.floor(Math.random() * topRecipeCount)];
+    
+    if (randomRecipe) {
+      const mealFromRecipe = createMealFromRecipe(randomRecipe, targetMacros, 
+                                               mergedOptions.favoriteRecipeIds.includes(randomRecipe.id));
+      if (mealFromRecipe) {
+        recipeUsed = true;
+        meal.name = mealFromRecipe.name;
+        meal.items = mealFromRecipe.items;
+        meal.totalNutrition = mealFromRecipe.totalNutrition;
+      }
+    }
+  }
+  
+  // ÉTAPE 3: Si aucune recette utilisée, composer un repas à partir d'aliments individuels
+  if (!recipeUsed) {
+    // Filtrer les aliments par saison si nécessaire
+    let filteredFoods = [...availableFoods];
+    if (mergedOptions.seasonFilter) {
+      filteredFoods = filteredFoods.filter(food => 
+        !food.food.seasons || food.food.seasons.includes(mergedOptions.seasonFilter)
+      );
+    }
+    
+    // Organiser les aliments par type et prioriser les favoris
+    const foodsByType = organizeAndPrioritizeFoods(filteredFoods, mergedOptions.favoriteFoodIds, targetMacros);
+    
+    // 1. PHASE PROTÉINES: Ajouter des aliments protéinés
+    const proteinSuccess = addProteinFoods(meal, foodsByType[FOOD_TYPES.PROTEIN], targetMacros);
+    
+    if (!proteinSuccess) {
+      return null; // Impossible de créer un repas avec suffisamment de protéines
+    }
+    
+    // 2. PHASE LÉGUMES: Ajouter des légumes
+    addVegetableFoods(meal, foodsByType[FOOD_TYPES.VEGETABLE], targetMacros);
+    
+    // 3. PHASE LIPIDES: Compléter avec des sources de graisses
+    addFatFoods(meal, foodsByType[FOOD_TYPES.FAT], targetMacros);
+    
+    // 4. ÉQUILIBRAGE FINAL: Ajuster les quantités pour atteindre les objectifs
+    balanceMealMacros(meal, targetMacros);
+    
+    // Générer un nom pour le repas
+    meal.name = generateMealName(meal.items);
+  }
+  
+  // ÉTAPE 4: Vérification finale du repas
+  const validation = validateMealMacros(meal.totalNutrition, targetMacros);
+  
+  if (!validation.isValid) {
+    console.log(`Repas rejeté: ${validation.issues.join(', ')}`);
+    return null;
+  }
+  
+  return meal;
+}
+
+/**
+ * Génère un plan de repas complet
+ * @param {Array} availableFoods - Aliments disponibles
+ * @param {Array} availableRecipes - Recettes disponibles
+ * @param {Object} nutritionalNeeds - Besoins nutritionnels journaliers
+ * @param {Object} options - Options de génération
  * @returns {Array} Repas générés
  */
-export function generateMealsFromFridge(availableFoods, nutritionNeeds, options) {
-  // Si pas assez d'aliments, retourner un tableau vide
+function generateMealPlan(availableFoods, availableRecipes, nutritionalNeeds, options = {}) {
+  // Options par défaut
+  const defaultOptions = {
+    mealCount: 3,
+    useRecipes: true,
+    useFavorites: true,
+    favoriteRecipeIds: [],
+    favoriteFoodIds: [],
+    seasonFilter: getCurrentSeason(),
+    maxAttempts: 5 // Maximum de tentatives par repas
+  };
+  
+  const mergedOptions = { ...defaultOptions, ...options };
+  
+  // Valider les données d'entrée
   if (!availableFoods || availableFoods.length < 3) {
+    console.error("Pas assez d'aliments disponibles pour générer un plan");
     return [];
   }
   
   // Ne garder que les aliments avec une quantité positive
   const validFoods = availableFoods.filter(item => item.quantity > 0);
   
-  // Obtenir le profil keto
-  const ketoProfile = options?.ketoProfile || 'standard';
-  
-  // Obtenir les ratios correspondant au profil keto
-  const ketoRatios = getKetoRatios(ketoProfile);
-  
-  // Valeurs par défaut pour les besoins nutritionnels si non fournis
-  const defaultNeeds = {
+  // Utiliser les besoins nutritionnels fournis ou des valeurs par défaut
+  const needs = nutritionalNeeds || {
     calories: 2000,
-    protein: Math.round((2000 * ketoRatios.PROTEIN_PERCENTAGE) / CALORIC_FACTORS.PROTEIN),
-    fat: Math.round((2000 * ketoRatios.FAT_PERCENTAGE) / CALORIC_FACTORS.FAT),
-    carbs: Math.round((2000 * ketoRatios.CARBS_PERCENTAGE) / CALORIC_FACTORS.CARBS),
+    protein: 150,
+    fat: 150,
+    carbs: 25
   };
   
-  const needs = {
-    calories: nutritionNeeds?.calories || defaultNeeds.calories,
-    protein: nutritionNeeds?.protein || defaultNeeds.protein,
-    fat: nutritionNeeds?.fat || defaultNeeds.fat,
-    carbs: nutritionNeeds?.carbs || defaultNeeds.carbs,
+  // Calculer les objectifs par repas
+  const mealsPerDay = mergedOptions.mealCount;
+  const targetMacrosPerMeal = {
+    protein: needs.protein / mealsPerDay,
+    fat: needs.fat / mealsPerDay,
+    carbs: needs.carbs / mealsPerDay
   };
   
-  // Ajuster automatiquement l'option maximizeProtein en fonction du profil
-  let shouldMaximizeProtein = options?.maximizeProtein || false;
-  if (ketoProfile === 'prise_masse' || ketoProfile === 'hyperproteine') {
-    shouldMaximizeProtein = true;
-  }
+  console.log(`Génération de ${mealsPerDay} repas avec objectifs par repas:`, targetMacrosPerMeal);
   
-  // Valeurs par défaut pour les options si non fournies
-  const defaultOptions = {
-    mealCount: 2,
-    preferLowCarbs: true,
-    maximizeProtein: shouldMaximizeProtein,
-    balancedMacros: true,
-    ketoProfile: ketoProfile
-  };
+  const generatedMeals = [];
+  const copyOfFoods = [...validFoods]; // Copie pour suivre la consommation
   
-  const mergedOptions = {
-    ...defaultOptions,
-    ...options,
-    // Forcer ces options en fonction du profil si non spécifiées explicitement
-    maximizeProtein: options?.maximizeProtein !== undefined ? options.maximizeProtein : shouldMaximizeProtein,
-    ketoProfile: ketoProfile
-  };
-  
-  console.log(`Génération des repas avec profil: ${ketoProfile}, besoins protéiques: ${needs.protein}g`);
-  
-  // Générer les repas en tenant compte des contraintes
-  const meals = findFoodCombinations(validFoods, needs, mergedOptions);
-  
-  // Vérifier que les repas générés respectent collectivement les objectifs
-  if (meals && meals.length > 0) {
-    const totalMacros = {
-      protein: 0,
-      fat: 0,
-      netCarbs: 0
-    };
+  // Générer chaque repas
+  for (let i = 0; i < mealsPerDay; i++) {
+    let meal = null;
+    let attempts = 0;
     
-    // Calculer les macros totales de tous les repas générés
-    meals.forEach(meal => {
-      totalMacros.protein += meal.totalNutrition.protein;
-      totalMacros.fat += meal.totalNutrition.fat;
-      totalMacros.netCarbs += meal.totalNutrition.netCarbs;
-    });
+    // Essayer plusieurs fois de générer un repas valide
+    while (!meal && attempts < mergedOptions.maxAttempts) {
+      attempts++;
+      
+      try {
+        meal = generateSingleMeal(
+          copyOfFoods,
+          availableRecipes,
+          targetMacrosPerMeal,
+          mergedOptions
+        );
+      } catch (error) {
+        console.error(`Erreur lors de la génération du repas ${i+1}, tentative ${attempts}:`, error);
+        meal = null;
+      }
+    }
     
-    const dailyMacroPercentages = {
-      protein: totalMacros.protein / needs.protein,
-      fat: totalMacros.fat / needs.fat,
-      netCarbs: totalMacros.netCarbs / needs.carbs
-    };
-    
-    console.log(`Totaux des repas générés: Protéines: ${Math.round(totalMacros.protein)}g (${Math.round(dailyMacroPercentages.protein * 100)}%), Lipides: ${Math.round(totalMacros.fat)}g (${Math.round(dailyMacroPercentages.fat * 100)}%), Glucides nets: ${Math.round(totalMacros.netCarbs)}g (${Math.round(dailyMacroPercentages.netCarbs * 100)}%)`);
-    
-    // Vérifier spécifiquement les protéines pour les profils hyperprotéinés
-    if ((ketoProfile === 'prise_masse' || ketoProfile === 'hyperproteine') && 
-        dailyMacroPercentages.protein < ketoRatios.MIN_PROTEIN_TARGET_PERCENTAGE) {
-      console.warn(`Attention: Les repas générés n'atteignent que ${Math.round(dailyMacroPercentages.protein * 100)}% de l'objectif protéique journalier (${Math.round(totalMacros.protein)}g/${needs.protein}g)`);
+    if (meal) {
+      generatedMeals.push(meal);
+      
+      // Mettre à jour les quantités disponibles après chaque repas généré
+      meal.items.forEach(mealItem => {
+        if (mealItem.type === 'recipe') return; // Les recettes n'affectent pas les disponibilités
+        
+        const foodIndex = copyOfFoods.findIndex(item => item.foodId === mealItem.foodId);
+        
+        if (foodIndex !== -1) {
+          copyOfFoods[foodIndex].quantity -= mealItem.quantity;
+          // Si la quantité tombe à zéro ou moins, supprimer l'aliment
+          if (copyOfFoods[foodIndex].quantity <= 0) {
+            copyOfFoods.splice(foodIndex, 1);
+          }
+        }
+      });
+    } else {
+      console.warn(`Impossible de générer le repas ${i+1} après ${mergedOptions.maxAttempts} tentatives`);
     }
   }
   
-  return meals;
+  return generatedMeals;
 }
+
+/**
+ * Obtient la saison actuelle
+ * @returns {string} Saison actuelle ('printemps', 'été', 'automne', 'hiver')
+ */
+function getCurrentSeason() {
+  const month = new Date().getMonth();
+  
+  if (month >= 2 && month <= 4) return 'printemps';
+  if (month >= 5 && month <= 7) return 'été';
+  if (month >= 8 && month <= 10) return 'automne';
+  return 'hiver';
+}
+
+/**
+ * Analyse la qualité d'un plan de repas
+ * @param {Array} meals - Repas générés
+ * @param {Object} dailyTargets - Objectifs journaliers
+ * @returns {Object} Résultats de l'analyse
+ */
+function analyzeMealPlan(meals, dailyTargets) {
+  if (!meals || meals.length === 0) {
+    return {
+      valid: false,
+      totalNutrition: { calories: 0, protein: 0, fat: 0, netCarbs: 0 },
+      achievements: { protein: 0, fat: 0, carbs: 0 },
+      issues: ["Aucun repas généré"]
+    };
+  }
+  
+  // Calculer les macros totales
+  const totalNutrition = {
+    calories: 0,
+    protein: 0,
+    fat: 0,
+    netCarbs: 0
+  };
+  
+  meals.forEach(meal => {
+    totalNutrition.calories += meal.totalNutrition.calories;
+    totalNutrition.protein += meal.totalNutrition.protein;
+    totalNutrition.fat += meal.totalNutrition.fat;
+    totalNutrition.netCarbs += meal.totalNutrition.netCarbs;
+  });
+  
+  // Calculer les pourcentages d'atteinte
+  const achievements = {
+    protein: totalNutrition.protein / dailyTargets.protein,
+    fat: totalNutrition.fat / dailyTargets.fat,
+    carbs: totalNutrition.netCarbs / dailyTargets.carbs
+  };
+  
+  // Identifier les problèmes
+  const issues = [];
+  
+  if (achievements.protein < MACRO_TOLERANCES.PROTEIN_MIN) {
+    issues.push(`Protéines insuffisantes: ${Math.round(achievements.protein * 100)}% de l'objectif`);
+  }
+  
+  if (achievements.fat > MACRO_TOLERANCES.FAT_MAX) {
+    issues.push(`Excès de lipides: ${Math.round(achievements.fat * 100)}% de l'objectif`);
+  }
+  
+  if (achievements.carbs > MACRO_TOLERANCES.CARBS_MAX) {
+    issues.push(`Excès de glucides: ${Math.round(achievements.carbs * 100)}% de l'objectif`);
+  }
+  
+  return {
+    valid: issues.length === 0,
+    totalNutrition,
+    achievements,
+    issues
+  };
+}
+
+// Exporter les fonctions principales
+export {
+  generateMealPlan,
+  generateSingleMeal,
+  analyzeMealPlan,
+  calculateKetoCompatibilityScore,
+  validateMealMacros,
+  adaptRecipe,
+  balanceMealMacros
+};
