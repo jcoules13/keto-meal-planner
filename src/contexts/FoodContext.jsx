@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useReducer, useEffect } from 'react';
+import React, { createContext, useContext, useReducer, useEffect, useMemo } from 'react';
 import initialFoods from '../data/foods.json';
 
 // État initial
@@ -274,9 +274,13 @@ export function FoodProvider({ children }) {
     );
   };
   
-  const value = {
+  // Mémoiser les aliments filtrés pour éviter recalculs inutiles
+  const filteredFoods = useMemo(() => getFilteredFoods(), [state.foods, state.filters]);
+
+  // Mémoiser l'objet value pour éviter re-renders en cascade
+  const value = useMemo(() => ({
     ...state,
-    filteredFoods: getFilteredFoods(),
+    filteredFoods,
     setFilter,
     resetFilters,
     addCustomFood,
@@ -284,8 +288,8 @@ export function FoodProvider({ children }) {
     deleteCustomFood,
     getFoodById,
     searchFoods
-  };
-  
+  }), [state, filteredFoods]);
+
   return (
     <FoodContext.Provider value={value}>
       {children}
