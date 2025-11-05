@@ -44,10 +44,26 @@ Ce document permet de suivre la progression du développement de l'application.
   - [x] Persistance dans localStorage
 - [x] Formulaire de création/édition de recettes
 - [x] Bibliothèque de recettes prédéfinies
-- [ ] Algorithme de génération de plans de repas
-- [ ] Distribution des calories et macronutriments
-- [ ] Interface de planification
-- [ ] MealPlanContext pour les plans de repas
+- [x] MealPlanContext pour les plans de repas
+  - [x] Implémentation du context avec useReducer
+  - [x] Gestion des plans de repas (création, modification, suppression)
+  - [x] Gestion des repas individuels dans les plans
+  - [x] Validation nutritionnelle des plans
+  - [x] Persistance dans localStorage
+- [x] Algorithme de génération de plans de repas
+  - [x] Implémentation dans mealGeneratorAlgorithm.js
+  - [x] Calcul des macronutriments et calories
+  - [x] Sélection intelligente des aliments
+  - [x] Respect des objectifs nutritionnels
+- [x] Distribution des calories et macronutriments
+  - [x] Calcul automatique selon le profil utilisateur
+  - [x] Répartition entre les repas
+  - [x] Validation des objectifs
+- [x] Interface de planification
+  - [x] Pages MealPlannerPage et MealPlanPage
+  - [x] Composants MealPlanCreator, MealPlanDetail
+  - [x] WeeklyMealGenerator et MealGeneratorForPlan
+  - [x] Interface de visualisation et édition des plans
 
 ## Phase 4: Fonctionnalités avancées
 
@@ -60,11 +76,30 @@ Ce document permet de suivre la progression du développement de l'application.
   - [x] Formulaire d'entrée de poids
   - [x] Affichage de l'historique des mesures
   - [x] Intégration avec le UserContext
-- [ ] Algorithme de génération de liste de courses
-- [ ] Interface de liste de courses
-- [ ] Mode keto alcalin
-- [ ] Indicateurs de pH
-- [ ] Configuration du jeûne intermittent
+- [x] Algorithme de génération de liste de courses
+  - [x] Implémentation dans shoppingListGenerator.js
+  - [x] Extraction des ingrédients des recettes
+  - [x] Agrégation des quantités
+  - [x] Organisation par catégories
+  - [x] Gestion des cases à cocher
+- [x] Interface de liste de courses
+  - [x] Page ShoppingListPage
+  - [x] Génération depuis un plan de repas
+  - [x] Mise à jour interactive (cocher/décocher)
+- [x] FridgeContext pour la gestion du frigo
+  - [x] Gestion des aliments disponibles
+  - [x] Composant FridgeSelector
+- [x] Composants pour le jeûne intermittent
+  - [x] FastingScheduleDisplay
+  - [x] Configuration dans MealPlanOptions
+  - [ ] Tests et intégration complète
+- [x] Indicateurs de pH
+  - [x] Composant PHIndicator
+  - [ ] Tests et intégration dans mode keto alcalin
+- [ ] Mode keto alcalin (à tester et valider)
+  - [x] Support dans les structures de données
+  - [ ] Validation du calcul de pH des plans
+  - [ ] Interface utilisateur spécifique
 
 ## Phase 5: Finitions et optimisations
 
@@ -83,13 +118,26 @@ Ce document permet de suivre la progression du développement de l'application.
 
 ## État d'avancement actuel
 
-**Phase actuelle**: Phase 4 - Fonctionnalités avancées
+**Phase actuelle**: Phase 4 - Fonctionnalités avancées (Presque terminée)
 
-**Prochaine tâche**: Mise en œuvre de l'algorithme de génération de liste de courses
+**Prochaine tâche**: Tests end-to-end et validation du mode keto alcalin
 
-**Dernières tâches complétées**:
-- Implémentation complète de la page de recettes (RecipesPage)
-- Création des composants pour l'affichage (RecipeCard, RecipeDetail)
-- Création du formulaire de création/édition de recettes (RecipeForm)
-- Intégration avec le RecipeContext et le FoodContext pour les calculs nutritionnels
-- Correction de l'application des thèmes clair/sombre sur tous les composants
+**Dernières tâches complétées** (2025-11-05):
+- ✅ Analyse complète de l'état de l'application
+- ✅ Correction du bug critique `no-const-assign` dans mealGeneratorAlgorithm.js
+- ✅ Nettoyage des imports et variables inutilisées dans MealPlanContext
+- ✅ Compilation réussie de l'application (build + dev server)
+- ✅ Mise à jour du CHECKLIST avec l'état réel
+
+**Découvertes importantes**:
+- L'application est beaucoup plus avancée que ce que la checklist indiquait
+- MealPlanContext, algorithmes de génération, et interfaces sont implémentés
+- La plupart des fonctionnalités de Phase 3 et 4 sont complètes
+- Quelques warnings ESLint restants (variables non utilisées) mais pas bloquants
+
+**À faire en priorité**:
+1. Tester la génération de plans de repas end-to-end
+2. Tester la génération de liste de courses
+3. Valider le mode keto alcalin et le calcul de pH
+4. Tester le jeûne intermittent
+5. Corriger les warnings ESLint restants (optionnel)

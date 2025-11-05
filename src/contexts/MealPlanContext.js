@@ -1,11 +1,10 @@
 import React, { createContext, useContext, useReducer, useEffect } from 'react';
 import { generateShoppingList } from '../utils/shoppingListGenerator';
-import { calculateDailyTotals, calculateMealNutrition, updateMealNutrition } from '../utils/mealNutritionCalculator';
-import { 
-  validateMealPlan, 
-  validateNutritionalTargets, 
-  analyzePlanMacroAchievement, 
-  checkMacroTargets 
+import { calculateDailyTotals, updateMealNutrition } from '../utils/mealNutritionCalculator';
+import {
+  validateMealPlan,
+  validateNutritionalTargets,
+  analyzePlanMacroAchievement
 } from '../utils/mealPlanUtils';
 import { useUser } from './UserContext';
 import { useFood } from './FoodContext';
@@ -282,7 +281,7 @@ export function useMealPlan() {
 // Provider
 export function MealPlanProvider({ children }) {
   const [state, dispatch] = useReducer(mealPlanReducer, initialState);
-  const { calorieTarget, macroTargets, mealFrequency, dietType, ketoProfile, intermittentFasting } = useUser();
+  const { macroTargets, mealFrequency, ketoProfile } = useUser();
   const { foods, getFoodById } = useFood();
   const { recipes, getRecipeById } = useRecipe();
   
