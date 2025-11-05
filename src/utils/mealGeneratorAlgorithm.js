@@ -433,7 +433,7 @@ function addProteinFoods(meal, proteinFoods, targetMacros) {
     // Vérifier que l'ajout de cet aliment ne dépasse pas la limite de glucides
     if (meal.totalNutrition.netCarbs + itemNutrition.netCarbs > targetMacros.carbs) {
       // Essayer de réduire la quantité pour respecter la limite de glucides
-      const netCarbsPer100g = selectedFood.food.nutritionPer100g.carbs - (selectedFood.food.nutritionPer100g.fiber || 0);
+      let netCarbsPer100g = selectedFood.food.nutritionPer100g.carbs - (selectedFood.food.nutritionPer100g.fiber || 0);
       if (netCarbsPer100g <= 0) netCarbsPer100g = 0.1; // Éviter division par zéro
       
       const maxAllowedForCarbs = ((targetMacros.carbs - meal.totalNutrition.netCarbs) / netCarbsPer100g) * 100;
