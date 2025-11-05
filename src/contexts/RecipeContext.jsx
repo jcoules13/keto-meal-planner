@@ -1,6 +1,5 @@
 import React, { createContext, useContext, useReducer, useEffect, useMemo } from 'react';
 import initialRecipes from '../data/recipes.json';
-import { useFood } from './FoodContext';
 
 // État initial
 const initialState = {
@@ -141,7 +140,6 @@ export function useRecipe() {
 // Provider
 export function RecipeProvider({ children }) {
   const [state, dispatch] = useReducer(recipeReducer, initialState);
-  const { foods } = useFood();
   
   // Charger les recettes initiales et personnalisées au démarrage
   useEffect(() => {
@@ -250,7 +248,7 @@ export function RecipeProvider({ children }) {
   };
   
   // Calcul des valeurs nutritionnelles d'une recette
-  const calculateRecipeNutrition = (ingredients) => {
+  const calculateRecipeNutrition = (ingredients, foods = []) => {
     if (!ingredients || ingredients.length === 0 || foods.length === 0) {
       return {
         calories: 0,
@@ -298,7 +296,7 @@ export function RecipeProvider({ children }) {
   };
   
   // Calcul du pH moyen d'une recette
-  const calculateRecipePH = (ingredients) => {
+  const calculateRecipePH = (ingredients, foods = []) => {
     if (!ingredients || ingredients.length === 0 || foods.length === 0) {
       return 7.0; // Valeur neutre par défaut
     }
@@ -340,17 +338,17 @@ export function RecipeProvider({ children }) {
     dispatch({ type: actions.SELECT_RECIPE, payload: recipe });
   };
   
-  const addRecipe = (recipe) => {
+  const addRecipe = (recipe, foods = []) => {
     const newRecipe = {
       ...recipe,
       id: `recipe-${Date.now()}`,
       isUserCreated: true,
       createdAt: new Date().toISOString()
     };
-    
+
     // Calculer les valeurs nutritionnelles si non fournies
     if (!newRecipe.nutritionPerServing) {
-      const totalNutrition = calculateRecipeNutrition(newRecipe.ingredients);
+      const totalNutrition = calculateRecipeNutrition(newRecipe.ingredients, foods);
       newRecipe.nutritionPerServing = {
         calories: Math.round(totalNutrition.calories / newRecipe.servings),
         protein: Math.round(totalNutrition.protein / newRecipe.servings),
@@ -363,7 +361,7 @@ export function RecipeProvider({ children }) {
     
     // Calculer le pH moyen si non fourni
     if (!newRecipe.averagePHValue) {
-      newRecipe.averagePHValue = calculateRecipePH(newRecipe.ingredients);
+      newRecipe.averagePHValue = calculateRecipePH(newRecipe.ingredients, foods);
     }
     
     // Déterminer si la recette est keto et alcaline
@@ -374,11 +372,11 @@ export function RecipeProvider({ children }) {
     return newRecipe.id;
   };
   
-  const updateRecipe = (recipe) => {
+  const updateRecipe = (recipe, foods = []) => {
     const updatedRecipe = { ...recipe };
-    
+
     // Recalculer les valeurs nutritionnelles et le pH
-    const totalNutrition = calculateRecipeNutrition(updatedRecipe.ingredients);
+    const totalNutrition = calculateRecipeNutrition(updatedRecipe.ingredients, foods);
     updatedRecipe.nutritionPerServing = {
       calories: Math.round(totalNutrition.calories / updatedRecipe.servings),
       protein: Math.round(totalNutrition.protein / updatedRecipe.servings),
@@ -388,7 +386,7 @@ export function RecipeProvider({ children }) {
       netCarbs: Math.round(totalNutrition.netCarbs / updatedRecipe.servings)
     };
     
-    updatedRecipe.averagePHValue = calculateRecipePH(updatedRecipe.ingredients);
+    updatedRecipe.averagePHValue = calculateRecipePH(updatedRecipe.ingredients, foods);
     
     // Mettre à jour les propriétés dérivées
     updatedRecipe.isKeto = updatedRecipe.nutritionPerServing.netCarbs <= 10;
