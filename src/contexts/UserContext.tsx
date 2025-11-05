@@ -283,12 +283,37 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
   
-  // Sauvegarder les données utilisateur dans localStorage à chaque changement
+  // Sauvegarder les données utilisateur dans localStorage avec debounce
   useEffect(() => {
-    if (state.isProfileComplete) {
+    if (!state.isProfileComplete) return;
+
+    // Debounce pour éviter trop de sauvegardes et boucles infinies
+    const timeoutId = setTimeout(() => {
       saveToStorage('user', state);
-    }
-  }, [state]);
+    }, 300);
+
+    return () => clearTimeout(timeoutId);
+  }, [
+    state.isProfileComplete,
+    state.name,
+    state.gender,
+    state.age,
+    state.height,
+    state.weight,
+    state.initialWeight,
+    state.activityLevel,
+    state.targetWeight,
+    state.weightGoal,
+    state.dietType,
+    state.ketoProfile,
+    state.calorieTarget,
+    JSON.stringify(state.macroTargets),
+    state.mealFrequency,
+    JSON.stringify(state.intermittentFasting),
+    JSON.stringify(state.allergies),
+    JSON.stringify(state.preferences),
+    JSON.stringify(state.weightHistory)
+  ]);
   
   // Actions exposées
   const updateProfile = (profileData: Partial<UserState>) => {

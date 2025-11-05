@@ -135,10 +135,21 @@ export function FridgeProvider({ children }) {
   
   // Sauvegarder le contenu du frigo dans localStorage à chaque changement
   useEffect(() => {
-    if (state.lastUpdated) {
-      localStorage.setItem('keto-meal-planner-fridge', JSON.stringify(state));
-    }
-  }, [state]);
+    if (!state.lastUpdated) return;
+
+    // Debounce pour éviter trop de sauvegardes et boucles infinies
+    const timeoutId = setTimeout(() => {
+      localStorage.setItem('keto-meal-planner-fridge', JSON.stringify({
+        selectedFoods: state.selectedFoods,
+        lastUpdated: state.lastUpdated
+      }));
+    }, 300);
+
+    return () => clearTimeout(timeoutId);
+  }, [
+    state.lastUpdated,
+    JSON.stringify(state.selectedFoods)
+  ]);
   
   // Ajouter un aliment au frigo
   const addFood = (foodId, quantity = 100) => {
