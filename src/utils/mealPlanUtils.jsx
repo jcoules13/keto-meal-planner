@@ -1,4 +1,11 @@
 /**
+ * Utilitaires pour la validation et l'analyse des plans de repas
+ * Version consolidée - calculateDailyTotals importé de mealNutritionCalculator.ts
+ */
+
+import { calculateDailyTotals } from './mealNutritionCalculator';
+
+/**
  * Utilitaires pour la gestion des plans de repas
  * Permet de valider, calculer et manipuler les plans de repas
  */
@@ -92,119 +99,6 @@ export function validateNutritionalTargets(dayTotals, targetMacros, ketoProfile 
   return { valid: true, error: null };
 }
 
-/**
- * Calcule les totaux nutritionnels pour un jour du plan
- * @param {Object} day - Jour du plan contenant des repas
- * @param {Object} utils - Utilitaires {getFoodById, getRecipeById}
- * @returns {Object} Totaux nutritionnels du jour
- */
-export function calculateDailyTotals(day, utils) {
-  const { getFoodById, getRecipeById } = utils;
-  
-  // Initialiser les totaux
-  const totals = {
-    calories: 0,
-    protein: 0,
-    fat: 0,
-    carbs: 0,
-    fiber: 0,
-    netCarbs: 0,
-    pHValue: 0 // Pour le régime alcalin
-  };
-  
-  if (!day || !day.meals || day.meals.length === 0) {
-    return totals;
-  }
-  
-  // Somme des valeurs nutritionnelles de tous les repas
-  let totalWeight = 0; // Pour calculer la moyenne pondérée du pH
-  
-  day.meals.forEach(meal => {
-    if (!meal.items || meal.items.length === 0) {
-      return;
-    }
-    
-    meal.items.forEach(item => {
-      let nutritionInfo;
-      let itemWeight = 0;
-      
-      if (item.type === 'food') {
-        // Aliment individuel
-        const food = getFoodById(item.id);
-        if (!food) return;
-        
-        const ratio = item.quantity / 100; // La nutrition est pour 100g
-        nutritionInfo = {
-          calories: food.nutritionPer100g.calories * ratio,
-          protein: food.nutritionPer100g.protein * ratio,
-          fat: food.nutritionPer100g.fat * ratio,
-          carbs: food.nutritionPer100g.carbs * ratio,
-          fiber: (food.nutritionPer100g.fiber || 0) * ratio,
-          pHValue: food.pHValue
-        };
-        
-        itemWeight = item.quantity;
-      } else if (item.type === 'recipe') {
-        // Recette
-        const recipe = getRecipeById(item.id);
-        if (!recipe) return;
-        
-        nutritionInfo = {
-          calories: recipe.nutritionPerServing.calories * item.servings,
-          protein: recipe.nutritionPerServing.protein * item.servings,
-          fat: recipe.nutritionPerServing.fat * item.servings,
-          carbs: recipe.nutritionPerServing.carbs * item.servings,
-          fiber: (recipe.nutritionPerServing.fiber || 0) * item.servings,
-          pHValue: recipe.averagePHValue
-        };
-        
-        // Estimation du poids approximatif pour la pondération du pH
-        itemWeight = 250 * item.servings; // ~250g par portion (approximation)
-      }
-      
-      if (!nutritionInfo) return;
-      
-      // Ajouter aux totaux
-      totals.calories += nutritionInfo.calories;
-      totals.protein += nutritionInfo.protein;
-      totals.fat += nutritionInfo.fat;
-      totals.carbs += nutritionInfo.carbs;
-      totals.fiber += nutritionInfo.fiber;
-      
-      // Calculer les glucides nets
-      const itemNetCarbs = Math.max(0, nutritionInfo.carbs - nutritionInfo.fiber);
-      totals.netCarbs += itemNetCarbs;
-      
-      // Pour la moyenne pondérée du pH
-      totals.pHValue += nutritionInfo.pHValue * itemWeight;
-      totalWeight += itemWeight;
-    });
-  });
-  
-  // Calculer la moyenne pondérée du pH
-  if (totalWeight > 0) {
-    totals.pHValue = totals.pHValue / totalWeight;
-  } else {
-    totals.pHValue = 7.0; // Valeur neutre par défaut
-  }
-  
-  // Arrondir les valeurs pour plus de lisibilité
-  totals.calories = Math.round(totals.calories);
-  totals.protein = Math.round(totals.protein * 10) / 10;
-  totals.fat = Math.round(totals.fat * 10) / 10;
-  totals.carbs = Math.round(totals.carbs * 10) / 10;
-  totals.fiber = Math.round(totals.fiber * 10) / 10;
-  totals.netCarbs = Math.round(totals.netCarbs * 10) / 10;
-  totals.pHValue = Math.round(totals.pHValue * 10) / 10;
-  
-  return totals;
-}
-
-/**
- * Vérifie si un jour contient des repas
- * @param {Object} day - Jour du plan
- * @returns {boolean} True si le jour contient au moins un repas
- */
 export function hasMeals(day) {
   return day && Array.isArray(day.meals) && day.meals.length > 0;
 }
