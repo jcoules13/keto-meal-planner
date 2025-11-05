@@ -146,7 +146,7 @@ const MealPlanCreator = ({ dietType, onPlanCreated, onCancel }) => {
               <div className="diet-icon keto-alkaline-icon">A</div>
               <div className="diet-info">
                 <h3>Keto Alcalin</h3>
-                <p>Combinaison keto avec alimentation alcaline (pH > 7)</p>
+                <p>Combinaison keto avec alimentation alcaline (pH {'>'} 7)</p>
               </div>
             </div>
           </div>

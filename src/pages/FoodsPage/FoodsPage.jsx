@@ -88,7 +88,8 @@ const FoodsPage = () => {
     if (dietType === 'keto_alcalin') {
       setFilter('isAlkaline', true);
     }
-  }, [dietType, setFilter]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dietType]); // setFilter retiré pour éviter boucles infinies
   
   const handleFoodClick = (food) => {
     setSelectedFood(food);
