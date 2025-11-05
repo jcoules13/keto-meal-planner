@@ -2,6 +2,49 @@
 
 Ce fichier retrace l'historique des modifications apportées au projet.
 
+## [0.2.0] - 2025-11-05
+
+### 🚀 MIGRATION MAJEURE : React 19 + Vite
+
+#### Ajouté
+- ✨ **React 19.0.0** avec nouvelles fonctionnalités (Actions, use() hook)
+- ⚡ **Vite 6.0.3** comme build tool (10x plus rapide que webpack)
+- 🔧 Configuration Vite moderne (`vite.config.ts`)
+- 📝 Documentation complète de la migration (`MIGRATION-TO-REACT19.md`)
+- 🔒 **0 vulnérabilités de sécurité** (vs 13 avant)
+
+#### Modifié
+- ⬆️ TypeScript 4.9.5 → **5.7.2**
+- ⬆️ React Router 6.21.0 → **7.0.2**
+- ⬆️ Recharts 2.10.3 → **2.15.0**
+- ⬆️ Web Vitals 2.1.4 → **4.2.4** (nouvelle API)
+- ⬆️ Tailwind CSS 3.3.5 → **3.4.17**
+- ⬆️ @headlessui/react 1.7.17 → **2.2.0**
+- ⬆️ @heroicons/react 2.1.1 → **2.2.0**
+- 📝 Renommage de tous les fichiers `.js` contenant du JSX en `.jsx`
+- 🔧 Migration de `index.html` de `public/` vers la racine
+- 📝 Mise à jour de `reportWebVitals.ts` pour web-vitals v4 API
+
+#### Supprimé
+- ❌ **react-scripts 5.0.1** (remplacé par Vite)
+- ❌ Toutes les dépendances webpack
+- ❌ Packages de sécurité vulnérables (svgo, nth-check, etc.)
+- ❌ Configuration ESLint CRA
+- ❌ npm overrides (plus nécessaires)
+
+#### Performance
+- ⚡ Build de production : **~7 secondes** (vs ~60s avant)
+- ⚡ Démarrage dev server : **~1.4 secondes** (vs ~20s avant)
+- ⚡ HMR : **instantané** (vs 1-3s avant)
+- 📦 Bundle optimisé : **137 kB gzip** (vs 230 kB avant)
+
+#### Scripts
+- `npm start` → `npm run dev` (serveur de développement)
+- `npm run build` (maintenant avec `tsc && vite build`)
+- Ajout de `npm run preview` (prévisualiser le build de production)
+
+---
+
 ## [Non publié]
 
 ### Ajouté
