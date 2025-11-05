@@ -13,7 +13,7 @@ import './MealGenerator.css';
  * Version optimisée avec React.memo, useMemo et useCallback
  */
 const WeeklyMealGenerator = React.memo(() => {
-  const { calorieTarget, macroTargets, dietType, preferences, mealFrequency } = useUser();
+  const { calorieTarget, macroTargets, dietType, preferences, mealFrequency, setMealFrequency } = useUser();
   const { currentPlan, addMealToCurrentPlan, deleteMeal } = useMealPlan();
   const { foods } = useFood();
   const { recipes } = useRecipe();
@@ -739,6 +739,66 @@ return (
         </div>
       ) : (
         <>
+          {/* Configuration de base */}
+          <div className="generator-config" style={{ marginBottom: '1.5rem', padding: '1rem', backgroundColor: '#f8f9fa', borderRadius: '0.5rem', border: '1px solid #dee2e6' }}>
+            <h3 style={{ marginBottom: '1rem', fontSize: '1.1rem' }}>Configuration</h3>
+
+            <div style={{ display: 'grid', gap: '1rem' }}>
+              {/* Nombre de repas par jour */}
+              <div>
+                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '600' }}>
+                  Nombre de repas par jour
+                </label>
+                <select
+                  value={mealFrequency}
+                  onChange={(e) => setMealFrequency(Number(e.target.value))}
+                  style={{
+                    padding: '0.5rem',
+                    borderRadius: '0.25rem',
+                    border: '1px solid #ced4da',
+                    fontSize: '1rem',
+                    width: '100%',
+                    maxWidth: '200px'
+                  }}
+                >
+                  <option value={1}>1 repas par jour</option>
+                  <option value={2}>2 repas par jour</option>
+                  <option value={3}>3 repas par jour</option>
+                  <option value={4}>4 repas par jour</option>
+                  <option value={5}>5 repas par jour</option>
+                </select>
+                <small style={{ display: 'block', marginTop: '0.25rem', color: '#6c757d' }}>
+                  Distribution: {getMealTypes(mealFrequency).map(t => getMealLabel(t)).join(', ')}
+                </small>
+              </div>
+
+              {/* Type de régime */}
+              <div>
+                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '600' }}>
+                  Type de régime
+                </label>
+                <div style={{ padding: '0.5rem', backgroundColor: '#e9ecef', borderRadius: '0.25rem', display: 'inline-block' }}>
+                  {dietType === 'keto_standard' ? 'Keto Standard' : 'Keto Alcalin'}
+                </div>
+              </div>
+
+              {/* Diagnostic */}
+              <div style={{ padding: '0.75rem', backgroundColor: '#fff', borderRadius: '0.25rem', border: '1px solid #dee2e6' }}>
+                <strong>Données disponibles:</strong>
+                <ul style={{ marginTop: '0.5rem', marginBottom: 0, paddingLeft: '1.5rem' }}>
+                  <li style={{ color: foods.length > 0 ? '#28a745' : '#dc3545' }}>
+                    {foods.length} aliment{foods.length > 1 ? 's' : ''}
+                    {foods.length === 0 && ' ⚠️ Ajoutez des aliments!'}
+                  </li>
+                  <li style={{ color: recipes.length > 0 ? '#28a745' : '#ffc107' }}>
+                    {recipes.length} recette{recipes.length > 1 ? 's' : ''}
+                    {recipes.length === 0 && ' (optionnel)'}
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
           <div className="generator-options">
             <h3>Options de génération</h3>
             
