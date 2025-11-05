@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useReducer, useEffect } from 'react';
+import React, { createContext, useContext, useReducer, useEffect, useMemo } from 'react';
 import { useFood } from './FoodContext';
 
 // État initial
@@ -268,22 +268,28 @@ export function FridgeProvider({ children }) {
     return groupedFoods;
   };
   
-  // Construire la valeur du contexte
-  const value = {
+  // Mémoiser les valeurs calculées pour éviter recalculs inutiles
+  const selectedFoodDetails = useMemo(() => getSelectedFoodDetails(), [state.selectedFoods, foods]);
+  const availableMacros = useMemo(() => calculateAvailableMacros(), [state.selectedFoods, foods]);
+  const foodCount = useMemo(() => getFoodCount(), [state.selectedFoods]);
+  const foodsByCategory = useMemo(() => getFoodsByCategory(), [state.selectedFoods, foods]);
+
+  // Construire la valeur du contexte avec useMemo pour éviter re-renders en cascade
+  const value = useMemo(() => ({
     selectedFoods: state.selectedFoods,
     lastUpdated: state.lastUpdated,
-    selectedFoodDetails: getSelectedFoodDetails(),
-    availableMacros: calculateAvailableMacros(),
-    foodCount: getFoodCount(),
+    selectedFoodDetails,
+    availableMacros,
+    foodCount,
     addFood,
     updateFoodQuantity,
     removeFood,
     clearFridge,
     setFridge,
     isInFridge,
-    foodsByCategory: getFoodsByCategory()
-  };
-  
+    foodsByCategory
+  }), [state.selectedFoods, state.lastUpdated, selectedFoodDetails, availableMacros, foodCount, foodsByCategory]);
+
   return (
     <FridgeContext.Provider value={value}>
       {children}

@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useReducer, useEffect } from 'react';
+import React, { createContext, useContext, useReducer, useEffect, useMemo } from 'react';
 import { generateShoppingList } from '../utils/shoppingListGenerator';
 import { calculateDailyTotals, updateMealNutrition } from '../utils/mealNutritionCalculator';
 import {
@@ -324,22 +324,31 @@ export function MealPlanProvider({ children }) {
   
   // Sauvegarder les plans de repas dans localStorage à chaque changement
   useEffect(() => {
-    if (state.mealPlans.length > 0) {
-      localStorage.setItem('keto-meal-planner-meal-plans', JSON.stringify(state.mealPlans));
-    }
-    
-    if (state.currentPlanId) {
-      localStorage.setItem('keto-meal-planner-current-plan-id', state.currentPlanId);
-    } else {
-      localStorage.removeItem('keto-meal-planner-current-plan-id');
-    }
-    
-    if (state.shoppingList) {
-      localStorage.setItem('keto-meal-planner-shopping-list', JSON.stringify(state.shoppingList));
-    } else {
-      localStorage.removeItem('keto-meal-planner-shopping-list');
-    }
-  }, [state.mealPlans, state.currentPlanId, state.shoppingList]);
+    // Debounce pour éviter sauvegardes excessives et boucles infinies
+    const timeoutId = setTimeout(() => {
+      if (state.mealPlans.length > 0) {
+        localStorage.setItem('keto-meal-planner-meal-plans', JSON.stringify(state.mealPlans));
+      }
+
+      if (state.currentPlanId) {
+        localStorage.setItem('keto-meal-planner-current-plan-id', state.currentPlanId);
+      } else {
+        localStorage.removeItem('keto-meal-planner-current-plan-id');
+      }
+
+      if (state.shoppingList) {
+        localStorage.setItem('keto-meal-planner-shopping-list', JSON.stringify(state.shoppingList));
+      } else {
+        localStorage.removeItem('keto-meal-planner-shopping-list');
+      }
+    }, 500);
+
+    return () => clearTimeout(timeoutId);
+  }, [
+    state.currentPlanId,
+    JSON.stringify(state.mealPlans),
+    JSON.stringify(state.shoppingList)
+  ]);
   
   // Obtenir le plan actif
   const getCurrentPlan = () => {
@@ -967,11 +976,15 @@ export function MealPlanProvider({ children }) {
       return false;
     }
   };
-  
-  // Construire la valeur du contexte
-  const value = {
+
+  // Mémoiser les valeurs calculées pour éviter recalculs inutiles
+  const currentPlan = useMemo(() => getCurrentPlan(), [state.currentPlanId, state.mealPlans]);
+  const shoppingListProgress = useMemo(() => getShoppingListProgress(), [state.shoppingList]);
+
+  // Construire la valeur du contexte avec useMemo pour éviter re-renders en cascade
+  const value = useMemo(() => ({
     ...state,
-    currentPlan: getCurrentPlan(),
+    currentPlan,
     createMealPlan,
     updateMealPlan,
     deleteMealPlan,
@@ -988,13 +1001,13 @@ export function MealPlanProvider({ children }) {
     createEmptyPlan,
     hasMeals,
     getShoppingListProgress,
-    shoppingListProgress: getShoppingListProgress(),
+    shoppingListProgress,
     recalculateMealNutrition,
     recalculateDayNutrition,
     recalculatePlanNutrition,
-    validatePlanNutrition // Nouvelle fonction pour valider les objectifs nutritionnels
-  };
-  
+    validatePlanNutrition
+  }), [state, currentPlan, shoppingListProgress]);
+
   return (
     <MealPlanContext.Provider value={value}>
       {children}
