@@ -4,11 +4,12 @@ import { FaUtensils, FaCalendarAlt } from 'react-icons/fa';
 import { useMealPlan } from '../contexts/MealPlanContext';
 import { useUser } from '../contexts/UserContext';
 import { generatePlanDates, getPreferredStartDay } from '../utils/dateUtils';
+import WeeklyMealPlanDisplay from '../components/meals/WeeklyMealPlanDisplay';
 import './MealPlannerPage.css';
 
 /**
- * Page de planification de repas SIMPLIFIÉE
- * Version reconstruite sans composants causant le gel
+ * Page de planification de repas
+ * Version progressive avec réactivation des composants optimisés
  */
 const MealPlannerPage = () => {
   // États locaux
@@ -137,51 +138,60 @@ const MealPlannerPage = () => {
           </div>
         </div>
       ) : (
-        <div className="card p-6">
-          <h2 className="text-xl font-bold text-text-primary mb-4">Plan actif</h2>
-          <p className="text-text-secondary mb-4">
-            Vous avez un plan de repas actif : <strong>{currentPlan.name}</strong>
-          </p>
+        <div className="space-y-6">
+          {/* Affichage du plan actif */}
+          <div className="card p-6">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-bold text-text-primary">
+                Plan actif: {currentPlan.name}
+              </h2>
+              <button
+                className="btn-secondary"
+                onClick={() => {
+                  if (window.confirm('Supprimer ce plan?')) {
+                    deleteMealPlan(currentPlan.id);
+                  }
+                }}
+              >
+                Supprimer le plan
+              </button>
+            </div>
 
-          <div className="bg-blue-50 border-l-4 border-blue-500 p-4 mb-4">
-            <p className="text-blue-700">
-              <strong>Note:</strong> Les composants de génération et d'affichage de repas
-              sont temporairement désactivés pour diagnostiquer les problèmes de performance.
-            </p>
-            <p className="text-blue-700 mt-2">
-              Plan: {currentPlan.days?.length || 0} jours
-              ({currentPlan.startDate} → {currentPlan.endDate})
-            </p>
+            <div className="bg-green-50 border-l-4 border-green-500 p-4 mb-4">
+              <p className="text-green-700">
+                ✅ <strong>Composant d'affichage réactivé!</strong>
+                Vous pouvez maintenant visualiser vos repas planifiés.
+              </p>
+              <p className="text-green-700 mt-2 text-sm">
+                Plan: {currentPlan.days?.length || 0} jours
+                ({currentPlan.startDate} → {currentPlan.endDate})
+              </p>
+            </div>
           </div>
 
-          <button
-            className="btn-secondary"
-            onClick={() => {
-              if (window.confirm('Supprimer ce plan?')) {
-                deleteMealPlan(currentPlan.id);
-              }
-            }}
-          >
-            Supprimer le plan
-          </button>
+          {/* Affichage du plan hebdomadaire */}
+          <WeeklyMealPlanDisplay />
         </div>
       )}
 
-      <div className="mt-8 p-4 bg-yellow-50 border border-yellow-200 rounded">
-        <h3 className="font-bold text-yellow-800 mb-2">🚧 Mode diagnostic</h3>
-        <p className="text-yellow-700">
-          Cette page a été simplifiée pour isoler le problème de gel.
-          Les composants suivants sont temporairement désactivés :
+      <div className="mt-8 p-4 bg-blue-50 border border-blue-200 rounded">
+        <h3 className="font-bold text-blue-800 mb-2">🔄 Réactivation Progressive</h3>
+        <p className="text-blue-700 mb-2">
+          Composants réactivés avec optimisations:
         </p>
-        <ul className="list-disc ml-6 mt-2 text-yellow-700">
+        <ul className="list-disc ml-6 mb-3 text-blue-700">
+          <li className="text-green-700">✅ WeeklyMealPlanDisplay (affichage) - React.memo ajouté</li>
+        </ul>
+        <p className="text-blue-700 mb-2">
+          En attente de réactivation:
+        </p>
+        <ul className="list-disc ml-6 text-yellow-700">
           <li>WeeklyMealGenerator (génération automatique)</li>
           <li>MealGeneratorForPlan (génération individuelle)</li>
-          <li>WeeklyMealPlanDisplay (affichage des repas)</li>
           <li>FridgeSelector et MealGeneratorFromFridge</li>
         </ul>
-        <p className="mt-3 text-yellow-700">
-          Si cette version simplifiée fonctionne sans geler, nous réactiverons
-          les composants un par un pour identifier le coupable.
+        <p className="mt-3 text-blue-700 text-sm">
+          💡 Testez l'affichage avant de continuer. Si tout fonctionne, les autres composants seront réactivés.
         </p>
       </div>
     </div>

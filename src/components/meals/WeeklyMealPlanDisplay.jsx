@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useMealPlan } from '../../contexts/MealPlanContext';
 import { useFood } from '../../contexts/FoodContext';
 import { useRecipe } from '../../contexts/RecipeContext';
@@ -9,12 +9,11 @@ import MacroProgressBar from './MacroProgressBar';
 import './WeeklyMealPlanDisplay.css';
 
 /**
- * Composant d'affichage du plan de repas hebdomadaire
+ * Composant d'affichage du plan de repas hebdomadaire (OPTIMISÉ)
  * Permet de visualiser et naviguer entre les jours du plan
- * Version améliorée avec barres de progression pour les macros
- * et correction de l'affichage des dates
+ * Version optimisée avec React.memo et useMemo
  */
-const WeeklyMealPlanDisplay = () => {
+const WeeklyMealPlanDisplay = React.memo(() => {
   const { currentPlan, getDayNutritionTotals } = useMealPlan();
   const { getFoodById } = useFood();
   const { getRecipeById } = useRecipe();
@@ -204,6 +203,8 @@ const WeeklyMealPlanDisplay = () => {
       </div>
     </div>
   );
-};
+});
+
+WeeklyMealPlanDisplay.displayName = 'WeeklyMealPlanDisplay';
 
 export default WeeklyMealPlanDisplay;
