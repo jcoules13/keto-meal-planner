@@ -5,6 +5,7 @@ import { useMealPlan } from '../contexts/MealPlanContext';
 import { useUser } from '../contexts/UserContext';
 import { generatePlanDates, getPreferredStartDay } from '../utils/dateUtils';
 import WeeklyMealPlanDisplay from '../components/meals/WeeklyMealPlanDisplay';
+import WeeklyMealGenerator from '../components/meals/WeeklyMealGenerator';
 import './MealPlannerPage.css';
 
 /**
@@ -15,6 +16,7 @@ const MealPlannerPage = () => {
   // États locaux
   const [activeTab, setActiveTab] = useState('weekly');
   const [planCreated, setPlanCreated] = useState(false);
+  const [showGenerator, setShowGenerator] = useState(false);
 
   // Contextes
   const { dietType, calorieTarget, macroTargets } = useUser();
@@ -127,13 +129,19 @@ const MealPlannerPage = () => {
               <FaUtensils />
             </div>
             <h3 className="text-lg font-bold text-text-primary mb-4 text-center">
-              Générer automatiquement
+              Créer un plan avec génération automatique
             </h3>
             <p className="text-text-secondary mb-6 text-center">
-              Fonctionnalité à venir : génération automatique de repas.
+              Créez un plan ET générez automatiquement les repas de la semaine.
             </p>
-            <button className="btn-outline w-full mt-auto" disabled>
-              Bientôt disponible
+            <button
+              className="btn-primary w-full mt-auto"
+              onClick={() => {
+                handleCreateEmptyPlan();
+                setShowGenerator(true);
+              }}
+            >
+              Créer et générer
             </button>
           </div>
         </div>
@@ -169,6 +177,16 @@ const MealPlannerPage = () => {
             </div>
           </div>
 
+          {/* Génération automatique de repas */}
+          {showGenerator && (
+            <div className="card p-6">
+              <h3 className="text-xl font-bold text-text-primary mb-4">
+                Génération automatique de repas
+              </h3>
+              <WeeklyMealGenerator />
+            </div>
+          )}
+
           {/* Affichage du plan hebdomadaire */}
           <WeeklyMealPlanDisplay />
         </div>
@@ -180,13 +198,13 @@ const MealPlannerPage = () => {
           Composants réactivés avec optimisations:
         </p>
         <ul className="list-disc ml-6 mb-3 text-blue-700">
-          <li className="text-green-700">✅ WeeklyMealPlanDisplay (affichage) - React.memo ajouté</li>
+          <li className="text-green-700">✅ WeeklyMealPlanDisplay (affichage) - React.memo</li>
+          <li className="text-green-700">✅ WeeklyMealGenerator (génération) - React.memo + constantes consolidées</li>
         </ul>
         <p className="text-blue-700 mb-2">
           En attente de réactivation:
         </p>
         <ul className="list-disc ml-6 text-yellow-700">
-          <li>WeeklyMealGenerator (génération automatique)</li>
           <li>MealGeneratorForPlan (génération individuelle)</li>
           <li>FridgeSelector et MealGeneratorFromFridge</li>
         </ul>

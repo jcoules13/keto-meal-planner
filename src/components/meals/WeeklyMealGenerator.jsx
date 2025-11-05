@@ -1,79 +1,18 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useUser } from '../../contexts/UserContext';
 import { useMealPlan } from '../../contexts/MealPlanContext';
 import { useFood } from '../../contexts/FoodContext';
 import { useRecipe } from '../../contexts/RecipeContext';
 import { FaCheckCircle, FaSpinner, FaExclamationTriangle, FaTrashAlt } from 'react-icons/fa';
+import { MEAL_TYPES, getMealTypes, getMealLabel, getMealOrder } from '../../constants/mealTypes';
 import './MealGenerator.css';
 
 /**
- * Constantes pour les types de repas standardisés
- * Inclut les identifiants, noms d'affichage et ordre pour le tri
- */
-const MEAL_TYPES = {
-  PETIT_DEJEUNER: {
-    id: 'petit_dejeuner',
-    label: 'Petit déjeuner',
-    order: 1
-  },
-  COLLATION_MATIN: {
-    id: 'collation_matin',
-    label: 'Collation du matin',
-    order: 2
-  },
-  DEJEUNER: {
-    id: 'dejeuner',
-    label: 'Déjeuner',
-    order: 3
-  },
-  COLLATION_APREM: {
-    id: 'collation_aprem',
-    label: 'Collation après-midi',
-    order: 4
-  },
-  SOUPER: {
-    id: 'souper',
-    label: 'Souper',
-    order: 5
-  }
-};
-
-/**
- * Obtient les types de repas en fonction de la fréquence configurée
- * @param {number} frequency - Nombre de repas par jour (1-5)
- * @returns {string[]} - Liste des identifiants de types de repas
- */
-const getMealTypes = (frequency) => {
-  switch (frequency) {
-    case 1:
-      return [MEAL_TYPES.SOUPER.id];
-    case 2:
-      return [MEAL_TYPES.DEJEUNER.id, MEAL_TYPES.SOUPER.id];
-    case 3:
-      return [MEAL_TYPES.PETIT_DEJEUNER.id, MEAL_TYPES.DEJEUNER.id, MEAL_TYPES.SOUPER.id];
-    case 4:
-      return [MEAL_TYPES.PETIT_DEJEUNER.id, MEAL_TYPES.DEJEUNER.id, MEAL_TYPES.COLLATION_APREM.id, MEAL_TYPES.SOUPER.id];
-    case 5:
-      return [MEAL_TYPES.PETIT_DEJEUNER.id, MEAL_TYPES.COLLATION_MATIN.id, MEAL_TYPES.DEJEUNER.id, MEAL_TYPES.COLLATION_APREM.id, MEAL_TYPES.SOUPER.id];
-    default:
-      return [MEAL_TYPES.DEJEUNER.id, MEAL_TYPES.SOUPER.id];
-  }
-};
-
-/**
- * Convertit un identifiant de type de repas en nom d'affichage
- * @param {string} mealTypeId - Identifiant du type de repas
- * @returns {string} - Nom d'affichage du type de repas
- */
-const getMealLabel = (mealTypeId) => {
-  const foundType = Object.values(MEAL_TYPES).find(type => type.id === mealTypeId);
-  return foundType ? foundType.label : mealTypeId;
-};
-/**
- * Générateur de repas pour la semaine entière
+ * Générateur de repas pour la semaine entière (OPTIMISÉ)
  * Génère automatiquement des repas pour chaque jour du plan selon la fréquence configurée
+ * Version optimisée avec React.memo, useMemo et useCallback
  */
-const WeeklyMealGenerator = () => {
+const WeeklyMealGenerator = React.memo(() => {
   const { calorieTarget, macroTargets, dietType, preferences, mealFrequency } = useUser();
   const { currentPlan, addMealToCurrentPlan, deleteMeal } = useMealPlan();
   const { foods } = useFood();
@@ -919,6 +858,8 @@ return (
       )}
     </div>
   );
-};
+});
+
+WeeklyMealGenerator.displayName = 'WeeklyMealGenerator';
 
 export default WeeklyMealGenerator;
