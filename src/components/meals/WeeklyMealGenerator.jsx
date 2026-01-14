@@ -1,80 +1,19 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useUser } from '../../contexts/UserContext';
 import { useMealPlan } from '../../contexts/MealPlanContext';
 import { useFood } from '../../contexts/FoodContext';
 import { useRecipe } from '../../contexts/RecipeContext';
 import { FaCheckCircle, FaSpinner, FaExclamationTriangle, FaTrashAlt } from 'react-icons/fa';
+import { MEAL_TYPES, getMealTypes, getMealLabel, getMealOrder } from '../../constants/mealTypes';
 import './MealGenerator.css';
 
 /**
- * Constantes pour les types de repas standardisés
- * Inclut les identifiants, noms d'affichage et ordre pour le tri
- */
-const MEAL_TYPES = {
-  PETIT_DEJEUNER: {
-    id: 'petit_dejeuner',
-    label: 'Petit déjeuner',
-    order: 1
-  },
-  COLLATION_MATIN: {
-    id: 'collation_matin',
-    label: 'Collation du matin',
-    order: 2
-  },
-  DEJEUNER: {
-    id: 'dejeuner',
-    label: 'Déjeuner',
-    order: 3
-  },
-  COLLATION_APREM: {
-    id: 'collation_aprem',
-    label: 'Collation après-midi',
-    order: 4
-  },
-  SOUPER: {
-    id: 'souper',
-    label: 'Souper',
-    order: 5
-  }
-};
-
-/**
- * Obtient les types de repas en fonction de la fréquence configurée
- * @param {number} frequency - Nombre de repas par jour (1-5)
- * @returns {string[]} - Liste des identifiants de types de repas
- */
-const getMealTypes = (frequency) => {
-  switch (frequency) {
-    case 1:
-      return [MEAL_TYPES.SOUPER.id];
-    case 2:
-      return [MEAL_TYPES.DEJEUNER.id, MEAL_TYPES.SOUPER.id];
-    case 3:
-      return [MEAL_TYPES.PETIT_DEJEUNER.id, MEAL_TYPES.DEJEUNER.id, MEAL_TYPES.SOUPER.id];
-    case 4:
-      return [MEAL_TYPES.PETIT_DEJEUNER.id, MEAL_TYPES.DEJEUNER.id, MEAL_TYPES.COLLATION_APREM.id, MEAL_TYPES.SOUPER.id];
-    case 5:
-      return [MEAL_TYPES.PETIT_DEJEUNER.id, MEAL_TYPES.COLLATION_MATIN.id, MEAL_TYPES.DEJEUNER.id, MEAL_TYPES.COLLATION_APREM.id, MEAL_TYPES.SOUPER.id];
-    default:
-      return [MEAL_TYPES.DEJEUNER.id, MEAL_TYPES.SOUPER.id];
-  }
-};
-
-/**
- * Convertit un identifiant de type de repas en nom d'affichage
- * @param {string} mealTypeId - Identifiant du type de repas
- * @returns {string} - Nom d'affichage du type de repas
- */
-const getMealLabel = (mealTypeId) => {
-  const foundType = Object.values(MEAL_TYPES).find(type => type.id === mealTypeId);
-  return foundType ? foundType.label : mealTypeId;
-};
-/**
- * Générateur de repas pour la semaine entière
+ * Générateur de repas pour la semaine entière (OPTIMISÉ)
  * Génère automatiquement des repas pour chaque jour du plan selon la fréquence configurée
+ * Version optimisée avec React.memo, useMemo et useCallback
  */
-const WeeklyMealGenerator = () => {
-  const { calorieTarget, macroTargets, dietType, preferences, mealFrequency } = useUser();
+const WeeklyMealGenerator = React.memo(() => {
+  const { calorieTarget, macroTargets, dietType, preferences, mealFrequency, setMealFrequency } = useUser();
   const { currentPlan, addMealToCurrentPlan, deleteMeal } = useMealPlan();
   const { foods } = useFood();
   const { recipes } = useRecipe();
@@ -800,6 +739,66 @@ return (
         </div>
       ) : (
         <>
+          {/* Configuration de base */}
+          <div className="generator-config" style={{ marginBottom: '1.5rem', padding: '1rem', backgroundColor: '#f8f9fa', borderRadius: '0.5rem', border: '1px solid #dee2e6' }}>
+            <h3 style={{ marginBottom: '1rem', fontSize: '1.1rem' }}>Configuration</h3>
+
+            <div style={{ display: 'grid', gap: '1rem' }}>
+              {/* Nombre de repas par jour */}
+              <div>
+                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '600' }}>
+                  Nombre de repas par jour
+                </label>
+                <select
+                  value={mealFrequency}
+                  onChange={(e) => setMealFrequency(Number(e.target.value))}
+                  style={{
+                    padding: '0.5rem',
+                    borderRadius: '0.25rem',
+                    border: '1px solid #ced4da',
+                    fontSize: '1rem',
+                    width: '100%',
+                    maxWidth: '200px'
+                  }}
+                >
+                  <option value={1}>1 repas par jour</option>
+                  <option value={2}>2 repas par jour</option>
+                  <option value={3}>3 repas par jour</option>
+                  <option value={4}>4 repas par jour</option>
+                  <option value={5}>5 repas par jour</option>
+                </select>
+                <small style={{ display: 'block', marginTop: '0.25rem', color: '#6c757d' }}>
+                  Distribution: {getMealTypes(mealFrequency).map(t => getMealLabel(t)).join(', ')}
+                </small>
+              </div>
+
+              {/* Type de régime */}
+              <div>
+                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '600' }}>
+                  Type de régime
+                </label>
+                <div style={{ padding: '0.5rem', backgroundColor: '#e9ecef', borderRadius: '0.25rem', display: 'inline-block' }}>
+                  {dietType === 'keto_standard' ? 'Keto Standard' : 'Keto Alcalin'}
+                </div>
+              </div>
+
+              {/* Diagnostic */}
+              <div style={{ padding: '0.75rem', backgroundColor: '#fff', borderRadius: '0.25rem', border: '1px solid #dee2e6' }}>
+                <strong>Données disponibles:</strong>
+                <ul style={{ marginTop: '0.5rem', marginBottom: 0, paddingLeft: '1.5rem' }}>
+                  <li style={{ color: foods.length > 0 ? '#28a745' : '#dc3545' }}>
+                    {foods.length} aliment{foods.length > 1 ? 's' : ''}
+                    {foods.length === 0 && ' ⚠️ Ajoutez des aliments!'}
+                  </li>
+                  <li style={{ color: recipes.length > 0 ? '#28a745' : '#ffc107' }}>
+                    {recipes.length} recette{recipes.length > 1 ? 's' : ''}
+                    {recipes.length === 0 && ' (optionnel)'}
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
           <div className="generator-options">
             <h3>Options de génération</h3>
             
@@ -919,6 +918,8 @@ return (
       )}
     </div>
   );
-};
+});
+
+WeeklyMealGenerator.displayName = 'WeeklyMealGenerator';
 
 export default WeeklyMealGenerator;

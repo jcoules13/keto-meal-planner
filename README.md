@@ -35,18 +35,26 @@ npm install
 
 3. Lancer l'application en mode développement
 ```bash
-npm start
+npm run dev
 ```
 
 4. Ouvrir [http://localhost:3000](http://localhost:3000) dans votre navigateur
 
+### Build de production
+
+```bash
+npm run build
+npm run preview  # Prévisualiser le build de production
+```
+
 ## 🧰 Technologies utilisées
 
-- **React 18+** - Bibliothèque UI
-- **TypeScript** - Typage statique
-- **React Router** - Navigation
-- **Tailwind CSS** - Styles et design system
-- **Recharts** - Visualisations et graphiques
+- **React 19** - Dernière version de la bibliothèque UI avec Actions et use() hook
+- **Vite 6** - Build tool ultra-rapide et moderne
+- **TypeScript 5.7** - Typage statique avancé
+- **React Router 7** - Navigation
+- **Tailwind CSS 3.4** - Styles et design system
+- **Recharts 2.15** - Visualisations et graphiques
 - **Context API** - Gestion d'état
 - **LocalStorage** - Persistance des données
 
@@ -107,10 +115,10 @@ L'algorithme de génération de plans de repas fonctionne en plusieurs étapes :
 
 ## 🛠️ Scripts disponibles
 
-- `npm start` - Lance l'application en mode développement
-- `npm build` - Compile l'application pour la production
-- `npm test` - Exécute les tests
-- `npm eject` - Éjecte la configuration CRA (à utiliser avec prudence)
+- `npm run dev` - Lance le serveur de développement Vite (⚡ ultra-rapide!)
+- `npm run build` - Compile l'application pour la production
+- `npm run preview` - Prévisualise le build de production localement
+- `npm test` - Exécute les tests avec Vitest
 
 ## 🤝 Contribuer
 

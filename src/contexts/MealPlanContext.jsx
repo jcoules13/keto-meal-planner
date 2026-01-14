@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useReducer, useEffect } from 'react';
+import React, { createContext, useContext, useReducer, useEffect, useMemo } from 'react';
 import { generateShoppingList } from '../utils/shoppingListGenerator';
 import { calculateDailyTotals, updateMealNutrition } from '../utils/mealNutritionCalculator';
 import {
@@ -6,9 +6,8 @@ import {
   validateNutritionalTargets,
   analyzePlanMacroAchievement
 } from '../utils/mealPlanUtils';
-import { useUser } from './UserContext';
-import { useFood } from './FoodContext';
-import { useRecipe } from './RecipeContext';
+// Contexts imports removed to break circular dependencies
+// Components using MealPlanContext should import UserContext, FoodContext, RecipeContext separately if needed
 
 // Fonction pour obtenir le nom d'affichage d'un type de repas
 const getMealLabel = (mealTypeId) => {
@@ -281,9 +280,6 @@ export function useMealPlan() {
 // Provider
 export function MealPlanProvider({ children }) {
   const [state, dispatch] = useReducer(mealPlanReducer, initialState);
-  const { macroTargets, mealFrequency, ketoProfile } = useUser();
-  const { foods, getFoodById } = useFood();
-  const { recipes, getRecipeById } = useRecipe();
   
   // Charger les plans de repas depuis localStorage au démarrage
   useEffect(() => {
@@ -324,29 +320,38 @@ export function MealPlanProvider({ children }) {
   
   // Sauvegarder les plans de repas dans localStorage à chaque changement
   useEffect(() => {
-    if (state.mealPlans.length > 0) {
-      localStorage.setItem('keto-meal-planner-meal-plans', JSON.stringify(state.mealPlans));
-    }
-    
-    if (state.currentPlanId) {
-      localStorage.setItem('keto-meal-planner-current-plan-id', state.currentPlanId);
-    } else {
-      localStorage.removeItem('keto-meal-planner-current-plan-id');
-    }
-    
-    if (state.shoppingList) {
-      localStorage.setItem('keto-meal-planner-shopping-list', JSON.stringify(state.shoppingList));
-    } else {
-      localStorage.removeItem('keto-meal-planner-shopping-list');
-    }
-  }, [state.mealPlans, state.currentPlanId, state.shoppingList]);
+    // Debounce pour éviter sauvegardes excessives et boucles infinies
+    const timeoutId = setTimeout(() => {
+      if (state.mealPlans.length > 0) {
+        localStorage.setItem('keto-meal-planner-meal-plans', JSON.stringify(state.mealPlans));
+      }
+
+      if (state.currentPlanId) {
+        localStorage.setItem('keto-meal-planner-current-plan-id', state.currentPlanId);
+      } else {
+        localStorage.removeItem('keto-meal-planner-current-plan-id');
+      }
+
+      if (state.shoppingList) {
+        localStorage.setItem('keto-meal-planner-shopping-list', JSON.stringify(state.shoppingList));
+      } else {
+        localStorage.removeItem('keto-meal-planner-shopping-list');
+      }
+    }, 500);
+
+    return () => clearTimeout(timeoutId);
+  }, [
+    state.currentPlanId,
+    JSON.stringify(state.mealPlans),
+    JSON.stringify(state.shoppingList)
+  ]);
   
   // Obtenir le plan actif
   const getCurrentPlan = () => {
     if (!state.currentPlanId) return null;
     return state.mealPlans.find(plan => plan.id === state.currentPlanId) || null;
   };
-// Créer un nouveau plan de repas avec validation améliorée des objectifs protéiques
+// Créer un nouveau plan de repas avec validation simplifiée (pas de dépendances context)
   const createMealPlan = (planData) => {
     try {
       const newPlan = {
@@ -355,35 +360,13 @@ export function MealPlanProvider({ children }) {
         ...planData,
         days: planData.days || []
       };
-      
+
       // Valider la structure du plan
       const validationResult = validateMealPlan(newPlan);
       if (!validationResult.valid) {
         throw new Error(`Plan de repas invalide: ${validationResult.error}`);
       }
-      
-      // Si le plan contient des repas, vérifier les objectifs protéiques
-      if (newPlan.days && newPlan.days.some(day => day.meals && day.meals.length > 0)) {
-        for (let i = 0; i < newPlan.days.length; i++) {
-          const day = newPlan.days[i];
-          if (!day.meals || day.meals.length === 0) continue;
-          
-          // Calculer les totaux nutritionnels du jour
-          const dayTotals = calculateDailyTotals(day, { getFoodById, getRecipeById });
-          
-          // Vérifier si les objectifs de macros sont atteints, en particulier les protéines
-          const nutritionValidation = validateNutritionalTargets(
-            dayTotals, 
-            macroTargets, 
-            newPlan.ketoProfile || ketoProfile
-          );
-          
-          if (!nutritionValidation.valid) {
-            throw new Error(`Jour ${i+1}: ${nutritionValidation.error}`);
-          }
-        }
-      }
-      
+
       dispatch({ type: actions.CREATE_MEAL_PLAN, payload: newPlan });
       return newPlan.id;
     } catch (error) {
@@ -392,48 +375,26 @@ export function MealPlanProvider({ children }) {
     }
   };
   
-  // Mettre à jour un plan existant avec validation des objectifs protéiques
+  // Mettre à jour un plan existant (version simplifiée)
   const updateMealPlan = (planId, updatedData) => {
     try {
       const existingPlan = state.mealPlans.find(plan => plan.id === planId);
       if (!existingPlan) {
         throw new Error(`Le plan avec l'ID ${planId} n'existe pas`);
       }
-      
+
       const updatedPlan = {
         ...existingPlan,
         ...updatedData,
         updatedAt: new Date().toISOString()
       };
-      
+
       // Valider la structure du plan
       const validationResult = validateMealPlan(updatedPlan);
       if (!validationResult.valid) {
         throw new Error(`Plan de repas invalide: ${validationResult.error}`);
       }
-      
-      // Si le plan contient des repas, vérifier les objectifs protéiques
-      if (updatedPlan.days && updatedPlan.days.some(day => day.meals && day.meals.length > 0)) {
-        for (let i = 0; i < updatedPlan.days.length; i++) {
-          const day = updatedPlan.days[i];
-          if (!day.meals || day.meals.length === 0) continue;
-          
-          // Calculer les totaux nutritionnels du jour
-          const dayTotals = calculateDailyTotals(day, { getFoodById, getRecipeById });
-          
-          // Vérifier si les objectifs de macros sont atteints, en particulier les protéines
-          const nutritionValidation = validateNutritionalTargets(
-            dayTotals, 
-            macroTargets, 
-            updatedPlan.ketoProfile || ketoProfile
-          );
-          
-          if (!nutritionValidation.valid) {
-            throw new Error(`Jour ${i+1}: ${nutritionValidation.error}`);
-          }
-        }
-      }
-      
+
       dispatch({ type: actions.UPDATE_MEAL_PLAN, payload: updatedPlan });
       return true;
     } catch (error) {
@@ -818,55 +779,45 @@ export function MealPlanProvider({ children }) {
       return null;
     }
   };
-// Créer un nouveau plan de repas vide pour une période donnée
+// Créer un nouveau plan de repas vide pour une période donnée (version simplifiée)
   const createEmptyPlan = (name, startDate, endDate, dietType = 'keto_standard', advancedOptions = null) => {
     const start = new Date(startDate);
     const end = new Date(endDate);
-    
+
     // Vérifier la validité des dates
     if (isNaN(start.getTime()) || isNaN(end.getTime())) {
       throw new Error('Dates invalides');
     }
-    
+
     if (start > end) {
       throw new Error('La date de début doit être antérieure à la date de fin');
     }
-    
+
     // Calculer le nombre de jours
     const dayCount = Math.floor((end - start) / (24 * 60 * 60 * 1000)) + 1;
-    
+
     // Créer un tableau de jours vides
     const days = Array.from({ length: dayCount }, (_, i) => {
       const date = new Date(start);
       date.setDate(date.getDate() + i);
-      
+
       return {
         date: date.toISOString().split('T')[0],
         meals: []
       };
     });
-    
+
     // Créer le plan avec les paramètres de base
-    const planBase = {
+    const planData = {
       name,
       startDate,
       endDate,
       dietType,
-      ketoProfile: advancedOptions?.ketoProfile || ketoProfile, // Utiliser le ketoProfile fourni ou celui de l'utilisateur
-      days
+      ketoProfile: advancedOptions?.ketoProfile || 'standard',
+      days,
+      advancedOptions
     };
-    
-    // Ajouter les options avancées si fournies
-    const planData = advancedOptions ? {
-      ...planBase,
-      advancedOptions: {
-        mealFrequency: advancedOptions.mealFrequency || mealFrequency,
-        mealTypes: advancedOptions.mealTypes,
-        intermittentFasting: advancedOptions.intermittentFasting,
-        calorieDistribution: advancedOptions.calorieDistribution
-      }
-    } : planBase;
-    
+
     return createMealPlan(planData);
   };
   
@@ -967,11 +918,15 @@ export function MealPlanProvider({ children }) {
       return false;
     }
   };
-  
-  // Construire la valeur du contexte
-  const value = {
+
+  // Mémoiser les valeurs calculées pour éviter recalculs inutiles
+  const currentPlan = useMemo(() => getCurrentPlan(), [state.currentPlanId, state.mealPlans]);
+  const shoppingListProgress = useMemo(() => getShoppingListProgress(), [state.shoppingList]);
+
+  // Construire la valeur du contexte avec useMemo pour éviter re-renders en cascade
+  const value = useMemo(() => ({
     ...state,
-    currentPlan: getCurrentPlan(),
+    currentPlan,
     createMealPlan,
     updateMealPlan,
     deleteMealPlan,
@@ -988,13 +943,13 @@ export function MealPlanProvider({ children }) {
     createEmptyPlan,
     hasMeals,
     getShoppingListProgress,
-    shoppingListProgress: getShoppingListProgress(),
+    shoppingListProgress,
     recalculateMealNutrition,
     recalculateDayNutrition,
     recalculatePlanNutrition,
-    validatePlanNutrition // Nouvelle fonction pour valider les objectifs nutritionnels
-  };
-  
+    validatePlanNutrition
+  }), [state, currentPlan, shoppingListProgress]);
+
   return (
     <MealPlanContext.Provider value={value}>
       {children}
